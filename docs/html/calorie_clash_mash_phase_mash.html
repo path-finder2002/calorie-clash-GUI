@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calorie Clash — Mash Phase (Satiety Test)</title>
+  <style>
+    :root{ --bg:#0B0F14; --fg:#E6F1FF; --muted:#A8B6C8; --accent:#00D1B2; --lose:#FF6B6B; --focus:#7AE3FF; --ring:#1b2a37 }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(60% 60% at 50% 35%, rgba(255,255,255,.08), rgba(0,0,0,0)), var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
+
+    main{position:relative;width:100vw;height:100dvh;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+
+    .hud{display:flex;justify-content:center;align-items:center;gap:16px}
+    .timer{font-weight:900;font-size:clamp(24px,4vw,40px)}
+    .timer small{font-size:.6em;color:var(--muted)}
+
+    .scoreboard{display:flex;align-items:flex-end;gap:14px;padding:8px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);backdrop-filter: blur(6px)}
+    .scoreboard .side{display:grid;grid-template-columns:auto auto;align-items:end;gap:8px}
+    .scoreboard .name{font-size:12px;color:var(--muted)}
+    .scoreboard .num{font-weight:900;font-size:clamp(20px,3vw,36px)}
+    .scoreboard .sep{opacity:.6;padding:0 6px}
+
+    .btn{padding:10px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700;letter-spacing:.02em;color:var(--fg);background:rgba(255,255,255,.08)}
+    .btn.primary{color:#00110E;background:linear-gradient(180deg, rgba(0,209,178,.9), rgba(0,185,158,.9))}
+    .btn.tiny{padding:8px 10px;font-size:12px}
+
+    .testpanel{display:grid;gap:10px;grid-template-columns:1fr 1fr auto;align-items:end;justify-items:start;padding:10px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);backdrop-filter: blur(6px)}
+    .testpanel .group{display:grid;gap:6px}
+    .testpanel label{font-size:12px;color:var(--muted)}
+    .testpanel .row{display:flex;gap:10px;align-items:center}
+    .testpanel input[type="range"]{width:220px}
+    .testpanel input[type="number"]{width:64px}
+
+    .arena{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;justify-items:center;width:min(1200px, 96vw);margin:0 auto}
+    .lane{width:100%;display:grid;gap:12px;justify-items:center}
+
+    .plate{position:relative;width:min(420px, 86vw);height:min(420px, 86vw);max-height:70vh;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) var(--pdeg, 0deg), var(--ring) 0deg);box-shadow:0 18px 64px rgba(0,0,0,.5), inset 0 0 0 8px rgba(0,0,0,.3)}
+    .plate::after{content:"";position:absolute;inset:12px;border-radius:50%;background:radial-gradient(60% 60% at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,.0))}
+    .food{position:relative;display:grid;place-items:center;width:72%;height:72%;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .food .emoji{font-size:clamp(48px, 12vw, 120px);line-height:1}
+    .food .name{margin-top:4px;font-size:clamp(14px,2.2vw,18px);color:var(--muted)}
+
+    .tap{appearance:none;border:0;border-radius:16px;padding:12px 16px;background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));color:var(--fg);font-weight:800;letter-spacing:.06em;cursor:pointer;min-width:220px;min-height:48px}
+    .tap:active{transform:scale(.98)}
+
+    .delta{position:fixed;left:0;top:0;transform:translate(-50%,-12px);font-weight:900;font-size:20px;color:var(--accent);text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;z-index:50}
+
+    .help{color:#A7B4C6;text-align:center;font-size:14px}
+    kbd{background:#10161D;border:1px solid rgba(255,255,255,.2);padding:2px 6px;border-radius:6px}
+
+    .result{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.92);z-index:60}
+    .result .card{width:min(520px,92vw);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.6);padding:18px;text-align:center}
+    .result .title{font-weight:900;font-size:clamp(28px,5vw,40px)}
+    .result .sub{color:var(--muted);margin:6px 0 12px}
+    .result .row{display:flex;justify-content:center;gap:18px}
+
+    @media (max-width:900px), (max-aspect-ratio: 4/5){ .arena{grid-template-columns:1fr} .scoreboard{margin:0 auto} .testpanel{grid-template-columns:1fr;justify-items:stretch} }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+</head>
+<body>
+  <main>
+    <div class="hud">
+      <div class="timer" id="timer">90.0<small>s</small></div>
+      <div class="scoreboard" id="scores">
+        <div class="side me"><span class="name">You</span><span class="num" id="pScore">0</span></div>
+        <div class="sep">—</div>
+        <div class="side cpu" id="cpuBlock"><span class="name">CPU</span><span class="num" id="cScore">0</span></div>
+      </div>
+      <button class="btn tiny" id="toggleTest" aria-expanded="false">Test</button>
+    </div>
+
+    <section class="testpanel" id="testpanel" hidden>
+      <div class="group">
+        <label>満腹度（You）：<span id="satMeVal">0%</span></label>
+        <input type="range" id="satMe" min="0" max="100" step="1" value="0" />
+        <div class="row">
+          <label>Auto Tap</label>
+          <input type="checkbox" id="autoMe" />
+          <label>tps</label>
+          <input type="number" id="tps" min="1" max="20" value="8" />
+          <button class="btn tiny" id="reset">Reset</button>
+        </div>
+      </div>
+      <div class="group">
+        <label>満腹度（CPU/P2）：<span id="satOpVal">0%</span></label>
+        <input type="range" id="satOp" min="0" max="100" step="1" value="0" />
+        <div class="row">
+          <label>Preset</label>
+          <button class="btn tiny" data-preset="hungry">空腹</button>
+          <button class="btn tiny" data-preset="normal">普通</button>
+          <button class="btn tiny" data-preset="full">満腹</button>
+        </div>
+      </div>
+      <div class="group">
+        <label>皿</label>
+        <div class="row">
+          <button class="btn tiny" id="nextDish">次の皿</button>
+          <button class="btn tiny" id="finishDish">完食</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="arena" id="arena">
+      <div class="lane" id="me">
+        <div class="plate" id="plateMe" style="--pdeg:0deg">
+          <div class="food"><div class="emoji" id="emoMe">🍜</div><div class="name" id="nameMe">ラーメン</div></div>
+        </div>
+        <button class="tap" id="tapMe" aria-label="食べる">TAP</button>
+      </div>
+      <div class="lane" id="opponent">
+        <div class="plate" id="plateOp" style="--pdeg:0deg">
+          <div class="food"><div class="emoji" id="emoOp">🤖</div><div class="name" id="nameOp">CPU</div></div>
+        </div>
+        <button class="tap" id="tapOp" aria-label="食べる">TAP</button>
+      </div>
+    </section>
+
+    <div class="help">[<kbd>Space</kbd>] 食べる ・ 満腹度でゲージ進行が変化</div>
+
+    <section class="result" id="result">
+      <div class="card">
+        <div class="title">Time Up!</div>
+        <div class="sub">合計カロリー</div>
+        <div class="row"><div>You: <strong id="sumYou">0</strong></div><div>CPU: <strong id="sumCpu">0</strong></div></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="retry">もう一度</button>
+          <button class="btn primary" id="next">次へ</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_FOODS=[{name:'ラーメン',emoji:'🍜',kcal:600},{name:'寿司',emoji:'🍣',kcal:500},{name:'カツ丼',emoji:'🍱',kcal:850},{name:'ハンバーガー',emoji:'🍔',kcal:550},{name:'たこ焼き',emoji:'🐙',kcal:400},{name:'カレー',emoji:'🍛',kcal:700}];
+
+    const q=new URLSearchParams(location.search);
+    const mode=q.get('mode')||'cpu';
+    const duration=Number(q.get('t'))||90;
+    const bite=Number(q.get('bite'))||25;
+    let satMe=Number(q.get('satMe'))||0;
+    let satOp=Number(q.get('satOp'))||0;
+
+    const timerEl=document.getElementById('timer');
+    const pScoreEl=document.getElementById('pScore');
+    const cScoreEl=document.getElementById('cScore');
+    const cpuBlock=document.getElementById('cpuBlock');
+    const plateMe=document.getElementById('plateMe');
+    const plateOp=document.getElementById('plateOp');
+    const emoMe=document.getElementById('emoMe');
+    const nameMe=document.getElementById('nameMe');
+    const emoOp=document.getElementById('emoOp');
+    const nameOp=document.getElementById('nameOp');
+    const tapMe=document.getElementById('tapMe');
+    const tapOp=document.getElementById('tapOp');
+    const result=document.getElementById('result');
+    const sumYou=document.getElementById('sumYou');
+    const sumCpu=document.getElementById('sumCpu');
+
+    const testpanel=document.getElementById('testpanel');
+    const toggleTest=document.getElementById('toggleTest');
+    const satMeInput=document.getElementById('satMe');
+    const satOpInput=document.getElementById('satOp');
+    const satMeVal=document.getElementById('satMeVal');
+    const satOpVal=document.getElementById('satOpVal');
+    const autoMe=document.getElementById('autoMe');
+    const tps=document.getElementById('tps');
+
+    const nextDishBtn=document.getElementById('nextDish');
+    const finishDishBtn=document.getElementById('finishDish');
+
+    let meQueue=[],opQueue=[];
+    let meRemain=0, opRemain=0, meTotal=0, opTotal=0;
+    let pScore=0, cScore=0;
+    let playing=false; let startTime=0; let raf=0; let cpuTimer=0; let autoTimer=0;
+
+    function appetite(s){ return 1 - 0.6*(Math.max(0,Math.min(100,s))/100); }
+    function effBite(side,base){ const m=appetite(side==='me'?satMe:satOp); return Math.max(1, Math.round(base*m)); }
+
+    function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a}
+    function refillQueues(){ meQueue=shuffle([...DEFAULT_FOODS]); opQueue=shuffle([...DEFAULT_FOODS]); }
+
+    function nextFood(side){
+      const pick=(side==='me'?meQueue:opQueue).shift();
+      if(!pick){ if(side==='me') refillQueues(); else refillQueues(); return nextFood(side); }
+      if(side==='me'){ nameMe.textContent=pick.name; emoMe.textContent=pick.emoji; meRemain=pick.kcal; meTotal=pick.kcal; setProgress('me',0); }
+      else{ nameOp.textContent=pick.name; emoOp.textContent=pick.emoji; opRemain=pick.kcal; opTotal=pick.kcal; setProgress('op',0); }
+    }
+
+    function setProgress(side,ratio){ const deg=(Math.min(1,Math.max(0,ratio))*360).toFixed(2)+'deg'; if(side==='me') plateMe.style.setProperty('--pdeg',deg); else plateOp.style.setProperty('--pdeg',deg); }
+
+    function floatDelta(x,y,text,color){ const d=document.createElement('div'); d.className='delta'; d.textContent=text; if(color) d.style.color=color; d.style.left=x+'px'; d.style.top=y+'px'; document.body.appendChild(d); anime({targets:d,translateY:-32,opacity:[0,1,0],scale:[.9,1,1],duration:650,easing:'easeOutCubic',complete(){d.remove();}}); }
+
+    function addScore(side,amount,ev){ const delta=effBite(side,amount); if(side==='me'){ pScore+=delta; pScoreEl.textContent=pScore; meRemain=Math.max(0,meRemain-delta); setProgress('me',1-meRemain/meTotal); if(ev) floatDelta(ev.clientX,ev.clientY,'+'+delta); if(meRemain<=0){ floatDelta(innerWidth/2, innerHeight*0.25,'完食!'); nextFood('me'); } } else { cScore+=delta; cScoreEl.textContent=cScore; opRemain=Math.max(0,opRemain-delta); setProgress('op',1-opRemain/opTotal); if(opRemain<=0){ nextFood('op'); } } }
+
+    function tap(side,ev){ if(!playing) return; addScore(side,bite,ev); }
+
+    function tick(){ const t=(performance.now()-startTime)/1000; const left=Math.max(0,duration-t); timerEl.innerHTML=left.toFixed(1)+"<small>s</small>"; if(left<=0){ end(); return; } raf=requestAnimationFrame(tick); }
+
+    function cpuLoop(){ if(!playing||mode!=='cpu') return; const base=220+Math.random()*220; addScore('op', bite); cpuTimer=setTimeout(cpuLoop, base); }
+
+    function layoutByMode(){ if(mode==='cpu'){ nameOp.textContent='CPU'; emoOp.textContent='🤖'; tapOp.style.display='none'; } else { nameOp.textContent='P2'; emoOp.textContent='🧑‍🤝‍🧑'; cpuBlock.style.display='none'; } }
+
+    function start(){ layoutByMode(); refillQueues(); nextFood('me'); nextFood('op'); playing=true; startTime=performance.now(); tick(); if(mode==='cpu'){ cpuLoop(); } }
+
+    function end(){ playing=false; cancelAnimationFrame(raf); clearTimeout(cpuTimer); clearInterval(autoTimer); document.getElementById('sumYou').textContent=pScore; document.getElementById('sumCpu').textContent=cScore; document.getElementById('result').style.display='grid'; anime({targets:'.result .card',scale:[.96,1],opacity:[0,1],duration:320,easing:'easeOutCubic'}); }
+
+    tapMe.addEventListener('pointerdown',e=>tap('me',e));
+    tapOp.addEventListener('pointerdown',e=>{ if(mode==='2p') tap('op',e); });
+    window.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); tap('me',{clientX:innerWidth/2,clientY:innerHeight/2}); }});
+
+    document.getElementById('retry').addEventListener('click',()=>{ location.reload(); });
+    document.getElementById('next').addEventListener('click',()=>{ alert('次フェーズへ（モック）'); });
+
+    toggleTest.addEventListener('click',()=>{ const v=testpanel.hasAttribute('hidden'); if(v) testpanel.removeAttribute('hidden'); else testpanel.setAttribute('hidden',''); toggleTest.setAttribute('aria-expanded', String(v)); });
+
+    satMeInput.addEventListener('input',()=>{ satMe=+satMeInput.value; satMeVal.textContent=satMe+'%'; });
+    satOpInput.addEventListener('input',()=>{ satOp=+satOpInput.value; satOpVal.textContent=satOp+'%'; });
+    satMeInput.value=satMe; satOpInput.value=satOp; satMeVal.textContent=satMe+'%'; satOpVal.textContent=satOp+'%';
+
+    autoMe.addEventListener('change',applyAuto); tps.addEventListener('change',applyAuto);
+    function applyAuto(){ clearInterval(autoTimer); if(autoMe.checked){ const interval=1000/Math.max(1,Math.min(20, Number(tps.value)||8)); autoTimer=setInterval(()=>tap('me',{clientX:innerWidth/2,clientY:innerHeight/2}), interval); } }
+
+    document.querySelectorAll('[data-preset]').forEach(b=> b.addEventListener('click',()=>{
+      const k=b.dataset.preset; if(k==='hungry'){ satMe=0; satOp=0; } if(k==='normal'){ satMe=50; satOp=50; } if(k==='full'){ satMe=100; satOp=100; }
+      satMeInput.value=satMe; satOpInput.value=satOp; satMeVal.textContent=satMe+'%'; satOpVal.textContent=satOp+'%';
+    }));
+
+    nextDishBtn.addEventListener('click',()=>{ nextFood('me'); nextFood('op'); });
+    finishDishBtn.addEventListener('click',()=>{ meRemain=0; opRemain=0; setProgress('me',1); setProgress('op',1); });
+
+    start();
+  </script>
+</body>
+</html>
