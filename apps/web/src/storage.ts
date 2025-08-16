@@ -13,7 +13,7 @@ export function loadRule(): GameRule | null {
 }
 
 export function saveRule(rule: GameRule) {
-  try { localStorage.setItem(RULE_KEY, JSON.stringify(rule)); } catch {}
+  try { localStorage.setItem(RULE_KEY, JSON.stringify(rule)); } catch { /* ignore */ }
 }
 
 export function loadScore(): GameScore {
@@ -26,5 +26,5 @@ export function loadScore(): GameScore {
 }
 
 export function saveScore(score: GameScore) {
-  try { localStorage.setItem(SCORE_KEY, JSON.stringify(score)); } catch {}
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(score)); } catch { /* ignore */ }
 }

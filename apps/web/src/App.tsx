@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
 import TitleScreen from "./TitleScreen";
 import GameScreen from "./GameScreen";
-import SettingsScreen from "./SettingsScreen";
+import SettingsScreen from "./features/settings/SettingsScreen";
 import HelpScreen from "./HelpScreen";
 import type { GameRule } from "./models";
 import { defaultRule } from "./models";
