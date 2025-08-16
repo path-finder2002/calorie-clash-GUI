@@ -14,6 +14,20 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   return (
     <Box h="100dvh" overflow="hidden" bgGradient="radial(#121820 0%, #0b0f14 70%)" position="relative" px="24px">
+      {/* 右上 GitHub ボタン */}
+      <Box position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3}>
+        <Button
+          as="a"
+          href="https://github.com/path-finder2002/calorie-clash-GUI"
+          target="_blank"
+          rel="noreferrer noopener"
+          size="sm"
+          variant="outline"
+          colorScheme="teal"
+        >
+          GitHub
+        </Button>
+      </Box>
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
