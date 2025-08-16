@@ -1,4 +1,4 @@
-import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Switch } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Switch, NumberInput, Field } from '@chakra-ui/react';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { GameRule } from './models';
@@ -8,6 +8,8 @@ type Props = { onClose: () => void; rule: GameRule; onChangeRule: (r: GameRule) 
 
 export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
   const [draft, setDraft] = useState<GameRule>(rule);
+  const [tpText, setTpText] = useState(String(rule.targetPoints));
+  const [physText, setPhysText] = useState(String(rule.physique));
 
   function update<K extends keyof GameRule>(key: K, value: GameRule[K]) {
     setDraft(prev => ({ ...prev, [key]: value }));
@@ -28,35 +30,37 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
           </Card.Header>
           <Card.Body>
             <Stack gap={4}>
-              <Box>
-                <Text mb={1} fontWeight='semibold'>勝利ポイント</Text>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    value={String(draft.targetPoints)}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => update('targetPoints', Number(e.target.value) as GameRule['targetPoints'])}
-                  >
-                    <option value='30'>30</option>
-                    <option value='40'>40</option>
-                    <option value='50'>50</option>
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Box>
+              <Field.Root invalid={tpText !== '' && !/^\d+$/.test(tpText)}>
+                <Field.Label>勝利ポイント</Field.Label>
+                <NumberInput.Root value={tpText} min={1} step={1} onValueChange={(v: any) => {
+                  const next = String(v?.value ?? '');
+                  setTpText(next);
+                  if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
+                }}>
+                  <NumberInput.Control>
+                    <NumberInput.DecrementTrigger aria-label='decrement' />
+                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' />
+                    <NumberInput.IncrementTrigger aria-label='increment' />
+                  </NumberInput.Control>
+                </NumberInput.Root>
+                <Field.ErrorText>数字のみを入力してください</Field.ErrorText>
+              </Field.Root>
 
-              <Box>
-                <Text mb={1} fontWeight='semibold'>満腹上限（原作準拠のみ）</Text>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    value={String(draft.physique)}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => update('physique', Number(e.target.value) as GameRule['physique'])}
-                  >
-                    <option value='800'>800</option>
-                    <option value='1000'>1000</option>
-                    <option value='1300'>1300</option>
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Box>
+              <Field.Root invalid={physText !== '' && !/^\d+$/.test(physText)}>
+                <Field.Label>満腹上限（原作準拠のみ）</Field.Label>
+                <NumberInput.Root value={physText} min={100} step={10} onValueChange={(v: any) => {
+                  const next = String(v?.value ?? '');
+                  setPhysText(next);
+                  if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
+                }}>
+                  <NumberInput.Control>
+                    <NumberInput.DecrementTrigger aria-label='decrement' />
+                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' />
+                    <NumberInput.IncrementTrigger aria-label='increment' />
+                  </NumberInput.Control>
+                </NumberInput.Root>
+                <Field.ErrorText>数字のみを入力してください</Field.ErrorText>
+              </Field.Root>
 
               <Box>
                 <Text mb={1} fontWeight='semibold'>あいこ処理</Text>
