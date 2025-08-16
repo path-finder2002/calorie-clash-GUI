@@ -43,8 +43,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           <Card.Body>
             <Stack gap={5}>
               <Field.Root invalid={tpInvalid}>
-                <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <Field.Label m={0} fontWeight='semibold'>勝利ポイント</Field.Label>
+                <Stack gap={4} align="center" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+                  <Field.Label m={0} fontWeight='semibold'>勝利点数</Field.Label>
                   <NumberAdjuster
                     value={tpText}
                     min={1}
@@ -58,12 +58,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                   >
                     {({ adjust, input }) => (
                       <>
+                        {input}
                         <HStack gap={2}>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
-                        </HStack>
-                        {input}
-                        <HStack gap={2}>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
                         </HStack>
