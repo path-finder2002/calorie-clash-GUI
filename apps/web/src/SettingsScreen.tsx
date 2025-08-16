@@ -10,6 +10,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
   const [draft, setDraft] = useState<GameRule>(rule);
   const [tpText, setTpText] = useState(String(rule.targetPoints));
   const [physText, setPhysText] = useState(String(rule.physique));
+  const tpInvalid = tpText !== '' && !/^\d+$/.test(tpText);
+  const physInvalid = physText !== '' && !/^\d+$/.test(physText);
 
   function update<K extends keyof GameRule>(key: K, value: GameRule[K]) {
     setDraft(prev => ({ ...prev, [key]: value }));
@@ -30,36 +32,42 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
           </Card.Header>
           <Card.Body>
             <Stack gap={4}>
-              <Field.Root invalid={tpText !== '' && !/^\d+$/.test(tpText)}>
+              <Field.Root invalid={tpInvalid}>
                 <Field.Label>勝利ポイント</Field.Label>
-                <NumberInput.Root value={tpText} min={1} step={1} onValueChange={(v: any) => {
+                <NumberInput.Root value={tpText} min={1} step={1}
+                  size='lg'
+                  w={{ base: '100%', md: '280px' }}
+                  onValueChange={(v: any) => {
                   const next = String(v?.value ?? '');
                   setTpText(next);
                   if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
                 }}>
                   <NumberInput.Control>
                     <NumberInput.DecrementTrigger aria-label='decrement' />
-                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' />
+                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' textAlign='right' />
                     <NumberInput.IncrementTrigger aria-label='increment' />
                   </NumberInput.Control>
                 </NumberInput.Root>
-                <Field.ErrorText>数字のみを入力してください</Field.ErrorText>
+                {tpInvalid && (<Field.ErrorText>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
 
-              <Field.Root invalid={physText !== '' && !/^\d+$/.test(physText)}>
+              <Field.Root invalid={physInvalid}>
                 <Field.Label>満腹上限（原作準拠のみ）</Field.Label>
-                <NumberInput.Root value={physText} min={100} step={10} onValueChange={(v: any) => {
+                <NumberInput.Root value={physText} min={100} step={10}
+                  size='lg'
+                  w={{ base: '100%', md: '280px' }}
+                  onValueChange={(v: any) => {
                   const next = String(v?.value ?? '');
                   setPhysText(next);
                   if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
                 }}>
                   <NumberInput.Control>
                     <NumberInput.DecrementTrigger aria-label='decrement' />
-                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' />
+                    <NumberInput.Input inputMode='numeric' pattern='[0-9]*' textAlign='right' />
                     <NumberInput.IncrementTrigger aria-label='increment' />
                   </NumberInput.Control>
                 </NumberInput.Root>
-                <Field.ErrorText>数字のみを入力してください</Field.ErrorText>
+                {physInvalid && (<Field.ErrorText>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
 
               <Box>
