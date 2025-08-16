@@ -1,4 +1,4 @@
-import { Box, VStack, Heading, Button, Text, HStack, Badge } from "@chakra-ui/react";
+import { Box, VStack, Button, Text, HStack, Badge } from "@chakra-ui/react";
 import { useState } from "react";
 import type { GameRule } from "./models";
 
@@ -13,33 +13,69 @@ type Props = {
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   return (
-    <Box minH="100dvh" bgGradient="radial(#121820 0%, #0b0f14 70%)" display="grid" placeItems="center" px="24px">
-      <VStack gap="28px">
-        <VStack gap="8px">
-          <Text as="h2" fontSize={{ base: 'sm', md: 'md' }} letterSpacing="0.2em" textAlign="center" opacity={0.85} textTransform="uppercase">
+    <Box minH="100dvh" bgGradient="radial(#121820 0%, #0b0f14 70%)" position="relative" px="24px">
+      {/* 中央オーバーレイ（見出し＋キャッチ） */}
+      <Box
+        position="absolute"
+        inset={0}
+        display="grid"
+        placeItems="center"
+        zIndex={2}
+        pointerEvents="none"
+        transform={{ base: 'translateY(-6vh)', md: 'translateY(-8vh)', lg: 'translateY(-10vh)' }}
+      >
+        <Box maxW={{ base: '92vw', md: '900px', lg: '1100px' }} px={{ base: 2, md: 4 }}>
+          <VStack gap="8px" align="center">
+          <Text
+            as="h2"
+            fontSize={{ base: '18px', sm: '22px', md: '30px', lg: '44px', xl: '52px' }}
+            fontWeight="bold"
+            letterSpacing="0.12em"
+            lineHeight={1.1}
+            textAlign="center"
+            opacity={0.95}
+            textTransform="uppercase"
+          >
             満腹ジャンケン
           </Text>
-          <Heading as="h1" size="5xl" textAlign="center" maxW="80vw" letterSpacing="0.02em" textShadow="0 12px 28px rgba(0,0,0,0.45)"
-            bgGradient="linear(180deg, #EFFFFF, #B6F7FF 50%, #7AE3FF)" bgClip="text">
-            カロリークラッシュ
-          </Heading>
-          <Heading as="h1" size="4xl" textAlign="center" maxW="80vw" letterSpacing="0.02em" opacity={0.95}
-            textShadow="0 8px 24px rgba(0,0,0,0.35)" bgGradient="linear(180deg, #EFFFFF, #CBEFFF 50%, #9FE6FF)" bgClip="text">
-            Calorie Clash
-          </Heading>
+          <Text
+            as="h2"
+            fontSize={{ base: '12px', sm: '14px', md: '16px', lg: '18px' }}
+            fontWeight="semibold"
+            letterSpacing="0.12em"
+            lineHeight={1.2}
+            textAlign="center"
+            opacity={0.85}
+            textTransform="uppercase"
+          >
+            Stomach Janken
+          </Text>
+          {/* 大見出しは視覚的に干渉するため一時的に非表示 */}
+          <VStack gap="12px" maxW="900px" px={{ base: 2, md: 0 }}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.6} textAlign="center" opacity={0.95}>
+              勝てばポイント、負ければ食事。<br />
+              胃袋の限界バトルが今、始まる。
+            </Text>
+            <Text fontSize={{ base: 'xs', md: 'sm' }} lineHeight={1.6} textAlign="center" opacity={0.85}>
+              Win points if you win, eat if you lose.<br />
+              The ultimate stomach battle begins now.
+            </Text>
+          </VStack>
+          </VStack>
+        </Box>
+      </Box>
+
+      {/* そのほかのUI（ボタン等） */}
+      <VStack gap="32px" pt={{ base: '60vh', md: '64vh', lg: '66vh' }}>
+        <VStack gap="28px" w="360px" maxW="90vw">
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>スタート</Button>
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>オプション</Button>
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>ヘルプ</Button>
         </VStack>
 
-        <VStack gap="6px" maxW="80vw">
-          <Text fontSize={{ base: 'md', md: 'lg' }} textAlign="center" opacity={0.95}>
-            勝てばポイント、負ければ食事。胃袋の限界バトルが今、始まる。
-          </Text>
-          <Text fontSize={{ base: 'sm', md: 'md' }} textAlign="center" opacity={0.85}>
-            Win points if you win, eat if you lose. The ultimate stomach battle begins now.
-          </Text>
-        </VStack>
-
-        <Box position="relative" display="inline-block">
-          <HStack gap="12px" align="center">
+        {/* ルール切り替えをボタン群の下へ移動し、中央テキストとの重なりを回避 */}
+        <Box position="relative" display="inline-block" mt={{ base: 8, md: 12 }}>
+          <HStack gap="12px" align="center" justify="center">
             <Badge colorScheme="purple">ルール</Badge>
             <HStack gap="8px">
               <Button
@@ -68,12 +104,12 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               </Button>
             </HStack>
           </HStack>
-          {/* macOS風キャプション（オーバーレイ、レイアウトに影響なし） */}
+          {/* キャプション（重なり防止のため、発生位置も少し下げる） */}
           <Box
             position="absolute"
             left="50%"
-            top="100%"
-            transform={ruleHint ? "translateX(-50%) translateY(10px) scale(1)" : "translateX(-50%) translateY(10px) scale(0.98)"}
+            top="calc(100% + 12px)"
+            transform={ruleHint ? "translateX(-50%) scale(1)" : "translateX(-50%) scale(0.98)"}
             opacity={ruleHint ? 1 : 0}
             transition="opacity 0.15s ease, transform 0.15s ease"
             pointerEvents="none"
@@ -82,14 +118,11 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             borderRadius="10px"
             px="14px"
             py="8px"
-            boxShadow="0 8px 24px rgba(0,0,0,0.35)"
-            style={{ backdropFilter: 'saturate(180%) blur(12px)' }}
             w="80vw"
             maxW="560px"
             zIndex={1}
           >
             <Text fontSize="sm" textAlign="center" whiteSpace="normal" wordBreak="break-word">{ruleHint ?? ''}</Text>
-            {/* しっぽ（▼） */}
             <Box
               position="absolute"
               left="50%"
@@ -98,18 +131,11 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               w="10px"
               h="10px"
               bg="blackAlpha.700"
-              style={{ backdropFilter: 'saturate(180%) blur(12px)' }}
             />
           </Box>
         </Box>
 
-        <VStack gap="24px" w="360px" maxW="90vw">
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>スタート</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>オプション</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>ヘルプ</Button>
-        </VStack>
-
-        <VStack gap="2px" mt="8px">
+        <VStack gap="4px" mt="16px">
           <Text fontSize="sm" opacity={0.75}>© {new Date().getFullYear()} Team CC — v0.1.0</Text>
           <Text fontSize="xs" opacity={0.7}>Inspired by Wednesday  downtown.</Text>
           <Text fontSize="xs" opacity={0.8}>

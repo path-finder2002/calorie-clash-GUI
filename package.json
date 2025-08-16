@@ -1,0 +1,10 @@
+{
+  "name": "calorie-clash-gui-workspace",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w web"
+  }
+}

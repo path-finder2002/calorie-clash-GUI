@@ -30,10 +30,8 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+/* Chakra UI の Heading スタイルを尊重するため、
+   グローバル h1 の上書きは無効化 */
 
 button {
   border-radius: 8px;
