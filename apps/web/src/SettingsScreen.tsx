@@ -21,6 +21,24 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
   function cancel() { setDraft(rule); onClose(); }
   function defaults() { setDraft(defaultRule); }
 
+  function getSafeNumber(text: string, fallback: number) {
+    return /^\d+$/.test(text) ? Number(text) : fallback;
+  }
+
+  function adjustTargetPoints(delta: number) {
+    const cur = getSafeNumber(tpText, draft.targetPoints);
+    const next = Math.max(1, cur + delta);
+    setTpText(String(next));
+    update('targetPoints', next as GameRule['targetPoints']);
+  }
+
+  function adjustPhysique(delta: number) {
+    const cur = getSafeNumber(physText, draft.physique);
+    const next = Math.max(100, cur + delta);
+    setPhysText(String(next));
+    update('physique', next as GameRule['physique']);
+  }
+
   return (
     <Box px={{ base: 4, md: 8 }} py={6} color='gray.700'>
       <Heading
@@ -42,62 +60,109 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
           <Card.Body>
             <Stack gap={5}>
               <Field.Root invalid={tpInvalid}>
-                <HStack
-                  justify='space-between'
-                  gap={{ base: 3, md: 6 }}
-                  px={{ base: 2, md: 3 }}
-                  py={{ base: 2, md: 3 }}
-                >
-                  <Field.Label m={0}>勝利ポイント</Field.Label>
-                  <NumberInput.Root
-                    value={tpText}
-                    min={1}
-                    step={1}
-                    size='lg'
-                    w={{ base: '100%', md: '320px' }}
-                    onValueChange={(v: any) => {
-                      const next = String(v?.value ?? '');
-                      setTpText(next);
-                      if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
-                    }}
+                <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+                  <Field.Label m={0} fontWeight='semibold'>勝利ポイント</Field.Label>
+                  <Box
+                    display='grid'
+                    gridTemplateColumns='1fr auto 1fr'
+                    alignItems='center'
+                    columnGap={{ base: 2, md: 4 }}
+                    w='100%'
+                    overflowX='auto'
+                    whiteSpace='nowrap'
+                    px={{ base: 1, md: 0 }}
                   >
-                    <NumberInput.Control>
-                      <NumberInput.DecrementTrigger aria-label='decrement' />
-                      <NumberInput.Input inputMode='numeric' pattern='[0-9]*' textAlign='right' />
-                      <NumberInput.IncrementTrigger aria-label='increment' />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                </HStack>
+                    <HStack gap={2} justify='flex-end'>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-10)}>-10</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-5)}>-5</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-1)}>-1</Button>
+                    </HStack>
+                    <NumberInput.Root
+                      value={tpText}
+                      min={1}
+                      step={1}
+                      size='lg'
+                      w='auto'
+                      justifySelf='center'
+                      onValueChange={(v: any) => {
+                        const next = String(v?.value ?? '');
+                        setTpText(next);
+                        if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
+                      }}
+                    >
+                      <NumberInput.Control>
+                        <NumberInput.Input
+                          inputMode='numeric'
+                          pattern='[0-9]*'
+                          textAlign='center'
+                          fontSize={{ base: 'xl', md: '2xl' }}
+                          fontWeight='bold'
+                          fontVariantNumeric='tabular-nums'
+                          minW={{ base: '180px', md: '220px' }}
+                        />
+                      </NumberInput.Control>
+                    </NumberInput.Root>
+                    <HStack gap={2} justify='flex-start'>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+1)}>+1</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+5)}>+5</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+10)}>+10</Button>
+                    </HStack>
+                  </Box>
+                </Stack>
                 {tpInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
+              <Box h='1px' bg='blackAlpha.300' mx={{ base: 2, md: 3 }} my={1} />
 
               <Field.Root invalid={physInvalid}>
-                <HStack
-                  justify='space-between'
-                  gap={{ base: 3, md: 6 }}
-                  px={{ base: 2, md: 3 }}
-                  py={{ base: 2, md: 3 }}
-                >
-                  <Field.Label m={0}>満腹上限（原作準拠のみ）</Field.Label>
-                  <NumberInput.Root
-                    value={physText}
-                    min={100}
-                    step={10}
-                    size='lg'
-                    w={{ base: '100%', md: '320px' }}
-                    onValueChange={(v: any) => {
-                      const next = String(v?.value ?? '');
-                      setPhysText(next);
-                      if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
-                    }}
+                <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+                  <Field.Label m={0} fontWeight='semibold'>満腹上限（原作準拠のみ）</Field.Label>
+                  <Box
+                    display='grid'
+                    gridTemplateColumns='1fr auto 1fr'
+                    alignItems='center'
+                    columnGap={{ base: 2, md: 4 }}
+                    w='100%'
+                    overflowX='auto'
+                    whiteSpace='nowrap'
+                    px={{ base: 1, md: 0 }}
                   >
-                    <NumberInput.Control>
-                      <NumberInput.DecrementTrigger aria-label='decrement' />
-                      <NumberInput.Input inputMode='numeric' pattern='[0-9]*' textAlign='right' />
-                      <NumberInput.IncrementTrigger aria-label='increment' />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                </HStack>
+                    <HStack gap={2} justify='flex-end'>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-10)}>-10</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-5)}>-5</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-1)}>-1</Button>
+                    </HStack>
+                    <NumberInput.Root
+                      value={physText}
+                      min={100}
+                      step={10}
+                      size='lg'
+                      w='auto'
+                      justifySelf='center'
+                      onValueChange={(v: any) => {
+                        const next = String(v?.value ?? '');
+                        setPhysText(next);
+                        if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
+                      }}
+                    >
+                      <NumberInput.Control>
+                        <NumberInput.Input
+                          inputMode='numeric'
+                          pattern='[0-9]*'
+                          textAlign='center'
+                          fontSize={{ base: 'xl', md: '2xl' }}
+                          fontWeight='bold'
+                          fontVariantNumeric='tabular-nums'
+                          minW={{ base: '180px', md: '220px' }}
+                        />
+                      </NumberInput.Control>
+                    </NumberInput.Root>
+                    <HStack gap={2} justify='flex-start'>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+1)}>+1</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+5)}>+5</Button>
+                      <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+10)}>+10</Button>
+                    </HStack>
+                  </Box>
+                </Stack>
                 {physInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
 
