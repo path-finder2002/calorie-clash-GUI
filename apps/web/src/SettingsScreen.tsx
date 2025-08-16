@@ -102,7 +102,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                         />
                       </NumberInput.Control>
                     </NumberInput.Root>
-                    <HStack gap={2} justify='flex-start'>
+                    <HStack gap={2} justify='flex-end'>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+1)}>+1</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+5)}>+5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+10)}>+10</Button>
@@ -156,7 +156,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                         />
                       </NumberInput.Control>
                     </NumberInput.Root>
-                    <HStack gap={2} justify='flex-start'>
+                    <HStack gap={2} justify='flex-end'>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+1)}>+1</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+5)}>+5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+10)}>+10</Button>
