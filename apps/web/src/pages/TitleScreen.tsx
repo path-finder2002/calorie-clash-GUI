@@ -1,5 +1,5 @@
 import { Box, VStack, Button, Text, HStack, Badge, Link } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { GameRule } from "@/models";
 
 type Props = {
@@ -10,9 +10,48 @@ type Props = {
   onHelp: () => void;
 };
 
+type Lang = 'ja' | 'en';
+
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(true);
+  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
+
+  useEffect(() => {
+    try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ }
+  }, [lang]);
+
+  const t = lang === 'ja'
+    ? {
+        title: '満腹ジャンケン',
+        sub: '満腹ジャンケン',
+        catch1: '勝てばポイント、負ければ食事。',
+        catch2: '胃袋の限界バトルが今、始まる。',
+        start: 'スタート',
+        options: 'オプション',
+        help: 'ヘルプ',
+        rule: 'ルール',
+        original: '原作準拠',
+        simple: '簡易',
+        hintOriginal: '原作準拠: 勝てばポイント、負けた側に満腹度加算。満腹上限に達しても決着。',
+        hintSimple: '簡易: 勝ちで+1点。先に目標ポイントに到達した方が勝ち。',
+        langToggle: 'EN',
+      }
+    : {
+        title: 'Calorie Clash',
+        sub: 'Stomach Janken',
+        catch1: 'Win points if you win, eat if you lose.',
+        catch2: 'The ultimate stomach battle begins now.',
+        start: 'Start',
+        options: 'Options',
+        help: 'Help',
+        rule: 'Rules',
+        original: 'Original',
+        simple: 'Simple',
+        hintOriginal: 'Original: Winner gains points, loser gains satiety. Reaches satiety limit ends the game.',
+        hintSimple: 'Simple: +1 point for a win. First to target points wins.',
+        langToggle: '日本語',
+      };
   return (
     <Box h="100dvh" overflow="hidden" bgGradient={isDark ? "radial(#121820 0%, #0b0f14 70%)" : "radial(#f2f4f7 0%, #e9edf2 70%)"} position="relative" px="24px">
       {/* 右上 GitHub ボタン */}
@@ -20,6 +59,9 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
           <Button size="sm" variant="outline" colorScheme="teal">GitHub</Button>
         </Link>
+        <Button size="sm" onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))} variant="outline">
+          {t.langToggle}
+        </Button>
         <Button size="sm" onClick={() => setIsDark(d => !d)} variant="ghost">
           {isDark ? '☀️ Light' : '🌙 Dark'}
         </Button>
@@ -48,7 +90,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             opacity={0.95}
             textTransform="uppercase"
           >
-            満腹ジャンケン
+            {t.title}
           </Text>
           <Text
             as="h2"
@@ -62,24 +104,13 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             textTransform="uppercase"
             transform={{ base: 'translateY(-6px)', md: 'translateY(-10px)' }}
             >
-              Stomach Janken<br />✊✌️🖐️
+              {t.sub}<br />✊✌️🖐️
           </Text>
           {/* 大見出しは視覚的に干渉するため一時的に非表示 */}
           <VStack gap="12px" maxW="900px" px={{ base: 2, md: 0 }}>
-            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.6} textAlign="center" opacity={0.95}>
-              勝てばポイント、負ければ食事。<br />
-              胃袋の限界バトルが今、始まる。
-            </Text>
-            <Text
-              fontSize={{ base: 'sm', md: 'md' }}
-              lineHeight={1.7}
-              textAlign="center"
-              opacity={0.95}
-              color={isDark ? 'whiteAlpha.900' : 'black'}
-              transform={{ base: 'translateY(-4px)', md: 'translateY(-8px)' }}
-            >
-              Win points if you win, eat if you lose.<br />
-              The ultimate stomach battle begins now.
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color={isDark ? 'whiteAlpha.900' : 'black'}>
+              {t.catch1}<br />
+              {t.catch2}
             </Text>
           </VStack>
           </VStack>
@@ -89,39 +120,39 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       {/* そのほかのUI（ボタン等）を下部に固定 */}
       <Box position="absolute" left={0} right={0} bottom={{ base: '2vh', md: '3vh', lg: '4vh' }}>
         <VStack gap="32px" w="360px" maxW="90vw" mx="auto">
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>スタート</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>オプション</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>ヘルプ</Button>
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>{t.start}</Button>
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>{t.options}</Button>
+          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>{t.help}</Button>
         </VStack>
 
         {/* ルール切り替え（ボタン群の下） */}
         <Box position="relative" display="inline-block" mt={{ base: 8, md: 10 }} w="100%">
           <HStack gap="12px" align="center" justify="center">
-            <Badge colorScheme="purple">ルール</Badge>
+            <Badge colorScheme="purple">{t.rule}</Badge>
             <HStack gap="8px">
               <Button
                 size="sm"
                 variant={rule.mode === 'original' ? 'solid' : 'outline'}
                 onClick={() => onChangeRule({ ...rule, mode: 'original' })}
-                onMouseEnter={() => setRuleHint('原作準拠: 勝てばポイント、負けた側に満腹度加算。満腹上限に達しても決着。')}
+                onMouseEnter={() => setRuleHint(t.hintOriginal)}
                 onMouseLeave={() => setRuleHint(null)}
-                onFocus={() => setRuleHint('原作準拠: 勝てばポイント、負けた側に満腹度加算。満腹上限に達しても決着。')}
+                onFocus={() => setRuleHint(t.hintOriginal)}
                 onBlur={() => setRuleHint(null)}
-                title="原作準拠: 勝てばポイント、負けた側に満腹度加算。満腹上限に達しても決着。"
+                title={t.hintOriginal}
               >
-                原作準拠
+                {t.original}
               </Button>
               <Button
                 size="sm"
                 variant={rule.mode === 'simple' ? 'solid' : 'outline'}
                 onClick={() => onChangeRule({ ...rule, mode: 'simple' })}
-                onMouseEnter={() => setRuleHint('簡易: 勝ちで+1点。先に目標ポイントに到達した方が勝ち。')}
+                onMouseEnter={() => setRuleHint(t.hintSimple)}
                 onMouseLeave={() => setRuleHint(null)}
-                onFocus={() => setRuleHint('簡易: 勝ちで+1点。先に目標ポイントに到達した方が勝ち。')}
+                onFocus={() => setRuleHint(t.hintSimple)}
                 onBlur={() => setRuleHint(null)}
-                title="簡易: 勝ちで+1点。先に目標ポイントに到達した方が勝ち。"
+                title={t.hintSimple}
               >
-                簡易
+                {t.simple}
               </Button>
             </HStack>
           </HStack>
