@@ -7,6 +7,7 @@ This document outlines the future plans for the Calorie Clash GUI project.
 - [ ] Basic game functionality
 - [ ] User interface improvements
 - [ ] Bug fixes and performance improvements
+- [ ] Dark mode support
 
 ## Mid-term
 
