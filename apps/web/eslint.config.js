@@ -19,5 +19,20 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // 親ディレクトリへの相対インポートを禁止し、エイリアス（@/）を推奨
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '../*',
+            '../../*',
+            '../../../*',
+            '../../../../*',
+            './../*',
+          ],
+        },
+      ],
+    },
   },
 ])

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Box, Button, ButtonGroup, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
-import type { FoodCard, GameRule, Hand } from './models';
-import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from './models';
-import { loadScore, saveScore } from './storage';
+import type { FoodCard, GameRule, Hand } from '@/models';
+import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
+import { loadScore, saveScore } from '@/lib';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void };
 

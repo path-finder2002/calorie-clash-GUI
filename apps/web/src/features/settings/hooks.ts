@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { GameRule } from '../../models';
-import { defaultRule } from '../../models';
+import type { GameRule } from '@/models';
+import { defaultRule } from '@/models';
 
 export function useSettings(rule: GameRule, onChangeRule: (r: GameRule) => void, onClose: () => void) {
   const [draft, setDraft] = useState<GameRule>(rule);

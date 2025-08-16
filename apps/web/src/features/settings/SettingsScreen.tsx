@@ -1,9 +1,9 @@
 import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Field, Switch } from '@chakra-ui/react';
 import type { ChangeEvent } from 'react';
-import { NumberAdjuster } from '../../components/NumberAdjuster';
-import { useSettings } from './hooks';
-import type { SettingsScreenProps } from './types';
-import type { GameRule } from '../../models';
+import { NumberAdjuster } from '@/components/NumberAdjuster';
+import { useSettings } from '@/features/settings/hooks';
+import type { SettingsScreenProps } from '@/features/settings/types';
+import type { GameRule } from '@/models';
 
 export default function SettingsScreen({ onClose, rule, onChangeRule }: SettingsScreenProps) {
   const {

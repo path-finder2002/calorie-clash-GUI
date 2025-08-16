@@ -1,6 +1,6 @@
 import { Box, VStack, Button, Text, HStack, Badge, Link } from "@chakra-ui/react";
 import { useState } from "react";
-import type { GameRule } from "./models";
+import type { GameRule } from "@/models";
 
 type Props = {
   rule: GameRule;

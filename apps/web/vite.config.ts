@@ -1,10 +1,17 @@
 import { defineConfig } from 'vite';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 
 const PORT = Number(process.env.PORT) || 5173;
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), './src'),
+    },
+  },
   server: {
     host: true, // LAN 端末からアクセス可能に
     port: PORT,

@@ -1,4 +1,4 @@
-import type { GameRule, GameScore } from './models';
+import type { GameRule, GameScore } from '@/models';
 
 const RULE_KEY = 'calorieClash.rule';
 const SCORE_KEY = 'calorieClash.score';

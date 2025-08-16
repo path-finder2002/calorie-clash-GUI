@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
-import TitleScreen from "./TitleScreen";
-import GameScreen from "./GameScreen";
-import SettingsScreen from "./features/settings/SettingsScreen";
-import HelpScreen from "./HelpScreen";
-import type { GameRule } from "./models";
-import { defaultRule } from "./models";
-import { loadRule, saveRule } from "./storage";
+import TitleScreen from "@/pages/TitleScreen";
+import GameScreen from "@/pages/GameScreen";
+import SettingsScreen from "@/features/settings/SettingsScreen";
+import HelpScreen from "@/pages/HelpScreen";
+import type { GameRule } from "@/models";
+import { defaultRule } from "@/models";
+import { loadRule, saveRule } from "@/lib";
 
 type Screen = "title" | "game" | "help" | "settings";
 
