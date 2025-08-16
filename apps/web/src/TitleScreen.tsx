@@ -17,7 +17,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
-        top={{ base: '50%', md: '72px', lg: '96px' }}
+        top={{ base: '30%', sm: '34%', md: '72px', lg: '96px' }}
         left={0}
         right={0}
         display="grid"
