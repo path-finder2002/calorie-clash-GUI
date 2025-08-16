@@ -1,4 +1,4 @@
-import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Switch, NumberInput, Field } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Switch, NumberInput, Field, Spacer } from '@chakra-ui/react';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { GameRule } from './models';
@@ -62,17 +62,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
               <Field.Root invalid={tpInvalid}>
                 <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
                   <Field.Label m={0} fontWeight='semibold'>勝利ポイント</Field.Label>
-                  <Box
-                    display='grid'
-                    gridTemplateColumns='1fr auto 1fr'
-                    alignItems='center'
-                    columnGap={{ base: 2, md: 4 }}
-                    w='100%'
-                    overflowX='auto'
-                    whiteSpace='nowrap'
-                    px={{ base: 1, md: 0 }}
-                  >
-                    <HStack gap={2} justify='flex-end'>
+                  <HStack w='100%' justify='center'>
+                    <HStack gap={2}>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-10)}>-10</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-5)}>-5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustTargetPoints(-1)}>-1</Button>
@@ -83,7 +74,6 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                       step={1}
                       size='lg'
                       w='auto'
-                      justifySelf='center'
                       onValueChange={(v: any) => {
                         const next = String(v?.value ?? '');
                         setTpText(next);
@@ -102,12 +92,12 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                         />
                       </NumberInput.Control>
                     </NumberInput.Root>
-                    <HStack gap={2} justify='flex-end'>
+                    <HStack gap={2}>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+1)}>+1</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+5)}>+5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustTargetPoints(+10)}>+10</Button>
                     </HStack>
-                  </Box>
+                  </HStack>
                 </Stack>
                 {tpInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
@@ -116,17 +106,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
               <Field.Root invalid={physInvalid}>
                 <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
                   <Field.Label m={0} fontWeight='semibold'>満腹上限（原作準拠のみ）</Field.Label>
-                  <Box
-                    display='grid'
-                    gridTemplateColumns='1fr auto 1fr'
-                    alignItems='center'
-                    columnGap={{ base: 2, md: 4 }}
-                    w='100%'
-                    overflowX='auto'
-                    whiteSpace='nowrap'
-                    px={{ base: 1, md: 0 }}
-                  >
-                    <HStack gap={2} justify='flex-end'>
+                  <HStack w='100%' justify='center'>
+                    <HStack gap={2}>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-10)}>-10</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-5)}>-5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} onClick={() => adjustPhysique(-1)}>-1</Button>
@@ -137,7 +118,6 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                       step={10}
                       size='lg'
                       w='auto'
-                      justifySelf='center'
                       onValueChange={(v: any) => {
                         const next = String(v?.value ?? '');
                         setPhysText(next);
@@ -156,12 +136,12 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Props) {
                         />
                       </NumberInput.Control>
                     </NumberInput.Root>
-                    <HStack gap={2} justify='flex-end'>
+                    <HStack gap={2}>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+1)}>+1</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+5)}>+5</Button>
                       <Button size='sm' minW={{ base: '56px', md: '64px' }} colorScheme='teal' onClick={() => adjustPhysique(+10)}>+10</Button>
                     </HStack>
-                  </Box>
+                  </HStack>
                 </Stack>
                 {physInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
