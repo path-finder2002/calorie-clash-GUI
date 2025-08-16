@@ -30,7 +30,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
           <VStack gap="8px" align="center">
           <Text
             as="h2"
-            fontSize={{ base: '18px', sm: '22px', md: '30px', lg: '44px', xl: '52px' }}
+            fontSize={{ base: '22px', sm: '28px', md: '36px', lg: '52px', xl: '64px' }}
             fontWeight="bold"
             letterSpacing="0.12em"
             lineHeight={1.1}
