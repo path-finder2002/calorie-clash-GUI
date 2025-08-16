@@ -49,6 +49,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             opacity={0.9}
             color="whiteAlpha.900"
             textTransform="uppercase"
+            mt={{ base: '-4px', md: '-8px' }}
           >
             Stomach Janken
           </Text>
@@ -58,7 +59,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               勝てばポイント、負ければ食事。<br />
               胃袋の限界バトルが今、始まる。
             </Text>
-            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color="whiteAlpha.900">
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color="whiteAlpha.900" mt={{ base: '-2px', md: '-4px' }}>
               Win points if you win, eat if you lose.<br />
               The ultimate stomach battle begins now.
             </Text>
