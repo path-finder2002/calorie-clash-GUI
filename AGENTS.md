@@ -35,7 +35,11 @@ npm run dev
 - Commits: clear, imperative messages; group related changes. Suggested pattern: `web: concise summary` or Conventional Commits (e.g., `feat(web): add title screen`).
 - Pull Requests: include scope/goal, linked issues, and screenshots/GIFs for UI changes. Note any breaking changes and manual steps.
 - Keep PRs focused and reasonably small for faster review.
+- git commit when finished
 
 ## Security & Configuration Notes
 - Do not commit secrets. Environment-specific config should use Vite env files (`.env.local`, not tracked).
 - Node.js 18+ recommended. Use `npm ci` in CI to ensure deterministic installs.
+
+## use language
+- Use Japanese as the main language
