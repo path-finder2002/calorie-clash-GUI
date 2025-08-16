@@ -17,13 +17,14 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
-        top={{ base: '48px', md: '72px', lg: '96px' }}
+        top={{ base: '50%', md: '72px', lg: '96px' }}
         left={0}
         right={0}
         display="grid"
         placeItems="center"
         zIndex={2}
         pointerEvents="none"
+        transform={{ base: 'translateY(-50%)', md: 'none' }}
       >
         <Box maxW={{ base: '92vw', md: '900px', lg: '1100px' }} px={{ base: 2, md: 4 }}>
           <VStack gap="8px" align="center">
