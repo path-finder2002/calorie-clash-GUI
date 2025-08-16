@@ -380,3 +380,14 @@ export interface CsvImportResult {
 - `canvas` は `filter: blur(var(--blur))`
   でソフト化、`requestAnimationFrame` ループで描画。
 - `year` を起動時に現在年へ差し替え。
+
+### デザイン/カラーリング仕様（タイトル画面）
+
+- カラーパレット: `--bg-0:#0B0F14`, `--bg-1:#121820`, `--fg:#E6F1FF`, `--accent:#00D1B2`, `--focus:#7AE3FF`。
+- 背景: `radial-gradient(60% 60% at 50% 35%, rgba(255,255,255,.10), rgba(0,0,0,0))` を重ね、ベースに `--bg-0`。
+- ロゴ: テキストに `linear-gradient(180deg, #EFFFFF, #B6F7FF 50%, #7AE3FF)` を適用し、`drop-shadow(0 8px 24px rgba(0,0,0,.35))`。
+- 影/ブラー: `--shadow-1: 0 8px 24px rgba(0,0,0,.35)`, `--shadow-2: 0 12px 32px rgba(0,0,0,.45)`, `--blur: 8px`。周辺減光は `box-shadow: inset 0 0 220px rgba(0,0,0,.55)`。
+- タイポ: システムUI系日本語対応スタック（-apple-system, Segoe UI, Roboto, Hiragino/Noto/游ゴ等）。
+- メニューボタン: 360×72px（縮小時 320×64px/300×60px）、角丸12px。背景は `linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02))`、文字色 `--fg`。ホバーで `translateY(-2px)` + `--shadow-2`、アクティブで `scale(.98)`。
+- フォーカス: `outline: 2px solid var(--focus); outline-offset: 3px;`。
+- レイアウト: `grid-template-rows: 220px auto 1fr auto`（縦長時は `180px auto 1fr auto`）。ロゴは `clamp(48px, 6vw, 96px)`、幅は `clamp(48%, 62vw, 70%)`（ブレークポイントで縮小）。
