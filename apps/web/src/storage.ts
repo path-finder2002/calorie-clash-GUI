@@ -1,4 +1,4 @@
-import { GameRule, GameScore } from './models';
+import type { GameRule, GameScore } from './models';
 
 const RULE_KEY = 'calorieClash.rule';
 const SCORE_KEY = 'calorieClash.score';
@@ -28,4 +28,3 @@ export function loadScore(): GameScore {
 export function saveScore(score: GameScore) {
   try { localStorage.setItem(SCORE_KEY, JSON.stringify(score)); } catch {}
 }
-

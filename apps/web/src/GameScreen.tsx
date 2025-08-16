@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { Box, Button, ButtonGroup, Card, CardBody, Flex, HStack, Heading, Progress, Spacer, Stack, Stat, StatGroup, StatHelpText, StatLabel, StatNumber, Tag, Text } from '@chakra-ui/react';
-import { FoodCard, GameRule, HAND_EMOJI, HAND_LABEL, Hand, judge, randomCardFor, randomHand } from './models';
+import { useState } from 'react';
+import { Box, Button, ButtonGroup, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
+import type { FoodCard, GameRule, Hand } from './models';
+import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from './models';
 import { loadScore, saveScore } from './storage';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void };
@@ -96,7 +97,7 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
   }
 
   const choiceButtons = (
-    <ButtonGroup isAttached variant='outline' size='lg'>
+    <ButtonGroup attached variant='outline' size='lg'>
       {(['rock','scissors','paper'] as Hand[]).map(h => (
         <Button key={h} onClick={() => handleSelect(h)}>{HAND_EMOJI[h]} {HAND_LABEL[h]}</Button>
       ))}
@@ -107,39 +108,42 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
     <Box px={{ base: 4, md: 8 }} py={6}>
       <HStack>
         <Heading size='md'>ラウンド {round}</Heading>
-        <Tag ml={2} colorScheme='teal'>{rule.mode === 'original' ? '原作準拠' : '簡易'}</Tag>
+        <Badge ml={2} colorScheme='teal'>{rule.mode === 'original' ? '原作準拠' : '簡易'}</Badge>
         <Spacer />
         <Button onClick={onOptions} variant='ghost'>オプション</Button>
         <Button onClick={onExit} colorScheme='gray' variant='outline'>タイトルへ</Button>
       </HStack>
 
-      <StatGroup mt={6}>
-        <Stat>
-          <StatLabel>あなたのスコア</StatLabel>
-          <StatNumber>{myPoints}</StatNumber>
+      <HStack mt={6} align='start' gap={8}>
+        <Box>
+          <Text fontSize='sm' opacity={0.8}>あなたのスコア</Text>
+          <Text fontSize='3xl' fontWeight='bold'>{myPoints}</Text>
           {rule.mode === 'original' && (
-            <StatHelpText>
-              満腹度
-              <Progress mt={2} borderRadius='md' value={percentMy} />
-            </StatHelpText>
+            <Box mt={2}>
+              <Text fontSize='xs' opacity={0.8}>満腹度</Text>
+              <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
+                <Box h='100%' w={`${percentMy}%`} bg='teal.400' />
+              </Box>
+            </Box>
           )}
-        </Stat>
-        <Stat>
-          <StatLabel>CPUスコア</StatLabel>
-          <StatNumber>{cpuPoints}</StatNumber>
+        </Box>
+        <Box>
+          <Text fontSize='sm' opacity={0.8}>CPUスコア</Text>
+          <Text fontSize='3xl' fontWeight='bold'>{cpuPoints}</Text>
           {rule.mode === 'original' && (
-            <StatHelpText>
-              満腹度
-              <Progress mt={2} borderRadius='md' value={percentCpu} colorScheme='red' />
-            </StatHelpText>
+            <Box mt={2}>
+              <Text fontSize='xs' opacity={0.8}>満腹度</Text>
+              <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
+                <Box h='100%' w={`${percentCpu}%`} bg='red.400' />
+              </Box>
+            </Box>
           )}
-        </Stat>
-      </StatGroup>
+        </Box>
+      </HStack>
 
       {!finished && (
-        <Card mt={8}>
-          <CardBody>
-            <Stack spacing={4} align='center'>
+        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg='blackAlpha.400'>
+          <Stack gap={4} align='center'>
               <Heading size='sm'>手を選んでください</Heading>
               {choiceButtons}
               {result.outcome && (
@@ -151,24 +155,20 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
                   <Button mt={4} onClick={nextRound} colorScheme='teal'>次へ</Button>
                 </Box>
               )}
-            </Stack>
-          </CardBody>
-        </Card>
+          </Stack>
+        </Box>
       )}
 
       {finished && (
-        <Card mt={8}>
-          <CardBody textAlign='center'>
-            <Heading size='md' mb={2}>ゲーム終了</Heading>
-            <Text>{finished}</Text>
-            <HStack mt={6} justify='center'>
-              <Button colorScheme='teal' onClick={resetAll}>もう一度</Button>
-              <Button variant='outline' onClick={onExit}>タイトルへ</Button>
-            </HStack>
-          </CardBody>
-        </Card>
+        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} textAlign='center' bg='blackAlpha.400'>
+          <Heading size='md' mb={2}>ゲーム終了</Heading>
+          <Text>{finished}</Text>
+          <HStack mt={6} justify='center' gap={3}>
+            <Button colorScheme='teal' onClick={resetAll}>もう一度</Button>
+            <Button variant='outline' onClick={onExit}>タイトルへ</Button>
+          </HStack>
+        </Box>
       )}
     </Box>
   );
 }
-
