@@ -61,8 +61,8 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             color={isDark ? 'whiteAlpha.900' : 'black'}
             textTransform="uppercase"
             transform={{ base: 'translateY(-6px)', md: 'translateY(-10px)' }}
-          >
-            Stomach Janken
+            >
+              Stomach Janken<br />✊✌️🖐️
           </Text>
           {/* 大見出しは視覚的に干渉するため一時的に非表示 */}
           <VStack gap="12px" maxW="900px" px={{ base: 2, md: 0 }}>

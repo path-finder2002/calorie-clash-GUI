@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Food Draw Overlay — Anime.js Mock</title>
+  <style>
+    :root{
+      --bg:#000;        /* 黒背景 */
+      --fg:#fff;        /* 白文字 */
+      --muted:#cfd6e0;  /* 補助 */
+      --accent:#00D1B2; /* ティール */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{ margin:0; background:#111; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; }
+
+    /* 黒フルスクリーンの被せ */
+    .overlay{ position:fixed; inset:0; display:grid; grid-template-rows: 1fr auto; place-items:center; background: var(--bg); color: var(--fg); z-index: 9999; }
+
+    /* ビューウィンドウ */
+    .window{
+      width:min(960px, 92vw); height: 180px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 16px 48px rgba(0,0,0,.6);
+      isolation:isolate;
+    }
+    /* 端フェード */
+    .window::after{ content:""; position:absolute; inset:0; pointer-events:none;
+      background: linear-gradient(90deg, rgba(0,0,0,.75), transparent 12%, transparent 88%, rgba(0,0,0,.75));
+      z-index:2;
+    }
+    /* 中央ライン */
+    .centerline{ position:absolute; top:0; bottom:0; left:50%; width:2px; background: linear-gradient(180deg, var(--accent), #7AE3FF); z-index:3; mix-blend-mode:screen; }
+
+    /* レールとカード */
+    .rail{ position:absolute; inset:0; display:flex; align-items:center; gap:16px; padding:0 24px; }
+    .card{ flex:0 0 220px; height:120px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+      display:grid; grid-template-rows:auto 1fr; padding:12px 14px; filter: drop-shadow(0 6px 24px rgba(0,0,0,.45));
+      transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+    }
+    .name{ font-weight:800; letter-spacing:.02em; font-size:22px; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .meta{ align-self:end; font-size:13px; color:var(--muted); opacity:.9 }
+
+    /* 選択中視覚 */
+    .card[aria-selected="true"]{ background: rgba(0,209,178,.15); border-color: rgba(0,209,178,.6); transform: scale(1.06); }
+
+    /* ヘルプ */
+    .help{ color:#bbb; font-size:14px; letter-spacing:.04em; padding:18px 0 24px; text-align:center }
+    kbd{ background:#0f0f0f; border:1px solid #333; padding:2px 6px; border-radius:6px }
+
+    /* フラッシュ */
+    .flash{ position:fixed; inset:0; background:#fff; pointer-events:none; opacity:0 }
+  </style>
+  <!-- anime.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+</head>
+<body>
+  <!-- 黒背景＋白文字の抽選演出 -->
+  <div class="overlay" id="overlay" aria-live="polite" aria-atomic="true">
+    <div class="window" id="window">
+      <div class="centerline" aria-hidden="true"></div>
+      <div class="rail" id="rail" style="transform:translateX(0)"></div>
+    </div>
+    <div class="help">[<kbd>Space</kbd>] 抽選 ・ [<kbd>N</kbd>] 次の抽選 ・ [<kbd>Esc</kbd>] 閉じる</div>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <script>
+    /* 食べ物抽選アニメ モック
+       - 黒背景に白文字
+       - anime.js でレールを減速スクロール
+       - 中央ラインに一致したカードが当選
+       - API: setFoods(list), drawOnce(), openOverlay(), closeOverlay()
+    */
+
+    const DEFAULT_FOODS = [
+      {name:'カツカレー', kcal: 950},
+      {name:'ラーメン', kcal: 620},
+      {name:'寿司', kcal: 520},
+      {name:'たこ焼き', kcal: 380},
+      {name:'親子丼', kcal: 680},
+      {name:'天ぷら', kcal: 560},
+      {name:'餃子', kcal: 410},
+      {name:'お好み焼き', kcal: 740},
+      {name:'ハンバーガー', kcal: 540},
+      {name:'焼きそば', kcal: 590},
+      {name:'カツ丼', kcal: 890},
+      {name:'うどん', kcal: 420}
+    ];
+
+    const overlay = document.getElementById('overlay');
+    const windowEl = document.getElementById('window');
+    const rail = document.getElementById('rail');
+    const flash = document.getElementById('flash');
+
+    let foods = [...DEFAULT_FOODS];
+    let anim = null;
+
+    function cardEl(item){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `<div class="name">${item.name}</div><div class="meta">約 ${item.kcal} kcal</div>`;
+      return el;
+    }
+
+    function buildTrack(cycles=5){
+      rail.style.transform = 'translateX(0px)';
+      rail.innerHTML = '';
+      const list = [];
+      for(let c=0;c<cycles;c++) for(const f of foods) list.push(f);
+      for(const f of list) rail.appendChild(cardEl(f));
+      return rail.children;
+    }
+
+    function measureCenters(){
+      // 現在のtransformを0にリセット済み前提
+      const railLeft = rail.getBoundingClientRect().left;
+      const cards = Array.from(rail.children);
+      return cards.map((el)=> railLeft + el.offsetLeft + el.clientWidth/2);
+    }
+
+    function chooseTarget(centers){
+      // 後半の範囲からランダム選択（距離を稼いで減速見せ）
+      const start = Math.floor(centers.length * 0.55);
+      const end   = Math.floor(centers.length * 0.90);
+      return Math.floor( start + Math.random()*(end-start) );
+    }
+
+    function clearSelection(){
+      Array.from(rail.children).forEach(el=> el.setAttribute('aria-selected','false'));
+    }
+
+    function selectByIndex(i){
+      const el = rail.children[i];
+      el.setAttribute('aria-selected','true');
+      return el;
+    }
+
+    function drawOnce(){
+      if(anim) anim.pause();
+      const cards = buildTrack(6);
+      const centers = measureCenters();
+      const viewport = windowEl.getBoundingClientRect();
+      const centerX = viewport.left + viewport.width/2;
+
+      // 目標を決める
+      const targetIndex = chooseTarget(centers);
+      const targetCenter = centers[targetIndex];
+      const targetTranslate = centerX - targetCenter;
+
+      // ちょい行き過ぎ→戻しで気持ちよく
+      const overShoot = targetTranslate + 24;
+
+      clearSelection();
+
+      anim = anime.timeline({ autoplay:true });
+      anim.add({
+        targets: rail,
+        translateX: [0, overShoot],
+        duration: 1400 + Math.random()*600,
+        easing: 'cubicBezier(.05,.85,.01,1)'
+      }).add({
+        targets: rail,
+        translateX: overShoot,
+        duration: 60
+      }).add({
+        targets: rail,
+        translateX: targetTranslate,
+        duration: 260,
+        easing: 'easeOutQuad',
+        complete(){
+          const el = selectByIndex(targetIndex);
+          flashOnce();
+          pulse(el);
+        }
+      });
+    }
+
+    function pulse(el){
+      anime({ targets: el, scale:[1.06,1.12,1.06], duration:360, easing:'easeInOutQuad' });
+    }
+
+    function flashOnce(){
+      flash.style.opacity = 0;
+      anime({ targets: flash, opacity:[0,1,0], duration:280, easing:'easeOutQuad' });
+    }
+
+    function openOverlay(){ overlay.style.display='grid'; overlay.style.opacity='1'; }
+    function closeOverlay(){ anime({ targets: overlay, opacity:[1,0], duration:280, easing:'easeOutQuad', complete(){ overlay.style.display='none'; }}); }
+
+    function setFoods(list){
+      if(Array.isArray(list) && list.length){
+        foods = list.map(v=> typeof v==='string' ? {name:v, kcal:'?'} : v);
+      }
+    }
+
+    // 公開API
+    window.foodDraw = { setFoods, drawOnce, openOverlay, closeOverlay };
+
+    // キー操作
+    window.addEventListener('keydown', e=>{
+      if(e.code==='Space'){ e.preventDefault(); drawOnce(); }
+      if(e.key==='n' || e.key==='N'){ e.preventDefault(); drawOnce(); }
+      if(e.key==='Escape'){ e.preventDefault(); closeOverlay(); }
+    });
+
+    // 初期表示 & 自動デモ
+    buildTrack(6);
+    drawOnce();
+  </script>
+</body>
+</html>

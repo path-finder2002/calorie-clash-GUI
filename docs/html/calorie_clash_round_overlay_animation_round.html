@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Round Overlay — Anime.js Mock</title>
+  <style>
+    :root{ --bg:#000; --fg:#fff }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{ margin:0; background:#111; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; }
+
+    /* 黒フルスクリーンの被せ */
+    .overlay{
+      position:fixed; inset:0; display:grid; place-items:center; background: var(--bg); color: var(--fg);
+      z-index: 9999; /* 何よりも前面 */
+    }
+    .stack{ text-align:center; }
+    .round-label{ font-weight:800; letter-spacing:.2em; opacity:.9; font-size: clamp(18px, 2.4vw, 28px); }
+    .round-count{ font-weight:900; line-height:1; font-size: clamp(72px, 14vw, 220px); text-shadow:0 0 24px rgba(255,255,255,.25); }
+    .sub{ margin-top:8px; font-size: clamp(12px, 1.4vw, 16px); opacity:.7 }
+
+    /* 画面下のヘルプ */
+    .help{ position:fixed; bottom:24px; left:0; right:0; text-align:center; color:#bbb; font-size:14px; letter-spacing:.04em }
+    kbd{ background:#0f0f0f; border:1px solid #333; padding:2px 6px; border-radius:6px }
+  </style>
+  <!-- anime.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+</head>
+<body>
+  <!-- 黒背景＋白文字のラウンド表示 -->
+  <div class="overlay" id="overlay" aria-live="polite" aria-atomic="true">
+    <div class="stack">
+      <div class="round-label" id="label">ROUND</div>
+      <div class="round-count" id="count">1</div>
+      <div class="sub" id="sub">Get Ready</div>
+    </div>
+    <div class="help">[<kbd>Space</kbd>] 再生/一時停止 ・ [<kbd>N</kbd>] 次へ ・ [<kbd>Esc</kbd>] 閉じる</div>
+  </div>
+
+  <script>
+    /*
+      ラウンドカウントのアニメーション モック
+      - 黒背景に白文字
+      - anime.jsでスケール/フェード/スライド
+      - シンプルなAPI: playRounds([1,2,3]) / closeOverlay()
+    */
+
+    const labelEl = document.getElementById('label');
+    const countEl = document.getElementById('count');
+    const subEl   = document.getElementById('sub');
+    const overlay = document.getElementById('overlay');
+
+    const rounds = [1,2,3]; // デモ用
+    let idx = 0;
+    let isPlaying = false;
+
+    // タイムライン生成（1ラウンド分）
+    function buildTimeline(num){
+      countEl.textContent = num;
+      labelEl.textContent = 'ROUND';
+      subEl.textContent   = 'Get Ready';
+
+      // 初期状態
+      countEl.style.opacity = 0; countEl.style.transform = 'translateY(10px) scale(.86)';
+      labelEl.style.opacity = 0; labelEl.style.letterSpacing = '0.6em';
+      subEl.style.opacity = 0;
+
+      const tl = anime.timeline({ autoplay:false, easing:'cubicBezier(.2,.8,.2,1)' });
+
+      // ラベル出現
+      tl.add({ targets: labelEl, opacity:[0,1], letterSpacing:['0.6em','0.2em'], duration:300 });
+      // カウント強調
+      tl.add({ targets: countEl, opacity:[0,1], translateY:[10,0], scale:[.86,1.12], duration:380 }, '-=80');
+      tl.add({ targets: countEl, scale:[1.12,1.0], duration:220 });
+      // サブの提示
+      tl.add({ targets: subEl, opacity:[0,1], translateY:[6,0], duration:220 }, '-=160');
+      // 小休止
+      tl.add({ duration: 420 });
+      // 退場（フェードアウト）
+      tl.add({ targets:[labelEl, countEl, subEl], opacity: [1,0], duration:300, easing:'easeOutQuad' });
+      return tl;
+    }
+
+    // ラウンドを順に再生
+    let tl = buildTimeline(rounds[idx]);
+    function playCurrent(){ tl.play(); isPlaying = true; }
+    function pause(){ tl.pause(); isPlaying = false; }
+    function next(){
+      tl.pause();
+      idx = (idx + 1) % rounds.length;
+      tl = buildTimeline(rounds[idx]);
+      tl.play(); isPlaying = true;
+    }
+
+    function closeOverlay(){
+      anime({ targets: overlay, opacity:[1,0], duration:280, easing:'easeOutQuad', complete(){ overlay.style.display='none'; } });
+    }
+
+    // 公開API（他画面から利用可能）
+    window.playRounds = function(list){
+      if(Array.isArray(list) && list.length){ idx = 0; tl.pause(); tl=buildTimeline(list[idx]); tl.play(); }
+    }
+    window.closeOverlay = closeOverlay;
+
+    // キー操作
+    window.addEventListener('keydown', (e)=>{
+      if(e.code==='Space'){ e.preventDefault(); isPlaying ? pause() : playCurrent(); }
+      if(e.key==='n' || e.key==='N'){ e.preventDefault(); next(); }
+      if(e.key==='Escape'){ e.preventDefault(); closeOverlay(); }
+    });
+
+    // 自動スタート
+    playCurrent();
+  </script>
+</body>
+</html>
