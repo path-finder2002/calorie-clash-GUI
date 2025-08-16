@@ -13,16 +13,17 @@ type Props = {
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   return (
-    <Box minH="100dvh" bgGradient="radial(#121820 0%, #0b0f14 70%)" position="relative" px="24px">
+    <Box h="100dvh" overflow="hidden" bgGradient="radial(#121820 0%, #0b0f14 70%)" position="relative" px="24px">
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
-        inset={0}
+        top={{ base: '96px', md: '120px', lg: '140px' }}
+        left={0}
+        right={0}
         display="grid"
         placeItems="center"
         zIndex={2}
         pointerEvents="none"
-        transform={{ base: 'translateY(-6vh)', md: 'translateY(-8vh)', lg: 'translateY(-10vh)' }}
       >
         <Box maxW={{ base: '92vw', md: '900px', lg: '1100px' }} px={{ base: 2, md: 4 }}>
           <VStack gap="8px" align="center">
@@ -45,7 +46,8 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             letterSpacing="0.12em"
             lineHeight={1.2}
             textAlign="center"
-            opacity={0.85}
+            opacity={0.9}
+            color="whiteAlpha.900"
             textTransform="uppercase"
           >
             Stomach Janken
@@ -56,7 +58,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               勝てばポイント、負ければ食事。<br />
               胃袋の限界バトルが今、始まる。
             </Text>
-            <Text fontSize={{ base: 'xs', md: 'sm' }} lineHeight={1.6} textAlign="center" opacity={0.85}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color="whiteAlpha.900">
               Win points if you win, eat if you lose.<br />
               The ultimate stomach battle begins now.
             </Text>
@@ -65,16 +67,16 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </Box>
       </Box>
 
-      {/* そのほかのUI（ボタン等） */}
-      <VStack gap="32px" pt={{ base: '60vh', md: '64vh', lg: '66vh' }}>
-        <VStack gap="28px" w="360px" maxW="90vw">
+      {/* そのほかのUI（ボタン等）を下部に固定 */}
+      <Box position="absolute" left={0} right={0} bottom={{ base: '2vh', md: '3vh', lg: '4vh' }}>
+        <VStack gap="32px" w="360px" maxW="90vw" mx="auto">
           <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>スタート</Button>
           <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>オプション</Button>
           <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>ヘルプ</Button>
         </VStack>
 
-        {/* ルール切り替えをボタン群の下へ移動し、中央テキストとの重なりを回避 */}
-        <Box position="relative" display="inline-block" mt={{ base: 8, md: 12 }}>
+        {/* ルール切り替え（ボタン群の下） */}
+        <Box position="relative" display="inline-block" mt={{ base: 8, md: 10 }} w="100%">
           <HStack gap="12px" align="center" justify="center">
             <Badge colorScheme="purple">ルール</Badge>
             <HStack gap="8px">
@@ -135,7 +137,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
           </Box>
         </Box>
 
-        <VStack gap="4px" mt="16px">
+        <VStack gap="4px" mt="20px" w="100%" align="center">
           <Text fontSize="sm" opacity={0.75}>© {new Date().getFullYear()} Team CC — v0.1.0</Text>
           <Text fontSize="xs" opacity={0.7}>Inspired by Wednesday  downtown.</Text>
           <Text fontSize="xs" opacity={0.8}>
@@ -149,7 +151,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             </a>
           </Text>
         </VStack>
-      </VStack>
+      </Box>
     </Box>
   );
 }
