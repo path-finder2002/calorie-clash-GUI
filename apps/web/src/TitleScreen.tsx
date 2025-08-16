@@ -1,4 +1,4 @@
-import { Box, VStack, Button, Text, HStack, Badge } from "@chakra-ui/react";
+import { Box, VStack, Button, Text, HStack, Badge, useColorMode } from "@chakra-ui/react";
 import { useState } from "react";
 import type { GameRule } from "./models";
 
@@ -11,23 +11,19 @@ type Props = {
 };
 
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
+  const { colorMode, toggleColorMode } = useColorMode();
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   return (
     <Box h="100dvh" overflow="hidden" bgGradient="radial(#121820 0%, #0b0f14 70%)" position="relative" px="24px">
       {/* 右上 GitHub ボタン */}
-      <Box position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3}>
-        <Button
-          as="a"
-          href="https://github.com/path-finder2002/calorie-clash-GUI"
-          target="_blank"
-          rel="noreferrer noopener"
-          size="sm"
-          variant="outline"
-          colorScheme="teal"
-        >
+      <HStack position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3} gap={2}>
+        <Button as="a" href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener" size="sm" variant="outline" colorScheme="teal">
           GitHub
         </Button>
-      </Box>
+        <Button size="sm" onClick={toggleColorMode} variant="ghost">
+          {colorMode === 'light' ? '🌙 Dark' : '☀️ Light'}
+        </Button>
+      </HStack>
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
