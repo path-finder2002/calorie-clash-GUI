@@ -47,7 +47,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             lineHeight={1.2}
             textAlign="center"
             opacity={0.9}
-            color="whiteAlpha.900"
+            color="black"
             textTransform="uppercase"
             transform={{ base: 'translateY(-6px)', md: 'translateY(-10px)' }}
           >
@@ -64,7 +64,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               lineHeight={1.7}
               textAlign="center"
               opacity={0.95}
-              color="whiteAlpha.900"
+              color="black"
               transform={{ base: 'translateY(-4px)', md: 'translateY(-8px)' }}
             >
               Win points if you win, eat if you lose.<br />
