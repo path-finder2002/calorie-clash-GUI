@@ -15,10 +15,28 @@ type Lang = 'ja' | 'en';
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
+  type Theme = 'light' | 'dark';
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem('calorieClash.theme') as Theme | null;
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch { /* ignore */ }
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+  });
 
   useEffect(() => {
     try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ }
   }, [lang]);
+
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('calorieClash.theme', theme);
+    } catch { /* ignore */ }
+  }, [theme]);
 
   const t = lang === 'ja'
     ? {
@@ -67,6 +85,9 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </Link>
         <Button size="sm" onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))} variant="outline">
           {t.langToggle}
+        </Button>
+        <Button size="sm" onClick={() => setTheme(m => (m === 'dark' ? 'light' : 'dark'))} variant="ghost">
+          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
         </Button>
       </HStack>
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
