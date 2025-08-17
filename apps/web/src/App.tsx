@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
 import TitleScreen from "@/pages/TitleScreen";
+import PlayerSelectScreen from "@/pages/PlayerSelectScreen";
 import GameScreen from "@/pages/GameScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
 import HelpScreen from "@/pages/HelpScreen";
@@ -9,14 +10,17 @@ import { defaultRule } from "@/models";
 import { loadRule, saveRule } from "@/lib";
 import { useAppTheme } from "@/theme/colorMode";
 import TopHeader from "@/ui/TopHeader";
+import RoundOverlay from "@/components/RoundOverlay";
 
-type Screen = "title" | "game" | "help" | "settings";
+type Screen = "title" | "playerSelect" | "game" | "help" | "settings";
 
 export default function App() {
   const { isDark } = useAppTheme();
   const [screen, setScreen] = useState<Screen>("title");
   const [rule, setRule] = useState<GameRule>(() => loadRule() ?? defaultRule);
   const [returnTo, setReturnTo] = useState<Exclude<Screen, "settings">>("title");
+  const [mode, setMode] = useState<'pvc'|'pvp'>('pvc');
+  const [showRound, setShowRound] = useState(false);
   type Lang = 'ja' | 'en';
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
   useEffect(() => { try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ } }, [lang]);
@@ -24,7 +28,11 @@ export default function App() {
 
   useEffect(() => { saveRule(rule); }, [rule]);
 
-  const startGame = () => setScreen("game");
+  const startGame = () => setScreen("playerSelect");
+  const confirmPlayers = (m: 'pvc'|'pvp') => {
+    setMode(m);
+    setShowRound(true);
+  };
   const openOptions = () => { setReturnTo(screen === "settings" ? returnTo : (screen as Exclude<Screen, "settings">)); setScreen("settings"); };
   const openHelp = () => setScreen("help");
   const goTitle = () => setScreen("title");
@@ -59,6 +67,9 @@ export default function App() {
           onHelp={openHelp}
         />
       )}
+      {screen === "playerSelect" && (
+        <PlayerSelectScreen onBack={goTitle} onConfirm={confirmPlayers} />
+      )}
       {screen === "game" && (
         <GameScreen
           lang={lang}
@@ -71,6 +82,9 @@ export default function App() {
       {screen === "help" && <HelpScreen onBack={goTitle} />}
       {screen === "settings" && (
         <SettingsScreen onClose={closeSettings} rule={rule} onChangeRule={setRule} />
+      )}
+      {showRound && (
+        <RoundOverlay mode={mode} round={1} onComplete={() => { setShowRound(false); setScreen('game'); }} />
       )}
     </Box>
   );

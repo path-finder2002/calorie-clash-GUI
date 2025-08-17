@@ -24,16 +24,16 @@
     .help{ position:fixed; bottom:24px; left:0; right:0; text-align:center; color:#bbb; font-size:14px; letter-spacing:.04em }
     kbd{ background:#0f0f0f; border:1px solid #333; padding:2px 6px; border-radius:6px }
   </style>
-  <!-- anime.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-3zX2J9n9k7zYbYbP1m8ofZBZ2k7m0w8aK1b0eQtnG6kq0v+q9oYVq7y7VY1fG8w2z1kT0wJc+O2kS2S4B9Yk/A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
   <!-- 黒背景＋白文字のラウンド表示 -->
   <div class="overlay" id="overlay" aria-live="polite" aria-atomic="true">
     <div class="stack">
-      <div class="round-label" id="label">ROUND</div>
-      <div class="round-count" id="count">1</div>
-      <div class="sub" id="sub">Get Ready</div>
+      <div class="round-label" id="label">TITLE</div>
+      <div class="round-count" id="count">Calorie Clash</div>
+      <div class="sub" id="sub">Press Start</div>
     </div>
     <div class="help">[<kbd>Space</kbd>] 再生/一時停止 ・ [<kbd>N</kbd>] 次へ ・ [<kbd>Esc</kbd>] 閉じる</div>
   </div>
@@ -51,54 +51,58 @@
     const subEl   = document.getElementById('sub');
     const overlay = document.getElementById('overlay');
 
-    const rounds = [1,2,3]; // デモ用
+    // シーケンス: タイトル → ゲームモード → ラウンドカウント
+    const sequence = [
+      { label:'TITLE', main:'Calorie Clash', sub:'Press Start' },
+      { label:'MODE',  main:'プレイヤー vs CPU', sub:'Game Mode' },
+      { label:'ROUND', main:'1', sub:'Get Ready' },
+    ];
     let idx = 0;
     let isPlaying = false;
 
-    // タイムライン生成（1ラウンド分）
-    function buildTimeline(num){
-      countEl.textContent = num;
-      labelEl.textContent = 'ROUND';
-      subEl.textContent   = 'Get Ready';
+    // タイムライン生成（1ステップ分） — GSAP
+    function buildTimeline(step){
+      const { label, main, sub } = step;
+      countEl.textContent = String(main);
+      labelEl.textContent = label;
+      subEl.textContent   = sub ?? '';
 
       // 初期状態
-      countEl.style.opacity = 0; countEl.style.transform = 'translateY(10px) scale(.86)';
-      labelEl.style.opacity = 0; labelEl.style.letterSpacing = '0.6em';
-      subEl.style.opacity = 0;
+      gsap.set(countEl, { opacity: 0, y: 10, scale: 0.86 });
+      gsap.set(labelEl, { opacity: 0, letterSpacing: '0.6em' });
+      gsap.set(subEl,   { opacity: 0, y: 6 });
 
-      const tl = anime.timeline({ autoplay:false, easing:'cubicBezier(.2,.8,.2,1)' });
-
+      const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
       // ラベル出現
-      tl.add({ targets: labelEl, opacity:[0,1], letterSpacing:['0.6em','0.2em'], duration:300 });
+      tl.to(labelEl, { opacity: 1, duration: 0.3 }, 0)
+        .to(labelEl, { letterSpacing: '0.2em', duration: 0.3 }, 0);
       // カウント強調
-      tl.add({ targets: countEl, opacity:[0,1], translateY:[10,0], scale:[.86,1.12], duration:380 }, '-=80');
-      tl.add({ targets: countEl, scale:[1.12,1.0], duration:220 });
+      tl.to(countEl, { opacity: 1, y: 0, scale: 1.12, duration: 0.38 }, 0.22)
+        .to(countEl, { scale: 1.0, duration: 0.22 }, '>-0.02');
       // サブの提示
-      tl.add({ targets: subEl, opacity:[0,1], translateY:[6,0], duration:220 }, '-=160');
+      tl.to(subEl, { opacity: 1, y: 0, duration: 0.22 }, '>-0.16');
       // 小休止
-      tl.add({ duration: 420 });
+      tl.to({}, { duration: 0.52 });
       // 退場（フェードアウト）
-      tl.add({ targets:[labelEl, countEl, subEl], opacity: [1,0], duration:300, easing:'easeOutQuad' });
+      tl.to([labelEl, countEl, subEl], { opacity: 0, duration: 0.3, ease: 'power2.out' });
       return tl;
     }
 
-    // ラウンドを順に再生
-    let tl = buildTimeline(rounds[idx]);
+    // ステップを順に再生
+    let tl = buildTimeline(sequence[idx]);
     function playCurrent(){ tl.play(); isPlaying = true; }
     function pause(){ tl.pause(); isPlaying = false; }
     function next(){
       tl.pause();
-      idx = (idx + 1) % rounds.length;
-      tl = buildTimeline(rounds[idx]);
+      idx = (idx + 1) % sequence.length;
+      tl = buildTimeline(sequence[idx]);
       tl.play(); isPlaying = true;
     }
 
-    function closeOverlay(){
-      anime({ targets: overlay, opacity:[1,0], duration:280, easing:'easeOutQuad', complete(){ overlay.style.display='none'; } });
-    }
+    function closeOverlay(){ gsap.to(overlay, { opacity: 0, duration: 0.28, ease:'power2.out', onComplete(){ overlay.style.display='none'; } }); }
 
     // 公開API（他画面から利用可能）
-    window.playRounds = function(list){
+    window.playSequence = function(list){
       if(Array.isArray(list) && list.length){ idx = 0; tl.pause(); tl=buildTimeline(list[idx]); tl.play(); }
     }
     window.closeOverlay = closeOverlay;

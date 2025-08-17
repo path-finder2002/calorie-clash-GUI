@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calorie Clash</title>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  </head>
+  <body>
+    <!-- Player Select UI Mock (pure HTML/CSS) -->
+    <style>
+      :root { --bg: #0f1115; --card: #171a21; --border: #2a2f3a; --text: #e7e9ee; --muted: #a8b0bd; --accent: #2dd4bf; }
+      @media (prefers-color-scheme: light) { :root { --bg: #f5f7fb; --card: #ffffff; --border: #e6eaf2; --text: #0f1115; --muted: #5b6472; --accent: #14b8a6; } }
+      .mock-player-select { position: fixed; inset: 0; z-index: 9999; min-height: 100dvh; overflow: auto; background: radial-gradient(1200px 600px at 50% -20%, rgba(45,212,191,0.18), transparent 60%), var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+      .mock-container { max-width: min(100%, 920px); margin: 0 auto; padding: clamp(16px, 3vw, 24px); }
+      .mock-header { text-align: center; margin: clamp(12px, 2vw, 16px) 0 clamp(16px, 3vw, 24px); }
+      .mock-title { font-size: clamp(20px, 5.6vw, 28px); letter-spacing: .08em; text-transform: uppercase; font-weight: 800; }
+      .mock-sub { color: var(--muted); font-size: clamp(12px, 3.4vw, 14px); margin-top: 6px; }
+      .mock-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+      .mock-section { padding: clamp(12px, 3vw, 20px); margin-bottom: clamp(12px, 3vw, 20px); }
+      .mock-section h3 { margin: 0 0 10px; font-size: clamp(14px, 3.8vw, 16px); }
+      .mock-options { display: flex; gap: 10px; flex-wrap: wrap; }
+      .mock-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 9999px; background: transparent; border: 1px solid var(--border); color: var(--text); cursor: pointer; user-select: none; }
+      .mock-chip input { accent-color: var(--accent); }
+      .mock-players { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 580px) { .mock-players { grid-template-columns: 1fr 1fr; } }
+      .player-card { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; padding: 12px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.02); }
+      .avatar { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.06); font-size: 26px; }
+      .fields { display: grid; gap: 8px; }
+      .row { display: grid; grid-template-columns: 1fr 110px; gap: 8px; }
+      @media (max-width: 360px) { .row { grid-template-columns: 1fr; } }
+      .input, .select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); outline: none; }
+      .input::placeholder { color: var(--muted); }
+      .ready { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--accent); background: rgba(45,212,191,0.08); color: var(--accent); font-weight: 700; }
+      .mock-footer { display: grid; gap: 10px; grid-template-columns: 1fr; max-width: min(360px, 92vw); margin: clamp(14px, 3vw, 20px) auto; }
+      .btn { height: 52px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); font-weight: 600; }
+      .btn-primary { background: var(--accent); color: #082d29; border-color: var(--accent); }
+      .mock-toolbar { position: fixed; inset: 12px 12px auto auto; z-index: 10000; display: flex; gap: 8px; }
+      .mock-hide { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
+    </style>
+    <div id="player-select-mock" class="mock-player-select" hidden>
+      <div class="mock-toolbar">
+        <button class="mock-hide" onclick="document.getElementById('player-select-mock').hidden=true;">閉じる</button>
+      </div>
+      <div class="mock-container">
+        <header class="mock-header">
+          <div class="mock-title">プレイヤー選択</div>
+          <div class="mock-sub">人数と名前を設定してください</div>
+        </header>
+
+        <section class="mock-section mock-card">
+          <h3>対戦形式</h3>
+          <div class="mock-options">
+            <label class="mock-chip"><input type="radio" name="mode" checked> 1人（プレイヤー vs CPU）</label>
+            <label class="mock-chip"><input type="radio" name="mode"> 2人（PvP）</label>
+          </div>
+        </section>
+
+        <section class="mock-section mock-card">
+          <h3>プレイヤー</h3>
+          <div class="mock-players">
+            <div class="player-card">
+              <div class="avatar">🧑‍🚀</div>
+              <div class="fields">
+                <div class="row">
+                  <input class="input" placeholder="プレイヤー1" />
+                  <select class="select">
+                    <option>カラー: ミント</option>
+                    <option>カラー: ブルー</option>
+                    <option>カラー: パープル</option>
+                  </select>
+                </div>
+                <button class="ready">準備OK</button>
+              </div>
+            </div>
+
+            <div class="player-card" aria-label="CPU">
+              <div class="avatar">🤖</div>
+              <div class="fields">
+                <div class="row">
+                  <input class="input" placeholder="CPU" disabled />
+                  <select class="select" disabled>
+                    <option>自動（カラー）</option>
+                  </select>
+                </div>
+                <button class="ready" disabled>CPU</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="mock-footer">
+          <button class="btn">戻る</button>
+          <button class="btn btn-primary">ゲーム開始</button>
+        </footer>
+      </div>
+    </div>
+    <!-- end of UI mock -->
+
+    <!-- React app mounts here -->
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
+  <!-- F2キーの開閉トグルは廃止 -->
+</html>
