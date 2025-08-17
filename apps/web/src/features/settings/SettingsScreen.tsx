@@ -25,7 +25,12 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
   } = useSettings(rule, onChangeRule, onClose);
 
   return (
-    <Box px={{ base: 4, md: 8 }} py={6} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
+    <Box
+      px={{ base: 4, md: 8 }}
+      py={6}
+      pt={{ base: '64px', md: '80px' }}
+      color={isDark ? 'whiteAlpha.900' : 'gray.900'}
+    >
       <Heading
         as='h2'
         fontSize={{ base: '2xl', md: '3xl' }}
