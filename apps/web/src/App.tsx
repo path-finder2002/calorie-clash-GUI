@@ -84,7 +84,13 @@ export default function App() {
         <SettingsScreen onClose={closeSettings} rule={rule} onChangeRule={setRule} />
       )}
       {showRound && (
-        <RoundOverlay mode={mode} round={1} onComplete={() => { setShowRound(false); setScreen('game'); }} />
+        <RoundOverlay
+          mode={mode}
+          round={1}
+          playerName='プレイヤー'
+          cpuName='CPU'
+          onComplete={() => { setShowRound(false); setScreen('game'); }}
+        />
       )}
     </Box>
   );
