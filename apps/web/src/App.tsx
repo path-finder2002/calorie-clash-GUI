@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Button, HStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Link } from "@chakra-ui/react";
 import TitleScreen from "@/pages/TitleScreen";
 import GameScreen from "@/pages/GameScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
@@ -16,6 +16,9 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("title");
   const [rule, setRule] = useState<GameRule>(() => loadRule() ?? defaultRule);
   const [returnTo, setReturnTo] = useState<Exclude<Screen, "settings">>("title");
+  type Lang = 'ja' | 'en';
+  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
+  useEffect(() => { try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ } }, [lang]);
   
 
   useEffect(() => { saveRule(rule); }, [rule]);
@@ -42,13 +45,32 @@ export default function App() {
       position="relative"
     >
       {/* 全画面共通: 右上トグル */}
-      <HStack position="fixed" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={10}>
-        <Button size="sm" variant="ghost" onClick={toggleTheme}>
-          {isDark ? '☀️ Light' : '🌙 Dark'}
-        </Button>
+      <HStack position="fixed" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={10} gap={2}>
+        {(() => {
+          const commonBtn = {
+            size: 'sm' as const,
+            variant: 'outline' as const,
+            color: isDark ? 'white' : 'gray.800',
+            borderColor: isDark ? 'whiteAlpha.700' : 'gray.400',
+          };
+          return (
+            <>
+              <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
+                <Button {...commonBtn}>GitHub</Button>
+              </Link>
+              <Button {...commonBtn} onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))}>
+                {lang === 'ja' ? 'EN' : '日本語'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={toggleTheme}>
+                {isDark ? '☀️ Light' : '🌙 Dark'}
+              </Button>
+            </>
+          );
+        })()}
       </HStack>
       {screen === "title" && (
         <TitleScreen
+          lang={lang}
           rule={rule}
           onChangeRule={setRule}
           onStart={startGame}

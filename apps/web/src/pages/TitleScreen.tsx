@@ -1,5 +1,5 @@
-import { Box, VStack, Button, Text, HStack, Badge, Link } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Box, VStack, Button, Text, HStack, Badge } from "@chakra-ui/react";
+import { useState } from "react";
 import type { GameRule } from "@/models";
 import { useAppTheme } from "@/theme/colorMode";
 
@@ -9,18 +9,16 @@ type Props = {
   onStart: () => void;
   onOptions: () => void;
   onHelp: () => void;
+  lang: Lang;
 };
 
 type Lang = 'ja' | 'en';
 
-export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp }: Props) {
+export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp, lang }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
-  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
   const { isDark } = useAppTheme();
 
-  useEffect(() => {
-    try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ }
-  }, [lang]);
+  // 言語の永続化は App 側で実施
 
 
   const t = lang === 'ja'
@@ -56,27 +54,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       };
   return (
     <Box h="100dvh" overflow="hidden" position="relative" px="24px" color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
-      {/* 右上 GitHub ボタン */}
-      <HStack position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3} gap={2}>
-        {(() => {
-          const commonBtn = {
-            size: 'sm' as const,
-            variant: 'outline' as const,
-            color: isDark ? 'white' : 'gray.800',
-            borderColor: isDark ? 'whiteAlpha.700' : 'gray.400',
-          };
-          return (
-            <>
-              <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
-                <Button {...commonBtn}>GitHub</Button>
-              </Link>
-              <Button {...commonBtn} onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))}>
-                {t.langToggle}
-              </Button>
-            </>
-          );
-        })()}
-      </HStack>
+      {/* 右上のボタンは App 側で共通表示 */}
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
         position="absolute"
