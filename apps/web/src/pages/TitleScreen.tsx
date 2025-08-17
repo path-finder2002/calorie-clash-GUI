@@ -1,7 +1,8 @@
-import { Box, VStack, Button, Text, HStack, Badge } from "@chakra-ui/react";
+import { Box, VStack, Button, Text, HStack, Badge, Card } from "@chakra-ui/react";
 import { useState } from "react";
 import type { GameRule } from "@/models";
 import { useAppTheme } from "@/theme/colorMode";
+import RoundOverlay from "@/components/RoundOverlay";
 
 type Props = {
   rule: GameRule;
@@ -17,6 +18,8 @@ type Lang = 'ja' | 'en';
 export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, onHelp, lang }: Props) {
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   const { isDark } = useAppTheme();
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [showOverlay, setShowOverlay] = useState<false | (1|2|3)>(false);
 
   // 言語の永続化は App 側で実施
 
@@ -53,6 +56,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         langToggle: '日本語',
       };
   return (
+    <>
     <Box minH="100dvh" display="flex" flexDir="column" px={{ base: 3, md: 6 }} py={{ base: 4, md: 6 }} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       {/* 右上のボタンは App 側で共通表示 */}
       {/* ヒーロー（見出し＋キャッチ） */}
@@ -101,6 +105,22 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
           </VStack>
           </VStack>
         </Box>
+      </Box>
+
+      {/* デバッグメニュー（開発補助） */}
+      <Box position="fixed" bottom={{ base: 4, md: 6 }} left={{ base: 4, md: 6 }} zIndex={20}>
+        <Card.Root p={3} borderRadius='md' bg='surface' borderWidth='1px' borderColor='border'>
+          <HStack gap={2}>
+            <Button size='sm' variant='outline' onClick={() => setDebugOpen(v => !v)}>デバッグ</Button>
+            {debugOpen && (
+              <HStack gap={2}>
+                <Button size='sm' onClick={() => setShowOverlay(1)}>VS</Button>
+                <Button size='sm' onClick={() => setShowOverlay(2)}>ROUND</Button>
+                <Button size='sm' onClick={() => setShowOverlay(3)}>SLOT</Button>
+              </HStack>
+            )}
+          </HStack>
+        </Card.Root>
       </Box>
 
       {/* ボタン群（安全に下部寄せ） */}
@@ -211,5 +231,16 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </VStack>
       </Box>
     </Box>
+    {showOverlay && (
+      <RoundOverlay
+        mode='pvc'
+        round={1}
+        debugStep={showOverlay}
+        onComplete={() => setShowOverlay(false)}
+        playerName='プレイヤー'
+        cpuName='CPU'
+      />
+    )}
+    </>
   );
 }

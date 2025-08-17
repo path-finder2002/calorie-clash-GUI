@@ -1,0 +1,35 @@
+<svg viewBox="0 0 256 256" width="256" height="256"
+    xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Low Poly Scissors">
+    <title>Low Poly Scissors</title>
+    <g stroke="#2a3240" stroke-width="1.5" stroke-linejoin="round">
+
+        <!-- Blade A -->
+        <polygon fill="#8A97A7" points="132,124 220,60 228,68 140,132" />
+        <polygon fill="#B7C4D6" points="140,120 224,58 220,66 146,128" />
+        <polygon fill="#6D7A8C" points="126,118 150,110 142,134" />
+
+        <!-- Blade B -->
+        <polygon fill="#7E8CA0" points="124,132 210,190 202,198 116,140" />
+        <polygon fill="#A8B6C8" points="118,132 206,188 200,194 112,136" />
+        <polygon fill="#5F6B7C" points="114,138 138,150 124,156" />
+
+        <!-- Upper handle (ring) -->
+        <path fill="#3E4754" fill-rule="evenodd"
+            d="M70,60 L90,58 L104,70 L102,90 L84,100 L66,88 Z
+         M72,84 L84,92 L94,86 L96,74 L88,66 L76,68 Z" />
+
+        <!-- Lower handle (ring) -->
+        <path fill="#3E4754" fill-rule="evenodd"
+            d="M66,158 L86,154 L102,166 L100,186 L82,198 L64,188 Z
+         M70,180 L82,188 L92,182 L94,170 L84,162 L72,164 Z" />
+
+        <!-- Neck pieces -->
+        <polygon fill="#4F5968" points="100,104 116,116 106,126 92,114" />
+        <polygon fill="#4A5563" points="96,148 110,140 98,130 86,140" />
+
+        <!-- Pivot -->
+        <circle cx="128" cy="128" r="7" fill="#D7E1EE" />
+        <circle cx="128" cy="128" r="3" fill="#2a3240" />
+
+    </g>
+</svg>
