@@ -1,24 +1,19 @@
 import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Field, Switch } from '@chakra-ui/react';
 import { useAppTheme } from '@/theme/colorMode';
 import type { ChangeEvent } from 'react';
-import { NumberAdjuster } from '@/components/NumberAdjuster';
 import { useSettings } from '@/features/settings/hooks';
+import { NumberAdjuster } from '@/components/NumberAdjuster';
+// NumberAdjuster は未使用（数値入力は非表示）
 import type { SettingsScreenProps } from '@/features/settings/types';
 import type { GameRule } from '@/models';
 
 export default function SettingsScreen({ onClose, rule, onChangeRule }: SettingsScreenProps) {
   const { isDark } = useAppTheme();
-  const {
-    draft,
-    physText,
-    physInvalid,
-    update,
-    apply,
-    cancel,
-    defaults,
-    adjustPhysique,
-    setPhysText,
-  } = useSettings(rule, onChangeRule, onClose);
+  const { draft, tpText, tpInvalid, update, apply, cancel, defaults, setTpText } = useSettings(
+    rule,
+    onChangeRule,
+    onClose,
+  );
 
   return (
     <Box
@@ -39,36 +34,45 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
         オプション
       </Heading>
       <Stack gap={6} maxW={{ base: '100%', md: '960px' }} mx='auto'>
+        {/* 勝利ポイント（新規セクション） */}
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
+          <Card.Header>
+            <Card.Title>勝利ポイント</Card.Title>
+            <Card.Description>勝利条件となるポイント数を設定</Card.Description>
+          </Card.Header>
+          <Card.Body>
+            <Field.Root invalid={tpInvalid}>
+              <Box w='full' display='grid' placeItems='center'>
+                <NumberAdjuster
+                  value={tpText}
+                  min={1}
+                  step={1}
+                  onAdjust={() => { /* no adjust buttons */ }}
+                  onValueChange={(v) => {
+                    const next = typeof v === 'string' ? v : v?.value ?? '';
+                    setTpText(next);
+                    if (/^\\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
+                  }}
+                >
+                  {({ input }) => (
+                    <Box w='full' display='grid' placeItems='center' my={{ base: 2, md: 3 }}>
+                      {input}
+                    </Box>
+                  )}
+                </NumberAdjuster>
+              </Box>
+              {tpInvalid && (<Field.ErrorText mt={2}>数字のみを入力してください</Field.ErrorText>)}
+            </Field.Root>
+          </Card.Body>
+        </Card.Root>
         <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
           <Card.Header>
             <Card.Title>ゲームルール</Card.Title>
-            <Card.Description>ポイント・満腹上限・あいこ処理を選択</Card.Description>
+            <Card.Description>あいこ処理を選択</Card.Description>
           </Card.Header>
           <Card.Body>
             <Stack gap={5}>
-              <Field.Root invalid={physInvalid}>
-                <Stack gap={2} align="stretch" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <NumberAdjuster
-                    value={physText}
-                    min={100}
-                    step={10}
-                    onAdjust={adjustPhysique}
-                    onValueChange={(v) => {
-                      const next = typeof v === 'string' ? v : v?.value ?? '';
-                      setPhysText(next);
-                      if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
-                    }}
-                  >
-                    {({ input }) => (
-                      <Box w='full' display='grid' placeItems='center' my={{ base: 4, md: 6 }}>
-                        {input}
-                      </Box>
-                    )}
-                  </NumberAdjuster>
-                </Stack>
-                {physInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
-              </Field.Root>
-              
+              {/* 数値フィールド（満腹上限）セクションは削除 */}
 
               <Field.Root>
                 <HStack justify='center' px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>

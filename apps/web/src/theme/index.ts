@@ -24,7 +24,7 @@ export const semanticTokens = defineSemanticTokens({
 const numberInputRecipe = defineSlotRecipe({
   slots: ["root", "input", "control", "incrementTrigger", "decrementTrigger"],
   base: {
-    input: { textAlign: "center" },
+    input: { textAlign: "left" },
   },
 });
 

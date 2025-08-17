@@ -28,7 +28,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
         <NumberInput.Input
           inputMode='numeric'
           pattern='[0-9]*'
-          textAlign='center'
+          textAlign='left'
           fontSize='xl'
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
