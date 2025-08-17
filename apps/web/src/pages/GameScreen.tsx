@@ -108,6 +108,10 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
     resetSequence();
   }
 
+  const findCard = useCallback((hand: Hand, name: string): FoodCard | null => {
+    return rule.deck.find(c => c.hand === hand && c.name === name) || null;
+  }, [rule.deck]);
+
   const handleAssign = useCallback((names: Record<Hand, string>) => {
     const next: Partial<Record<Hand, FoodCard>> = {};
     (['rock','scissors','paper'] as Hand[]).forEach((h) => {
@@ -118,12 +122,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
       }
     });
     setAssigned(next);
-  }, [rule.deck]);
-
-  // 抽選結果をデッキにマップ
-  function findCard(hand: Hand, name: string): FoodCard | null {
-    return rule.deck.find(c => c.hand === hand && c.name === name) || null;
-  }
+  }, [findCard]);
 
   return (
     <Box px={{ base: 0, md: 0 }} py={0} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
