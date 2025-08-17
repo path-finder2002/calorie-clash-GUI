@@ -1,0 +1,16 @@
+<svg viewBox="0 0 256 256" width="256" height="256"
+    xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Low Poly Rock">
+    <title>Low Poly Rock</title>
+    <g stroke="#2a3240" stroke-width="1.5" stroke-linejoin="round">
+        <polygon fill="#738199" points="128,32 68,60 120,100" />
+        <polygon fill="#8592a6" points="128,32 120,100 188,72" />
+        <polygon fill="#677384" points="68,60 48,120 104,148 120,100" />
+        <polygon fill="#5d6a7a" points="120,100 104,148 152,144 208,120" />
+        <polygon fill="#6c7a8f" points="188,72 120,100 208,120" />
+        <polygon fill="#4f5968" points="48,120 64,180 104,148" />
+        <polygon fill="#5e6b7b" points="104,148 64,180 128,208" />
+        <polygon fill="#7b889a" points="104,148 128,208 152,144" />
+        <polygon fill="#6f7c90" points="152,144 128,208 196,176" />
+        <polygon fill="#7e8ca1" points="208,120 152,144 196,176" />
+    </g>
+</svg>
