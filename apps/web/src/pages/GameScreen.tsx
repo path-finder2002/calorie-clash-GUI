@@ -6,6 +6,7 @@ import type { FoodCard, GameRule, Hand } from '@/models';
 import { HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
 import JankenSwiper from '@/components/JankenSwiper';
+import RoundOverlay from '@/components/RoundOverlay';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
@@ -28,6 +29,8 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   const [round, setRound] = useState(1);
   const [result, setResult] = useState<RoundResult>({ outcome: null });
   const [finished, setFinished] = useState<string | null>(null);
+  const [assigned, setAssigned] = useState<Partial<Record<Hand, FoodCard>>>({});
+  const [showDraw, setShowDraw] = useState(true);
 
   const percentMy = Math.min(100, Math.round((mySat / rule.physique) * 100));
   const percentCpu = Math.min(100, Math.round((cpuSat / rule.physique) * 100));
@@ -35,6 +38,8 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   function nextRound() {
     setRound(r => r + 1);
     setResult({ outcome: null });
+    setAssigned({});
+    setShowDraw(true);
   }
 
   function handleSelect(hand: Hand) {
@@ -46,7 +51,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
       const done = checkFinish({ nextMy: outcome === 'win' ? myPoints + 1 : myPoints, nextCpu: outcome === 'lose' ? cpuPoints + 1 : cpuPoints, nextMySat: mySat, nextCpuSat: cpuSat });
       if (!done) setResult({ outcome, myHand: hand, cpuHand: cpu });
     } else {
-      const myCard = randomCardFor(hand, rule.deck);
+      const myCard = assigned[hand] ?? randomCardFor(hand, rule.deck);
       const cpuCard = randomCardFor(cpu, rule.deck);
       if (outcome === 'win') {
         const np = myPoints + myCard.points;
@@ -101,8 +106,13 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   }
 
   const choiceSwiper = (
-    <JankenSwiper onSelect={(h) => handleSelect(h)} />
+    <JankenSwiper onSelect={(h) => handleSelect(h)} cards={assigned} />
   );
+
+  // 抽選結果をデッキにマップ
+  function findCard(hand: Hand, name: string): FoodCard | null {
+    return rule.deck.find(c => c.hand === hand && c.name === name) || null;
+  }
 
   return (
     <Box px={{ base: 0, md: 0 }} py={0} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
@@ -145,7 +155,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg={isDark ? 'blackAlpha.400' : 'blackAlpha.50'}>
           <Stack gap={4} align='center'>
               <Heading size='sm'>手を選んでください</Heading>
-              {choiceSwiper}
+              {!showDraw ? choiceSwiper : <Text>抽選中...</Text>}
               {result.outcome && (
                 <Box textAlign='center' mt={2}>
                   <Text fontSize='lg'>結果: {result.outcome === 'win' ? 'WIN' : result.outcome === 'lose' ? 'LOSE' : 'DRAW'}</Text>
@@ -170,6 +180,26 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         </Box>
       )}
       </Box>
+      {showDraw && (
+        <RoundOverlay
+          mode='pvc'
+          round={round}
+          playerName='あなた'
+          cpuName='CPU'
+          onResult={(names) => {
+            const next: Partial<Record<Hand, FoodCard>> = {};
+            (['rock','scissors','paper'] as Hand[]).forEach((h) => {
+              const n = (names as Record<Hand, string>)[h];
+              if (n) {
+                const c = findCard(h, n);
+                if (c) next[h] = c;
+              }
+            });
+            setAssigned(next);
+          }}
+          onComplete={() => setShowDraw(false)}
+        />
+      )}
     </Box>
   );
 }

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Text, VStack, HStack } from '@chakra-ui/react';
+import type { Hand } from '@/models';
 import { useEffect, useRef, useState } from 'react';
 
 type Props = {
@@ -9,14 +10,15 @@ type Props = {
   playerName?: string;
   cpuName?: string;
   debugStep?: 1 | 2 | 3; // デバッグ用: 特定ステップのみ
+  onResult?: (names: Record<Hand, string>) => void; // 選ばれた食品名（手ごと）
 };
 
 // SLOT 表示用の定数はコンポーネント外で安定化
 const slotBorder = '2px solid rgba(255,255,255,0.2)';
 const slotFoods = {
-  rock: ['唐揚げ', '餃子', 'グミ', 'カツ丼', 'ラーメン', '親子丼'],
-  scissors: ['サラダ', '寿司', 'そば', '天ぷら', 'うどん', '焼きそば'],
-  paper: ['パン', 'パスタ', 'プリン', 'カレー', 'オムライス', 'ハンバーガー'],
+  rock: ['唐揚げ', '餃子', 'グミ'],
+  scissors: ['サラダ', '寿司', 'そば'],
+  paper: ['パン', 'パスタ', 'プリン'],
 } as const;
 // 横スクロール用: ベース配列をそのまま連結
 const cycles = 6;
@@ -35,7 +37,7 @@ function ensureGsap(): Promise<void> {
   });
 }
 
-export default function RoundOverlay({ mode, round = 1, onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debugStep }: Props) {
+export default function RoundOverlay({ mode, round = 1, onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debugStep, onResult }: Props) {
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
   const [resultFoods, setResultFoods] = useState<string[] | null>(null);
@@ -145,12 +147,19 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
           animateRail(slotBox3.current, slotInner3.current),
         ]).then((names) => {
           setResultFoods(names);
+          // names: [rock, scissors, paper]
+          const byHand: Record<Hand, string> = {
+            rock: names[0] || '',
+            scissors: names[1] || '',
+            paper: names[2] || '',
+          };
+          onResult?.(byHand);
           setTimeout(() => { setVisible(false); onComplete(); }, 1600);
         });
       }
     });
     return () => { killed = true; };
-  }, [step, onComplete]);
+  }, [step, onComplete, onResult]);
 
   useEffect(() => {
     let killed = false;
