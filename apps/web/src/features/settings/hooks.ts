@@ -14,8 +14,17 @@ export function useSettings(rule: GameRule, onChangeRule: (r: GameRule) => void,
   }
 
   function apply() { onChangeRule(draft); onClose(); }
-  function cancel() { setDraft(rule); onClose(); }
-  function defaults() { setDraft(defaultRule); }
+  function cancel() {
+    setDraft(rule);
+    setTpText(String(rule.targetPoints));
+    setPhysText(String(rule.physique));
+    onClose();
+  }
+  function defaults() {
+    setDraft(defaultRule);
+    setTpText(String(defaultRule.targetPoints));
+    setPhysText(String(defaultRule.physique));
+  }
 
   function getSafeNumber(text: string, fallback: number) {
     return /^\d+$/.test(text) ? Number(text) : fallback;
