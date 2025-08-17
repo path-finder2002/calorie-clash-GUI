@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Box, Button, ButtonGroup, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
+import { Box, Button, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
 import { useAppTheme } from '@/theme/colorMode';
 import TopHeader from '@/ui/TopHeader';
 import type { FoodCard, GameRule, Hand } from '@/models';
-import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
+import { HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
+import JankenSwiper from '@/components/JankenSwiper';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
@@ -99,12 +100,8 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
     setMyPoints(0); setCpuPoints(0); setMySat(0); setCpuSat(0); setRound(1); setResult({ outcome: null }); setFinished(null);
   }
 
-  const choiceButtons = (
-    <ButtonGroup attached variant='outline' size='lg'>
-      {(['rock','scissors','paper'] as Hand[]).map(h => (
-        <Button key={h} onClick={() => handleSelect(h)}>{HAND_EMOJI[h]} {HAND_LABEL[h]}</Button>
-      ))}
-    </ButtonGroup>
+  const choiceSwiper = (
+    <JankenSwiper onSelect={(h) => handleSelect(h)} />
   );
 
   return (
@@ -148,7 +145,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg={isDark ? 'blackAlpha.400' : 'blackAlpha.50'}>
           <Stack gap={4} align='center'>
               <Heading size='sm'>手を選んでください</Heading>
-              {choiceButtons}
+              {choiceSwiper}
               {result.outcome && (
                 <Box textAlign='center' mt={2}>
                   <Text fontSize='lg'>結果: {result.outcome === 'win' ? 'WIN' : result.outcome === 'lose' ? 'LOSE' : 'DRAW'}</Text>
