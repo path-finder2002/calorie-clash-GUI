@@ -66,7 +66,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                     {({ adjust, input }) => (
                       <>
                         <Box>{input}</Box>
-                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }} flexWrap='wrap' rowGap={2}>
+                        <HStack gap={2} justify='center' mt={{ base: '96px', md: '50px' }} flexWrap='wrap' rowGap={2}>
                           <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
                           <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
                           <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
@@ -97,7 +97,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                     {({ adjust, input }) => (
                       <>
                         <Box>{input}</Box>
-                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }} flexWrap='wrap' rowGap={2}>
+                        <HStack gap={2} justify='center' mt={{ base: '96px', md: '50px' }} flexWrap='wrap' rowGap={2}>
                           <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
                           <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
                         </HStack>
