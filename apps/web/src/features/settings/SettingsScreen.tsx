@@ -1,4 +1,5 @@
 import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Field, Switch } from '@chakra-ui/react';
+import { useAppTheme } from '@/theme/colorMode';
 import type { ChangeEvent } from 'react';
 import { NumberAdjuster } from '@/components/NumberAdjuster';
 import { useSettings } from '@/features/settings/hooks';
@@ -6,6 +7,7 @@ import type { SettingsScreenProps } from '@/features/settings/types';
 import type { GameRule } from '@/models';
 
 export default function SettingsScreen({ onClose, rule, onChangeRule }: SettingsScreenProps) {
+  const { isDark } = useAppTheme();
   const {
     draft,
     tpText,
@@ -23,7 +25,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
   } = useSettings(rule, onChangeRule, onClose);
 
   return (
-    <Box px={{ base: 4, md: 8 }} py={6} color='gray.700'>
+    <Box px={{ base: 4, md: 8 }} py={6} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       <Heading
         as='h2'
         fontSize={{ base: '2xl', md: '3xl' }}
@@ -35,7 +37,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
         オプション
       </Heading>
       <Stack gap={6} maxW='720px' mx='auto'>
-        <Card.Root bg='blackAlpha.300' p={6} borderRadius='lg'>
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
           <Card.Header>
             <Card.Title>ゲームルール</Card.Title>
             <Card.Description>ポイント・満腹上限・あいこ処理を選択</Card.Description>
@@ -71,7 +73,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                 </Stack>
                 {tpInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
-              <Box h='1px' bg='blackAlpha.300' mx={{ base: 2, md: 3 }} my={1} />
+              <Box h='1px' bg={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'} mx={{ base: 2, md: 3 }} my={1} />
 
               <Field.Root invalid={physInvalid}>
                 <Stack gap={2} px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
@@ -105,7 +107,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                 {physInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
 
-              <Box h='1px' bg='blackAlpha.300' mx={{ base: 2, md: 3 }} my={1} />
+              <Box h='1px' bg={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'} mx={{ base: 2, md: 3 }} my={1} />
 
               <Field.Root>
                 <HStack
@@ -134,7 +136,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           </Card.Body>
         </Card.Root>
 
-        <Card.Root bg='blackAlpha.300' p={6} borderRadius='lg'>
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
           <Card.Header>
             <Card.Title>表示・演出</Card.Title>
             <Card.Description>操作感の好みに合わせて切り替え</Card.Description>

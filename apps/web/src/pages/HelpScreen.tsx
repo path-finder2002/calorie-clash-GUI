@@ -1,8 +1,10 @@
 import { Box, Button, Heading, Text } from '@chakra-ui/react';
+import { useAppTheme } from '@/theme/colorMode';
 
 export default function HelpScreen({ onBack }: { onBack: () => void }) {
+  const { isDark } = useAppTheme();
   return (
-    <Box px={{ base: 4, md: 8 }} py={6}>
+    <Box px={{ base: 4, md: 8 }} py={6} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       <Heading size='lg' mb={4}>ヘルプ</Heading>
       <Text mb={2}>満腹じゃんけん（Calorie Clash）の遊び方（MVP）</Text>
       <Box as='ul' pl={5} style={{ listStyle: 'disc' }}>

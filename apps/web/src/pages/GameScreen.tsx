@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Button, ButtonGroup, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
+import { useAppTheme } from '@/theme/colorMode';
 import type { FoodCard, GameRule, Hand } from '@/models';
 import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
@@ -17,6 +18,7 @@ type RoundResult = {
 };
 
 export default function GameScreen({ rule, onExit, onOptions }: Props) {
+  const { isDark } = useAppTheme();
   const [myPoints, setMyPoints] = useState(0);
   const [cpuPoints, setCpuPoints] = useState(0);
   const [mySat, setMySat] = useState(0);
@@ -105,7 +107,7 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
   );
 
   return (
-    <Box px={{ base: 4, md: 8 }} py={6}>
+    <Box px={{ base: 4, md: 8 }} py={6} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       <HStack>
         <Heading size='md'>ラウンド {round}</Heading>
         <Badge ml={2} colorScheme='teal'>{rule.mode === 'original' ? '原作準拠' : '簡易'}</Badge>
@@ -142,7 +144,7 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
       </HStack>
 
       {!finished && (
-        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg='blackAlpha.400'>
+        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg={isDark ? 'blackAlpha.400' : 'blackAlpha.50'}>
           <Stack gap={4} align='center'>
               <Heading size='sm'>手を選んでください</Heading>
               {choiceButtons}
@@ -160,7 +162,7 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
       )}
 
       {finished && (
-        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} textAlign='center' bg='blackAlpha.400'>
+        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} textAlign='center' bg={isDark ? 'blackAlpha.400' : 'blackAlpha.50'}>
           <Heading size='md' mb={2}>ゲーム終了</Heading>
           <Text>{finished}</Text>
           <HStack mt={6} justify='center' gap={3}>
