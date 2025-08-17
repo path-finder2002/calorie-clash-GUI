@@ -26,10 +26,21 @@ export default function App() {
   const goTitle = () => setScreen("title");
   const closeSettings = () => setScreen(returnTo);
 
-  const gradient = isDark ? "radial(#000000 0%, #0a0a0a 70%)" : "radial(#f2f4f7 0%, #e9edf2 70%)";
+  const gradientStart = isDark ? '#000000' : '#f2f4f7';
+  const gradientEnd = isDark ? '#0a0a0a' : '#e9edf2';
 
   return (
-    <Box minH="100dvh" bgGradient={gradient} color={isDark ? 'whiteAlpha.900' : 'gray.900'} position="relative">
+    <Box
+      minH="100dvh"
+      w="100%"
+      color={isDark ? 'whiteAlpha.900' : 'gray.900'}
+      style={{
+        backgroundColor: isDark ? '#000' : '#fff',
+        backgroundImage: `radial-gradient(circle at 50% 50%, ${gradientStart} 0%, ${gradientEnd} 70%)`,
+        backgroundAttachment: 'fixed',
+      }}
+      position="relative"
+    >
       {/* 全画面共通: 右上トグル */}
       <HStack position="fixed" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={10}>
         <Button size="sm" variant="ghost" onClick={toggleTheme}>
