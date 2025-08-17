@@ -50,8 +50,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           <Card.Body>
             <Stack gap={5}>
               <Field.Root invalid={tpInvalid}>
-                <Stack gap={4} align="center" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full'>勝利点数</Field.Label>
+                <Stack gap={4} align="stretch" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }} w='full'>
+                  <Box w='full' display='grid' placeItems='center'>
+                    <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full' display='block'>勝利点数</Field.Label>
+                  </Box>
                   <NumberAdjuster
                     value={tpText}
                     min={1}
@@ -63,18 +65,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                       if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
                     }}
                   >
-                    {({ adjust, input }) => (
-                      <>
-                        <Box w='full' display='flex' justifyContent='center'>
-                          {input}
-                        </Box>
-                        <HStack gap={2} justify='center' mt={{ base: '96px', md: '50px' }} flexWrap='wrap' rowGap={2}>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
-                        </HStack>
-                      </>
+                    {({ input }) => (
+                      <Box w='full' display='grid' placeItems='center'>
+                        {input}
+                      </Box>
                     )}
                   </NumberAdjuster>
                 </Stack>
@@ -83,8 +77,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
               <Box h='1px' bg={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'} mx={{ base: 2, md: 3 }} my={1} />
 
               <Field.Root invalid={physInvalid}>
-                <Stack gap={2} align="center" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full'>満腹上限（原作準拠のみ）</Field.Label>
+                <Stack gap={2} align="stretch" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+                  <Box w='full' display='grid' placeItems='center'>
+                    <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full' display='block'>満腹上限（原作準拠のみ）</Field.Label>
+                  </Box>
                   <NumberAdjuster
                     value={physText}
                     min={100}
@@ -96,20 +92,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                       if (/^\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
                     }}
                   >
-                    {({ adjust, input }) => (
-                      <>
-                        <Box w='full' display='flex' justifyContent='center'>
-                          {input}
-                        </Box>
-                        <HStack gap={2} justify='center' mt={{ base: '96px', md: '50px' }} flexWrap='wrap' rowGap={2}>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
-                        </HStack>
-                        <HStack gap={2} justify='center' mt={{ base: '8px', md: '12px' }} flexWrap='wrap' rowGap={2}>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
-                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
-                        </HStack>
-                      </>
+                    {({ input }) => (
+                      <Box w='full' display='grid' placeItems='center'>
+                        {input}
+                      </Box>
                     )}
                   </NumberAdjuster>
                 </Stack>

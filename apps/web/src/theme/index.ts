@@ -3,6 +3,7 @@ import {
   createSystem,
   defaultConfig,
   defineSemanticTokens,
+  defineSlotRecipe,
 } from "@chakra-ui/react";
 
 // 明暗に応じて切り替わるセマンティックカラー
@@ -19,10 +20,22 @@ export const semanticTokens = defineSemanticTokens({
   },
 });
 
+// NumberInput の入力テキストを全体で中央揃え（v3 slot recipe）
+const numberInputRecipe = defineSlotRecipe({
+  slots: ["root", "input", "control", "incrementTrigger", "decrementTrigger"],
+  base: {
+    input: { textAlign: "center" },
+  },
+});
+
 // System を作成（defaultConfig をベース）
 export const system = createSystem(defaultConfig, {
   theme: {
     semanticTokens,
+    // Chakra v3 のレシピに上書きを適用
+    recipes: {
+      numberInput: numberInputRecipe,
+    },
   },
 });
 

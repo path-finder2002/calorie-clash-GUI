@@ -21,6 +21,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
       step={step}
       size='md'
       w='auto'
+      mx='auto'
       onValueChange={onValueChange}
     >
       <NumberInput.Control>
