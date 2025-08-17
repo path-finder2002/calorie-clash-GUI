@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Box, Button, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
+import { useState, useEffect, useCallback } from 'react';
+import { Box, Button, HStack, Heading, Spacer, Text, Badge, VStack } from '@chakra-ui/react';
 import { useAppTheme } from '@/theme/colorMode';
 import TopHeader from '@/ui/TopHeader';
 import type { FoodCard, GameRule, Hand } from '@/models';
 import { HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
+import MinimalJankenChoices from '@/components/MinimalJankenChoices';
 import JankenSwiper from '@/components/JankenSwiper';
 import RoundOverlay from '@/components/RoundOverlay';
+import GameStartAnimation from '@/components/GameStartAnimation';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
@@ -30,10 +32,17 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   const [result, setResult] = useState<RoundResult>({ outcome: null });
   const [finished, setFinished] = useState<string | null>(null);
   const [assigned, setAssigned] = useState<Partial<Record<Hand, FoodCard>>>({});
-  const [showDraw, setShowDraw] = useState(true);
+  const [showDraw, setShowDraw] = useState(false);
+  const [showGameStart, setShowGameStart] = useState(true);
 
   const percentMy = Math.min(100, Math.round((mySat / rule.physique) * 100));
   const percentCpu = Math.min(100, Math.round((cpuSat / rule.physique) * 100));
+
+  useEffect(() => {
+    if (!showGameStart) {
+      setShowDraw(true);
+    }
+  }, [showGameStart]);
 
   function nextRound() {
     setRound(r => r + 1);
@@ -102,12 +111,29 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   }
 
   function resetAll() {
-    setMyPoints(0); setCpuPoints(0); setMySat(0); setCpuSat(0); setRound(1); setResult({ outcome: null }); setFinished(null);
+    setMyPoints(0); setCpuPoints(0); setMySat(0); setCpuSat(0); setRound(1); setResult({ outcome: null }); setFinished(null); setAssigned({});
+    setShowGameStart(true);
   }
 
-  const choiceSwiper = (
-    <JankenSwiper onSelect={(h) => handleSelect(h)} cards={assigned} />
-  );
+  const handleGameStartComplete = useCallback(() => {
+    setShowGameStart(false);
+  }, []);
+
+  const handleDrawComplete = useCallback(() => {
+    setShowDraw(false);
+  }, []);
+
+  const handleAssign = useCallback((names: Record<Hand, string>) => {
+    const next: Partial<Record<Hand, FoodCard>> = {};
+    (['rock','scissors','paper'] as Hand[]).forEach((h) => {
+      const n = (names as Record<Hand, string>)[h];
+      if (n) {
+        const c = findCard(h, n);
+        if (c) next[h] = c;
+      }
+    });
+    setAssigned(next);
+  }, [rule.deck]);
 
   // 抽選結果をデッキにマップ
   function findCard(hand: Hand, name: string): FoodCard | null {
@@ -126,47 +152,28 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         <Button onClick={onExit} colorScheme='gray' variant='outline'>タイトルへ</Button>
       </HStack>
 
-      <HStack mt={6} align='start' gap={8}>
-        <Box>
-          <Text fontSize='sm' opacity={0.8}>あなたのスコア</Text>
-          <Text fontSize='3xl' fontWeight='bold'>{myPoints}</Text>
-          {rule.mode === 'original' && (
-            <Box mt={2}>
-              <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
-                <Box h='100%' w={`${percentMy}%`} bg='teal.400' />
-              </Box>
-            </Box>
-          )}
-        </Box>
-        <Box>
-          <Text fontSize='sm' opacity={0.8}>CPUスコア</Text>
-          <Text fontSize='3xl' fontWeight='bold'>{cpuPoints}</Text>
-          {rule.mode === 'original' && (
-            <Box mt={2}>
-              <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
-                <Box h='100%' w={`${percentCpu}%`} bg='red.400' />
-              </Box>
-            </Box>
-          )}
-        </Box>
+      <HStack mt={6} align='center' justify='space-between'>
+        <Text>あなた: <b>{myPoints}</b> / CPU: <b>{cpuPoints}</b></Text>
+        {rule.mode === 'original' && (
+          <Text opacity={0.8}>満腹 あなた {percentMy}% ・ CPU {percentCpu}%</Text>
+        )}
       </HStack>
 
       {!finished && (
-        <Box mt={8} borderWidth='1px' borderRadius='md' p={6} bg={isDark ? 'blackAlpha.400' : 'blackAlpha.50'}>
-          <Stack gap={4} align='center'>
-              <Heading size='sm'>手を選んでください</Heading>
-              {!showDraw ? choiceSwiper : <Text>抽選中...</Text>}
-              {result.outcome && (
-                <Box textAlign='center' mt={2}>
-                  <Text fontSize='lg'>結果: {result.outcome === 'win' ? 'WIN' : result.outcome === 'lose' ? 'LOSE' : 'DRAW'}</Text>
-                  <Text mt={1} opacity={0.8}>
-                    あなた: {result.myHand && HAND_LABEL[result.myHand]} {result.myCard?.name ? `（${result.myCard.name}）` : ''} / CPU: {result.cpuHand && HAND_LABEL[result.cpuHand]} {result.cpuCard?.name ? `（${result.cpuCard.name}）` : ''}
-                  </Text>
-                  <Button mt={4} onClick={nextRound} colorScheme='teal'>次へ</Button>
-                </Box>
-              )}
-          </Stack>
-        </Box>
+        <VStack mt={8} gap={4} align='center'>
+          <Heading size='sm'>スワイプして1枚選んでください</Heading>
+          {!showDraw ? <JankenSwiper onSelect={(h) => handleSelect(h)} cards={assigned} /> : <Text>抽選中...</Text>}
+          {result.outcome && (
+            <VStack textAlign='center' mt={2} gap={1}>
+              <Text fontSize='lg'>結果: {result.outcome === 'win' ? 'WIN' : result.outcome === 'lose' ? 'LOSE' : 'DRAW'}</Text>
+              <Text opacity={0.8}>
+                あなた: {result.myHand && HAND_LABEL[result.myHand]} {result.myCard?.name ? `（${result.myCard.name}）` : ''}
+                {' / '}CPU: {result.cpuHand && HAND_LABEL[result.cpuHand]} {result.cpuCard?.name ? `（${result.cpuCard.name}）` : ''}
+              </Text>
+              <Button mt={2} onClick={nextRound} colorScheme='teal'>次へ</Button>
+            </VStack>
+          )}
+        </VStack>
       )}
 
       {finished && (
@@ -180,24 +187,12 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         </Box>
       )}
       </Box>
+      {showGameStart && <GameStartAnimation playerName='あなた' cpuName='CPU' onComplete={handleGameStartComplete} />}
       {showDraw && (
         <RoundOverlay
-          mode='pvc'
           round={round}
-          playerName='あなた'
-          cpuName='CPU'
-          onResult={(names) => {
-            const next: Partial<Record<Hand, FoodCard>> = {};
-            (['rock','scissors','paper'] as Hand[]).forEach((h) => {
-              const n = (names as Record<Hand, string>)[h];
-              if (n) {
-                const c = findCard(h, n);
-                if (c) next[h] = c;
-              }
-            });
-            setAssigned(next);
-          }}
-          onComplete={() => setShowDraw(false)}
+          onResult={handleAssign}
+          onComplete={handleDrawComplete}
         />
       )}
     </Box>

@@ -4,6 +4,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { system } from "./theme";
 import App from "@/App";
 import { AppThemeProvider } from "@/theme/colorMode";
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

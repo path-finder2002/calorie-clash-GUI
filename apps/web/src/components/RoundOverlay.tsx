@@ -4,12 +4,9 @@ import type { Hand } from '@/models';
 import { useEffect, useRef, useState } from 'react';
 
 type Props = {
-  mode: 'pvc' | 'pvp';
   round?: number;
   onComplete: () => void;
-  playerName?: string;
-  cpuName?: string;
-  debugStep?: 1 | 2 | 3; // デバッグ用: 特定ステップのみ
+  debugStep?: 2 | 3; // デバッグ用: 特定ステップのみ
   onResult?: (names: Record<Hand, string>) => void; // 選ばれた食品名（手ごと）
 };
 
@@ -37,13 +34,10 @@ function ensureGsap(): Promise<void> {
   });
 }
 
-export default function RoundOverlay({ mode, round = 1, onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debugStep, onResult }: Props) {
-  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
+export default function RoundOverlay({ round = 1, onComplete, debugStep, onResult }: Props) {
+  const [step, setStep] = useState<0 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
   const [resultFoods, setResultFoods] = useState<string[] | null>(null);
-  const playerRef = useRef<HTMLDivElement>(null);
-  const vsRef = useRef<HTMLDivElement>(null);
-  const cpuRef = useRef<HTMLDivElement>(null);
   const roundLabelRef = useRef<HTMLDivElement>(null);
   const roundNumRef = useRef<HTMLDivElement>(null);
   const roundSubRef = useRef<HTMLDivElement>(null);
@@ -62,38 +56,21 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
         // SLOT はタイムライン完了まで待つ
         return () => {};
       }
-      const timeout = 1600; // VS/ROUND は一定時間で閉じる
+      const timeout = 1600; // ROUND は一定時間で閉じる
       const t = setTimeout(() => { setVisible(false); onComplete(); }, timeout);
       return () => clearTimeout(t);
     }
-    // 通常シーケンス: MODE(=名前表示) -> ROUND -> SLOT
-    setStep(1);
-    const t1 = setTimeout(() => setStep(2), 1400);
-    const t2 = setTimeout(() => setStep(3), 2800);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [mode, round, onComplete, debugStep]);
+    // 通常シーケンス: ROUND -> SLOT
+    setStep(2);
+    const t2 = setTimeout(() => setStep(3), 1400);
+    return () => { clearTimeout(t2); };
+  }, [round, debugStep]);
 
   useEffect(() => {
     let killed = false;
     ensureGsap().then(() => {
       if (killed) return;
       const gsap: any = (window as any).gsap;
-
-      if (step === 1) {
-        // 初期化
-        gsap.set(playerRef.current, { opacity: 0, x: -40, scale: 0.96 });
-        gsap.set(cpuRef.current, { opacity: 0, x: 40, scale: 0.96 });
-        gsap.set(vsRef.current, { opacity: 0 });
-
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-        tl.to(playerRef.current, { opacity: 1, x: 0, duration: 0.5 })
-          .to(playerRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
-          .to(playerRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
-        tl.to(vsRef.current, { opacity: 1, duration: 0.2 }, '-=0.3');
-        tl.to(cpuRef.current, { opacity: 1, x: 0, duration: 0.5 }, '-=0.15')
-          .to(cpuRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
-          .to(cpuRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
-      }
 
       if (step === 2) {
         gsap.set(roundLabelRef.current, { opacity: 0, letterSpacing: '0.6em' });
@@ -161,55 +138,13 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
     return () => { killed = true; };
   }, [step, onComplete, onResult]);
 
-  useEffect(() => {
-    let killed = false;
-    ensureGsap().then(() => {
-      if (killed) return;
-      const gsap: any = (window as any).gsap;
-
-      if (step === 1) {
-        // 初期化
-        gsap.set(playerRef.current, { opacity: 0, x: -40, scale: 0.96 });
-        gsap.set(cpuRef.current, { opacity: 0, x: 40, scale: 0.96 });
-        gsap.set(vsRef.current, { opacity: 0 });
-
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-        tl.to(playerRef.current, { opacity: 1, x: 0, duration: 0.5 })
-          .to(playerRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
-          .to(playerRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
-        tl.to(vsRef.current, { opacity: 1, duration: 0.2 }, '-=0.3');
-        tl.to(cpuRef.current, { opacity: 1, x: 0, duration: 0.5 }, '-=0.15')
-          .to(cpuRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
-          .to(cpuRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
-      }
-
-      if (step === 2) {
-        gsap.set(roundLabelRef.current, { opacity: 0, letterSpacing: '0.6em' });
-        gsap.set(roundNumRef.current, { opacity: 0, y: 10, scale: 0.86 });
-        gsap.set(roundSubRef.current, { opacity: 0, y: 6 });
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-        tl.to(roundLabelRef.current, { opacity: 1, duration: 0.3 }, 0)
-          .to(roundLabelRef.current, { letterSpacing: '0.2em', duration: 0.3 }, 0)
-          .to(roundNumRef.current, { opacity: 1, y: 0, scale: 1.12, duration: 0.38 }, 0.22)
-          .to(roundNumRef.current, { scale: 1.0, duration: 0.22 }, '>-0.02')
-          .to(roundSubRef.current, { opacity: 1, y: 0, duration: 0.22 }, '>-0.16');
-      }
-    });
-    return () => { killed = true; };
-  }, [step]);
+  
 
   if (!visible) return null;
 
   return (
     <Box position='fixed' inset={0} bg='rgba(0,0,0,1)' color='white' zIndex={10000} display='grid' placeItems='center'>
-      {step === 1 ? (
-        // MODE: {player} vs {cpu}
-        <VStack gap={{ base: 2, md: 3 }} textAlign='center'>
-          <Text ref={playerRef as any} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{playerName}</Text>
-          <Text ref={vsRef as any} fontWeight='extrabold' fontSize={{ base: 'clamp(16px, 5vw, 24px)', md: '24px' }} opacity={0.9}>vs</Text>
-          <Text ref={cpuRef as any} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{cpuName}</Text>
-        </VStack>
-      ) : step === 2 ? (
+      {step === 2 ? (
         // ROUND N
         <VStack gap={2} textAlign='center'>
           <Text ref={roundLabelRef as any} fontWeight='extrabold' letterSpacing='.2em' opacity={0.9} fontSize={{ base: '18px', md: '24px' }}>ROUND</Text>
