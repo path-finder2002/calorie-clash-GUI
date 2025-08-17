@@ -52,7 +52,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
       direction='column'
       justify='center'
       align='center'
-      gap={{ base: 2, md: 4 }}
+      gap={0}
     >
       {children({ adjust: onAdjust, input })}
     </Stack>
