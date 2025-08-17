@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Box, Button, ButtonGroup, HStack, Heading, Spacer, Stack, Text, Badge } from '@chakra-ui/react';
 import { useAppTheme } from '@/theme/colorMode';
+import TopHeader from '@/ui/TopHeader';
 import type { FoodCard, GameRule, Hand } from '@/models';
 import { HAND_EMOJI, HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
 
-type Props = { rule: GameRule; onExit: () => void; onOptions: () => void };
+type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
 type RoundResult = {
   outcome: 'win' | 'lose' | 'draw' | null;
@@ -17,7 +18,7 @@ type RoundResult = {
   deltaCpuSatiety?: number;
 };
 
-export default function GameScreen({ rule, onExit, onOptions }: Props) {
+export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang }: Props) {
   const { isDark } = useAppTheme();
   const [myPoints, setMyPoints] = useState(0);
   const [cpuPoints, setCpuPoints] = useState(0);
@@ -107,7 +108,9 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
   );
 
   return (
-    <Box px={{ base: 4, md: 8 }} py={6} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
+    <Box px={{ base: 0, md: 0 }} py={0} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
+      <TopHeader lang={lang} onToggleLang={onToggleLang} />
+      <Box px={{ base: 4, md: 8 }} py={6}>
       <HStack>
         <Heading size='md'>ラウンド {round}</Heading>
         <Badge ml={2} colorScheme='teal'>{rule.mode === 'original' ? '原作準拠' : '簡易'}</Badge>
@@ -171,6 +174,7 @@ export default function GameScreen({ rule, onExit, onOptions }: Props) {
           </HStack>
         </Box>
       )}
+      </Box>
     </Box>
   );
 }
