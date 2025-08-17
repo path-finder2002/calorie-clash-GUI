@@ -1,5 +1,6 @@
 import { Box, Button, Heading, HStack, Stack, Text, Card, Field, Switch } from '@chakra-ui/react';
 import LeftAligned from '@/ui/LeftAligned';
+import SectionCard from '@/ui/SectionCard';
 import { useAppTheme } from '@/theme/colorMode';
 import { useSettings } from '@/features/settings/hooks';
 import { NumberAdjuster } from '@/components/NumberAdjuster';
@@ -35,7 +36,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
       </Heading>
       <Stack gap={6} maxW={{ base: '100%', md: '960px' }} mx='auto'>
         {/* 勝利ポイント（新規セクション） */}
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
+        <SectionCard bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'}>
           <Card.Header>
             <Card.Title>勝利ポイント</Card.Title>
             <Card.Description>勝利条件となるポイント数を設定</Card.Description>
@@ -66,8 +67,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
               {tpInvalid && (<Field.ErrorText mt={2}>数字のみを入力してください</Field.ErrorText>)}
             </Field.Root>
           </Card.Body>
-        </Card.Root>
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
+        </SectionCard>
+        <SectionCard bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'}>
           <Card.Header>
             <Card.Title>ゲームルール</Card.Title>
             <Card.Description>あいこ処理を選択</Card.Description>
@@ -78,10 +79,10 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
               <TieRuleSelect value={draft.tieRule} onChange={(val) => update('tieRule', val)} />
             </Stack>
           </Card.Body>
-        </Card.Root>
+        </SectionCard>
 
         {/* 満腹上限（新しいセクション） */}
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
+        <SectionCard bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'}>
           <Card.Header>
             <Card.Title>満腹上限</Card.Title>
             <Card.Description>原作準拠モード時の最大満腹度（kcal相当）</Card.Description>
@@ -112,9 +113,9 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
               {physInvalid && (<Field.ErrorText mt={2}>数字のみを入力してください</Field.ErrorText>)}
             </Field.Root>
           </Card.Body>
-        </Card.Root>
+        </SectionCard>
 
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
+        <SectionCard bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'}>
           <Card.Header>
             <Card.Title>表示・演出</Card.Title>
             <Card.Description>操作感の好みに合わせて切り替え</Card.Description>
@@ -127,13 +128,20 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                 px={{ base: 2, md: 3 }}
                 py={{ base: 2, md: 3 }}
               >
-                <Text m={0}>アニメーション</Text>
-                <Switch.Root checked={draft.animation} onCheckedChange={(d) => update('animation', !!d.checked)}>
-                  <Switch.Label srOnly>アニメーション</Switch.Label>
-                  <Switch.Control>
-                    <Switch.Thumb />
-                  </Switch.Control>
-                </Switch.Root>
+                <Text m={0} fontWeight='semibold'>アニメーション</Text>
+                <Box bg='surface' borderWidth='2px' borderColor='accent' borderRadius='lg' p={1}>
+                  <Switch.Root
+                    checked={draft.animation}
+                    onCheckedChange={(d) => update('animation', !!d.checked)}
+                    size='lg'
+                    colorPalette='teal'
+                  >
+                    <Switch.Label srOnly>アニメーション</Switch.Label>
+                    <Switch.Control w='64px' h='34px' bg='blackAlpha.300' _checked={{ bg: 'accent' }} borderRadius='full'>
+                      <Switch.Thumb boxSize='26px' bg='white' boxShadow='sm' />
+                    </Switch.Control>
+                  </Switch.Root>
+                </Box>
               </HStack>
               <HStack
                 justify='space-between'
@@ -141,17 +149,24 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                 px={{ base: 2, md: 3 }}
                 py={{ base: 2, md: 3 }}
               >
-                <Text m={0}>サウンド</Text>
-                <Switch.Root checked={draft.sound} onCheckedChange={(d) => update('sound', !!d.checked)}>
-                  <Switch.Label srOnly>サウンド</Switch.Label>
-                  <Switch.Control>
-                    <Switch.Thumb />
-                  </Switch.Control>
-                </Switch.Root>
+                <Text m={0} fontWeight='semibold'>サウンド</Text>
+                <Box bg='surface' borderWidth='2px' borderColor='accent' borderRadius='lg' p={1}>
+                  <Switch.Root
+                    checked={draft.sound}
+                    onCheckedChange={(d) => update('sound', !!d.checked)}
+                    size='lg'
+                    colorPalette='teal'
+                  >
+                    <Switch.Label srOnly>サウンド</Switch.Label>
+                    <Switch.Control w='64px' h='34px' bg='blackAlpha.300' _checked={{ bg: 'accent' }} borderRadius='full'>
+                      <Switch.Thumb boxSize='26px' bg='white' boxShadow='sm' />
+                    </Switch.Control>
+                  </Switch.Root>
+                </Box>
               </HStack>
             </Stack>
           </Card.Body>
-        </Card.Root>
+        </SectionCard>
       </Stack>
 
       <Box
