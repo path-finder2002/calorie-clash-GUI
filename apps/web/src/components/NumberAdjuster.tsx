@@ -32,6 +32,15 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
           minW={{ base: '180px', md: '220px' }}
+          bg='surface'
+          color='fg'
+          borderWidth='2px'
+          borderColor='accent'
+          borderRadius='lg'
+          boxShadow='sm'
+          px={4}
+          py={3}
+          _focus={{ borderColor: 'accent', boxShadow: '0 0 0 3px rgba(45,212,191,0.35)' }}
         />
       </NumberInput.Control>
     </NumberInput.Root>
