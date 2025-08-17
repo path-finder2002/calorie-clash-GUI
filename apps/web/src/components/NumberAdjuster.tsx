@@ -32,7 +32,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
           w='100%'
-          maxW={{ base: 'min(90vw, 390px)', md: 'min(70vw, 570px)' }}
+          maxW={{ base: 'min(90vw, 440px)', md: 'min(70vw, 620px)' }}
           bg='surface'
           color='fg'
           borderWidth='2px'
