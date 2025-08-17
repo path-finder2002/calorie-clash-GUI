@@ -19,7 +19,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
       value={value}
       min={min}
       step={step}
-      size='lg'
+      size='md'
       w='auto'
       onValueChange={onValueChange}
     >
@@ -32,7 +32,8 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
           w='150px'
-          h='45px'
+          h='56px'
+          lineHeight='56px'
           bg='surface'
           color='fg'
           borderWidth='2px'
