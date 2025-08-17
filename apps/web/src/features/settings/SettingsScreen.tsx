@@ -42,7 +42,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           </Card.Header>
           <Card.Body>
             <Field.Root invalid={tpInvalid}>
-              <Box w='full' display='grid' placeItems='center'>
+              <Box minW='150px' w='150px' mx='auto'>
                 <NumberAdjuster
                   value={tpText}
                   min={1}
@@ -55,7 +55,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                   }}
                 >
                   {({ input }) => (
-                    <Box w='full' display='grid' placeItems='center' my={{ base: 2, md: 3 }}>
+                    <Box display='block' my={{ base: 2, md: 3 }}>
                       {input}
                     </Box>
                   )}
