@@ -14,20 +14,15 @@ type Props = {
 // SLOT 表示用の定数はコンポーネント外で安定化
 const slotBorder = '2px solid rgba(255,255,255,0.2)';
 const slotFoods = {
-  rock: ['唐揚げ', '餃子', 'グミ'],
-  scissors: ['サラダ', '寿司', 'そば'],
-  paper: ['パン', 'パスタ', 'プリン'],
+  rock: ['唐揚げ', '餃子', 'グミ', 'カツ丼', 'ラーメン', '親子丼'],
+  scissors: ['サラダ', '寿司', 'そば', '天ぷら', 'うどん', '焼きそば'],
+  paper: ['パン', 'パスタ', 'プリン', 'カレー', 'オムライス', 'ハンバーガー'],
 } as const;
-const pingpong = (arr: readonly string[]) => [...arr, ...arr.slice(1, -1).reverse()];
-const PP = {
-  rock: pingpong(slotFoods.rock),
-  scissors: pingpong(slotFoods.scissors),
-  paper: pingpong(slotFoods.paper),
-};
-const repeats = 3;
-const seqRock = Array.from({ length: repeats }).flatMap(() => PP.rock);
-const seqScis = Array.from({ length: repeats }).flatMap(() => PP.scissors);
-const seqPap  = Array.from({ length: repeats }).flatMap(() => PP.paper);
+// 横スクロール用: ベース配列をそのまま連結
+const cycles = 6;
+const seqRock = Array.from({ length: cycles }).flatMap(() => slotFoods.rock);
+const seqScis = Array.from({ length: cycles }).flatMap(() => slotFoods.scissors);
+const seqPap  = Array.from({ length: cycles }).flatMap(() => slotFoods.paper);
 
 function ensureGsap(): Promise<void> {
   return new Promise((resolve) => {
@@ -43,6 +38,7 @@ function ensureGsap(): Promise<void> {
 export default function RoundOverlay({ mode, round = 1, onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debugStep }: Props) {
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
+  const [resultFoods, setResultFoods] = useState<string[] | null>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const vsRef = useRef<HTMLDivElement>(null);
   const cpuRef = useRef<HTMLDivElement>(null);
@@ -110,34 +106,47 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
       }
 
       if (step === 3) {
-        const itemH = 40;
-        // それぞれの停止ターゲット（例: 餃子 / 寿司 / パン）
-        const targets = { rock: '餃子', scissors: '寿司', paper: 'パン' } as const;
-        // 最後に現れるインデックス（長めに回してから止める）
-        const lastIndexOf = (arr: string[], val: string) => {
-          for (let i = arr.length - 1; i >= 0; i--) if (arr[i] === val) return i;
-          return arr.length - 2; // fallback
+        const animateRail = (boxEl: HTMLDivElement | null, railEl: HTMLDivElement | null): Promise<string> => {
+          return new Promise((resolve) => {
+            if (!boxEl || !railEl) return resolve('');
+            // 初期化
+            gsap.set(railEl, { x: 0 });
+
+            // 計測
+            const viewport = boxEl.getBoundingClientRect();
+            const centerX = viewport.left + viewport.width / 2;
+            const children = Array.from(railEl.children) as HTMLElement[];
+            const centers = children.map((el) => el.getBoundingClientRect().left + el.clientWidth / 2);
+            // 遠目の範囲から選ぶ（減速の見せ場確保）
+            const start = Math.floor(centers.length * 0.55);
+            const end = Math.floor(centers.length * 0.90);
+            const idx = Math.max(0, Math.min(centers.length - 1, Math.floor(start + Math.random() * (end - start))));
+            const targetCenter = centers[idx];
+            const targetTranslate = centerX - targetCenter;
+            const overShoot = targetTranslate + 24; // 少し行き過ぎ → 戻し
+
+            // 選択アニメーション
+            const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            tl.to(railEl, { x: overShoot, duration: 1.6 + Math.random() * 0.6 })
+              .to(railEl, { x: targetTranslate, duration: 0.28, ease: 'power1.out',
+                onComplete: () => {
+                  const el = children[idx];
+                  el?.setAttribute('aria-selected', 'true');
+                  gsap.to(el, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1 });
+                  resolve(el?.getAttribute('data-food') || el?.textContent || '');
+                }
+              });
+          });
         };
-        const idxR = lastIndexOf(seqRock, targets.rock);
-        const idxS = lastIndexOf(seqScis, targets.scissors);
-        const idxP = lastIndexOf(seqPap,  targets.paper);
-        // 中央（2行目）に揃えるため、中心は index 1 相当
-        const yR = -itemH * (idxR - 1);
-        const yS = -itemH * (idxS - 1);
-        const yP = -itemH * (idxP - 1);
 
-        // 初期化
-        gsap.set([slotInner1.current, slotInner2.current, slotInner3.current], { y: 0 });
-
-        // 縦回転 → 停止ポップ（scale yoyo）
-        const tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } });
-        tl.to(slotInner1.current, { y: yR, duration: 1.8 })
-          .to(slotBox1.current, { scale: 1.06, duration: 0.12, yoyo: true, repeat: 1, ease: 'power2.out' }, '>-0.02')
-          .to(slotInner2.current, { y: yS, duration: 2.0 }, '-=1.3')
-          .to(slotBox2.current, { scale: 1.06, duration: 0.12, yoyo: true, repeat: 1, ease: 'power2.out' }, '>-0.02')
-          .to(slotInner3.current, { y: yP, duration: 2.2 }, '-=1.3')
-          .to(slotBox3.current, { scale: 1.06, duration: 0.12, yoyo: true, repeat: 1, ease: 'power2.out' }, '>-0.02')
-          .add(() => { setVisible(false); onComplete(); });
+        Promise.all([
+          animateRail(slotBox1.current, slotInner1.current),
+          animateRail(slotBox2.current, slotInner2.current),
+          animateRail(slotBox3.current, slotInner3.current),
+        ]).then((names) => {
+          setResultFoods(names);
+          setTimeout(() => { setVisible(false); onComplete(); }, 1600);
+        });
       }
     });
     return () => { killed = true; };
@@ -202,47 +211,66 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
           <Text ref={roundSubRef as any} mt={1} opacity={0.7} fontSize={{ base: '12px', md: '14px' }}>Get Ready</Text>
         </VStack>
       ) : (
-        // SLOT: ✊✌️🖐️ の縦スクロール演出
-        <VStack gap={{ base: 3, md: 4 }}>
+        // SLOT: 横スクロールのカードレール × 3 段
+        <VStack gap={{ base: 4, md: 6 }} w='full' maxW='960px'>
           <Text fontWeight='extrabold' letterSpacing='.2em' opacity={0.9} textAlign='center' fontSize={{ base: '16px', md: '18px' }}>SLOT</Text>
-          <Box position='relative'>
-          <HStack gap={{ base: 2, md: 3 }}>
-            {/* ✊ */}
-            <VStack gap={2}>
-              <Text fontSize={{ base: '20px', md: '22px' }}>✊</Text>
-              <Box ref={slotBox1 as any} w='90px' h='120px' overflow='hidden' border={slotBorder} borderRadius='md' bg='rgba(255,255,255,0.05)'>
-                <VStack ref={slotInner1 as any} gap={0}>
-                  {seqRock.map((f, i) => (
-                    <Box key={`r-${i}`} h='40px' w='full' display='grid' placeItems='center'>{f}</Box>
-                  ))}
-                </VStack>
+
+          {/* 1段目（✊） */}
+          <HStack w='full' gap={3} align='center' justify='center'>
+            <Text w='40px' textAlign='center' fontSize={{ base: '20px', md: '22px' }}>✊</Text>
+            <Box ref={slotBox1 as any} position='relative' w='92vw' maxW='860px' h='120px' overflow='hidden' border={slotBorder} borderRadius='lg' bg='rgba(255,255,255,0.05)'>
+              <Box position='absolute' top={0} bottom={0} left='50%' w='2px' bg='teal.300' opacity={0.9} pointerEvents='none' />
+              <Box ref={slotInner1 as any} display='flex' alignItems='center' gap={4} px={6} h='full'>
+                {seqRock.map((f, i) => (
+                  <Box key={`r-${i}`} data-food={f} flex='0 0 220px' h='100%' border='1px solid rgba(255,255,255,0.14)'
+                    borderRadius='md' bg='rgba(255,255,255,0.05)' display='grid' gridTemplateRows='auto 1fr' p={3} aria-selected='false'>
+                    <Text className='name' fontWeight='extrabold' fontSize='22px'>{f}</Text>
+                    <Text className='meta' fontSize='13px' opacity={0.8}>候補</Text>
+                  </Box>
+                ))}
               </Box>
-            </VStack>
-            {/* ✌️ */}
-            <VStack gap={2}>
-              <Text fontSize={{ base: '20px', md: '22px' }}>✌️</Text>
-              <Box ref={slotBox2 as any} w='90px' h='120px' overflow='hidden' border={slotBorder} borderRadius='md' bg='rgba(255,255,255,0.05)'>
-                <VStack ref={slotInner2 as any} gap={0}>
-                  {seqScis.map((f, i) => (
-                    <Box key={`s-${i}`} h='40px' w='full' display='grid' placeItems='center'>{f}</Box>
-                  ))}
-                </VStack>
-              </Box>
-            </VStack>
-            {/* 🖐️ */}
-            <VStack gap={2}>
-              <Text fontSize={{ base: '20px', md: '22px' }}>🖐️</Text>
-              <Box ref={slotBox3 as any} w='90px' h='120px' overflow='hidden' border={slotBorder} borderRadius='md' bg='rgba(255,255,255,0.05)'>
-                <VStack ref={slotInner3 as any} gap={0}>
-                  {seqPap.map((f, i) => (
-                    <Box key={`p-${i}`} h='40px' w='full' display='grid' placeItems='center'>{f}</Box>
-                  ))}
-                </VStack>
-              </Box>
-            </VStack>
+            </Box>
           </HStack>
-          <Box position='absolute' left='-8px' right='-8px' top='60px' height='0' borderTop='2px dashed rgba(255,255,255,0.4)' pointerEvents='none' />
-          </Box>
+
+          {/* 2段目（✌️） */}
+          <HStack w='full' gap={3} align='center' justify='center'>
+            <Text w='40px' textAlign='center' fontSize={{ base: '20px', md: '22px' }}>✌️</Text>
+            <Box ref={slotBox2 as any} position='relative' w='92vw' maxW='860px' h='120px' overflow='hidden' border={slotBorder} borderRadius='lg' bg='rgba(255,255,255,0.05)'>
+              <Box position='absolute' top={0} bottom={0} left='50%' w='2px' bg='teal.300' opacity={0.9} pointerEvents='none' />
+              <Box ref={slotInner2 as any} display='flex' alignItems='center' gap={4} px={6} h='full'>
+                {seqScis.map((f, i) => (
+                  <Box key={`s-${i}`} data-food={f} flex='0 0 220px' h='100%' border='1px solid rgba(255,255,255,0.14)'
+                    borderRadius='md' bg='rgba(255,255,255,0.05)' display='grid' gridTemplateRows='auto 1fr' p={3} aria-selected='false'>
+                    <Text className='name' fontWeight='extrabold' fontSize='22px'>{f}</Text>
+                    <Text className='meta' fontSize='13px' opacity={0.8}>候補</Text>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </HStack>
+
+          {/* 3段目（🖐️） */}
+          <HStack w='full' gap={3} align='center' justify='center'>
+            <Text w='40px' textAlign='center' fontSize={{ base: '20px', md: '22px' }}>🖐️</Text>
+            <Box ref={slotBox3 as any} position='relative' w='92vw' maxW='860px' h='120px' overflow='hidden' border={slotBorder} borderRadius='lg' bg='rgba(255,255,255,0.05)'>
+              <Box position='absolute' top={0} bottom={0} left='50%' w='2px' bg='teal.300' opacity={0.9} pointerEvents='none' />
+              <Box ref={slotInner3 as any} display='flex' alignItems='center' gap={4} px={6} h='full'>
+                {seqPap.map((f, i) => (
+                  <Box key={`p-${i}`} data-food={f} flex='0 0 220px' h='100%' border='1px solid rgba(255,255,255,0.14)'
+                    borderRadius='md' bg='rgba(255,255,255,0.05)' display='grid' gridTemplateRows='auto 1fr' p={3} aria-selected='false'>
+                    <Text className='name' fontWeight='extrabold' fontSize='22px'>{f}</Text>
+                    <Text className='meta' fontSize='13px' opacity={0.8}>候補</Text>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </HStack>
+
+          {resultFoods && (
+            <Text mt={2} fontWeight='bold' fontSize={{ base: '16px', md: '18px' }} textAlign='center'>
+              選ばれた食べ物は{resultFoods.join('・')}でした！
+            </Text>
+          )}
         </VStack>
       )}
     </Box>
