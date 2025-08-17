@@ -9,7 +9,7 @@ import type { GameRule } from '@/models';
 
 export default function SettingsScreen({ onClose, rule, onChangeRule }: SettingsScreenProps) {
   const { isDark } = useAppTheme();
-  const { draft, tpText, tpInvalid, update, apply, cancel, defaults, setTpText } = useSettings(
+  const { draft, tpText, tpInvalid, physText, physInvalid, update, apply, cancel, defaults, setTpText, setPhysText } = useSettings(
     rule,
     onChangeRule,
     onClose,
@@ -35,7 +35,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
       </Heading>
       <Stack gap={6} maxW={{ base: '100%', md: '960px' }} mx='auto'>
         {/* 勝利ポイント（新規セクション） */}
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
           <Card.Header>
             <Card.Title>勝利ポイント</Card.Title>
             <Card.Description>勝利条件となるポイント数を設定</Card.Description>
@@ -67,7 +67,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
             </Field.Root>
           </Card.Body>
         </Card.Root>
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
           <Card.Header>
             <Card.Title>ゲームルール</Card.Title>
             <Card.Description>あいこ処理を選択</Card.Description>
@@ -80,7 +80,41 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           </Card.Body>
         </Card.Root>
 
-        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
+        {/* 満腹上限（新しいセクション） */}
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
+          <Card.Header>
+            <Card.Title>満腹上限</Card.Title>
+            <Card.Description>原作準拠モード時の最大満腹度（kcal相当）</Card.Description>
+          </Card.Header>
+          <Card.Body>
+            <Field.Root invalid={physInvalid}>
+              <LeftAligned px={{ base: 2, md: 3 }}>
+                <Box minW='150px' w='150px'>
+                  <NumberAdjuster
+                    value={physText}
+                    min={100}
+                    step={10}
+                    onAdjust={() => { /* no adjust buttons */ }}
+                    onValueChange={(v) => {
+                      const next = typeof v === 'string' ? v : v?.value ?? '';
+                      setPhysText(next);
+                      if (/^\\d+$/.test(next)) update('physique', Number(next) as GameRule['physique']);
+                    }}
+                  >
+                    {({ input }) => (
+                      <Box display='block' my={{ base: 2, md: 3 }}>
+                        {input}
+                      </Box>
+                    )}
+                  </NumberAdjuster>
+                </Box>
+              </LeftAligned>
+              {physInvalid && (<Field.ErrorText mt={2}>数字のみを入力してください</Field.ErrorText>)}
+            </Field.Root>
+          </Card.Body>
+        </Card.Root>
+
+        <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg' maxW={{ base: '100%', md: '480px' }} mx='auto'>
           <Card.Header>
             <Card.Title>表示・演出</Card.Title>
             <Card.Description>操作感の好みに合わせて切り替え</Card.Description>
