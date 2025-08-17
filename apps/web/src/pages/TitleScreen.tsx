@@ -58,12 +58,24 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
     <Box h="100dvh" overflow="hidden" position="relative" px="24px" color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       {/* 右上 GitHub ボタン */}
       <HStack position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3} gap={2}>
-        <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
-          <Button size="sm" variant="outline" color={isDark ? 'white' : 'gray.800'} borderColor={isDark ? 'whiteAlpha.600' : 'gray.400'}>GitHub</Button>
-        </Link>
-        <Button size="sm" onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))} variant="outline">
-          {t.langToggle}
-        </Button>
+        {(() => {
+          const commonBtn = {
+            size: 'sm' as const,
+            variant: 'outline' as const,
+            color: isDark ? 'white' : 'gray.800',
+            borderColor: isDark ? 'whiteAlpha.700' : 'gray.400',
+          };
+          return (
+            <>
+              <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
+                <Button {...commonBtn}>GitHub</Button>
+              </Link>
+              <Button {...commonBtn} onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))}>
+                {t.langToggle}
+              </Button>
+            </>
+          );
+        })()}
       </HStack>
       {/* 中央オーバーレイ（見出し＋キャッチ） */}
       <Box
