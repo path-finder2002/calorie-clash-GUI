@@ -53,27 +53,23 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         langToggle: '日本語',
       };
   return (
-    <Box h="100dvh" overflow="hidden" position="relative" px="24px" color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
+    <Box minH="100dvh" display="flex" flexDir="column" px={{ base: 3, md: 6 }} py={{ base: 4, md: 6 }} color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       {/* 右上のボタンは App 側で共通表示 */}
-      {/* 中央オーバーレイ（見出し＋キャッチ） */}
-      <Box
-        position="absolute"
-        top={{ base: '30%', sm: '34%', md: '72px', lg: '96px' }}
-        left={0}
-        right={0}
-        display="grid"
-        placeItems="center"
-        zIndex={2}
-        pointerEvents="none"
-        transform={{ base: 'translateY(-50%)', md: 'none' }}
-      >
+      {/* ヒーロー（見出し＋キャッチ） */}
+      <Box flex="1" display="grid" placeItems="center" textAlign="center">
         <Box maxW={{ base: '92vw', md: '900px', lg: '1100px' }} px={{ base: 2, md: 4 }}>
-          <VStack gap="8px" align="center">
+          <VStack gap={{ base: 2, md: 3 }} align="center">
           <Text
             as="h2"
-            fontSize={{ base: '45px', sm: '45px', md: '36px', lg: '52px', xl: '64px' }}
+            fontSize={{
+              base: 'clamp(39px, 11.5vw, 59px)',
+              sm: 'clamp(39px, 10vw, 59px)',
+              md: '43px',
+              lg: '51px',
+              xl: '59px',
+            }}
             fontWeight="bold"
-            letterSpacing="0.12em"
+            letterSpacing={{ base: '0.06em', md: '0.12em' }}
             lineHeight={1.1}
             textAlign="center"
             opacity={0.95}
@@ -84,7 +80,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
           </Text>
           <Text
             as="h2"
-            fontSize={{ base: '12px', sm: '14px', md: '16px', lg: '18px' }}
+            fontSize={{ base: 'clamp(16px, 4.8vw, 20px)', md: '16px', lg: '18px' }}
             fontWeight="semibold"
             letterSpacing="0.12em"
             lineHeight={1.2}
@@ -92,13 +88,13 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             opacity={0.9}
             color={isDark ? 'whiteAlpha.900' : 'black'}
             textTransform="uppercase"
-            transform={{ base: 'translateY(-6px)', md: 'translateY(-10px)' }}
+            mt={{ base: -1, md: -2 }}
             >
               {t.sub}<br />✊✌️🖐️
           </Text>
           {/* 大見出しは視覚的に干渉するため一時的に非表示 */}
-          <VStack gap="12px" maxW="900px" px={{ base: 2, md: 0 }}>
-            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color={isDark ? 'whiteAlpha.900' : 'black'}>
+          <VStack gap={{ base: 2, md: 3 }} maxW="900px" px={{ base: 2, md: 0 }}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.6} textAlign="center" opacity={0.95} color={isDark ? 'whiteAlpha.900' : 'black'}>
               {t.catch1}<br />
               {t.catch2}
             </Text>
@@ -107,11 +103,11 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </Box>
       </Box>
 
-      {/* そのほかのUI（ボタン等）を下部に固定 */}
-      <Box position="absolute" left={0} right={0} bottom={{ base: '2vh', md: '3vh', lg: '4vh' }}>
-        <VStack gap="32px" w="360px" maxW="90vw" mx="auto">
+      {/* ボタン群（安全に下部寄せ） */}
+      <Box as="nav" mt={{ base: 4, md: 6 }}>
+        <VStack gap={{ base: 3, md: 4 }} w="min(360px, 92vw)" mx="auto">
           <Button
-            size="lg" h="64px" w="100%" borderRadius="12px"
+            size="lg" h={{ base: '56px', md: '64px' }} w="100%" borderRadius="12px"
             onClick={onStart}
             bg={isDark ? 'teal.300' : 'teal.500'}
             color={isDark ? 'gray.900' : 'white'}
@@ -119,7 +115,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             _active={{ bg: isDark ? 'teal.100' : 'teal.600' }}
           >{t.start}</Button>
           <Button
-            size="lg" h="64px" w="100%" borderRadius="12px"
+            size="lg" h={{ base: '56px', md: '64px' }} w="100%" borderRadius="12px"
             variant="outline"
             color={isDark ? 'white' : 'gray.900'}
             borderColor={isDark ? 'whiteAlpha.700' : 'gray.400'}
@@ -128,7 +124,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             onClick={onOptions}
           >{t.options}</Button>
           <Button
-            size="lg" h="64px" w="100%" borderRadius="12px"
+            size="lg" h={{ base: '56px', md: '64px' }} w="100%" borderRadius="12px"
             variant="ghost"
             color={isDark ? 'whiteAlpha.900' : 'gray.700'}
             _hover={{ bg: isDark ? 'whiteAlpha.100' : 'blackAlpha.50' }}
@@ -138,7 +134,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </VStack>
 
         {/* ルール切り替え（ボタン群の下） */}
-        <Box position="relative" display="inline-block" mt={{ base: 8, md: 10 }} w="100%">
+        <Box position="relative" display="inline-block" mt={{ base: 6, md: 8 }} w="100%">
           <HStack gap="12px" align="center" justify="center">
             <Badge colorScheme="purple">{t.rule}</Badge>
             <HStack gap="8px">
