@@ -10,17 +10,13 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
   const { isDark } = useAppTheme();
   const {
     draft,
-    tpText,
     physText,
-    tpInvalid,
     physInvalid,
     update,
     apply,
     cancel,
     defaults,
-    adjustTargetPoints,
     adjustPhysique,
-    setTpText,
     setPhysText,
   } = useSettings(rule, onChangeRule, onClose);
 
@@ -29,6 +25,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
       px={{ base: 4, md: 8 }}
       py={6}
       pt={{ base: '64px', md: '80px' }}
+      pb={{ base: '96px', md: '112px' }}
       color={isDark ? 'whiteAlpha.900' : 'gray.900'}
     >
       <Heading
@@ -49,38 +46,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           </Card.Header>
           <Card.Body>
             <Stack gap={5}>
-              <Field.Root invalid={tpInvalid}>
-                <Stack gap={4} align="stretch" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }} w='full'>
-                  <Box w='full' display='grid' placeItems='center'>
-                    <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full' display='block'>勝利点数</Field.Label>
-                  </Box>
-                  <NumberAdjuster
-                    value={tpText}
-                    min={1}
-                    step={1}
-                    onAdjust={adjustTargetPoints}
-                    onValueChange={(v) => {
-                      const next = typeof v === 'string' ? v : v?.value ?? '';
-                      setTpText(next);
-                      if (/^\d+$/.test(next)) update('targetPoints', Number(next) as GameRule['targetPoints']);
-                    }}
-                  >
-                    {({ input }) => (
-                      <Box w='full' display='grid' placeItems='center'>
-                        {input}
-                      </Box>
-                    )}
-                  </NumberAdjuster>
-                </Stack>
-                {tpInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
-              </Field.Root>
-              <Box h='1px' bg={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'} mx={{ base: 2, md: 3 }} my={1} />
-
               <Field.Root invalid={physInvalid}>
                 <Stack gap={2} align="stretch" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <Box w='full' display='grid' placeItems='center'>
-                    <Field.Label m={0} fontWeight='semibold' textAlign='center' w='full' display='block'>満腹上限（原作準拠のみ）</Field.Label>
-                  </Box>
                   <NumberAdjuster
                     value={physText}
                     min={100}
@@ -93,7 +60,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                     }}
                   >
                     {({ input }) => (
-                      <Box w='full' display='grid' placeItems='center'>
+                      <Box w='full' display='grid' placeItems='center' my={{ base: 4, md: 6 }}>
                         {input}
                       </Box>
                     )}
@@ -101,30 +68,35 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                 </Stack>
                 {physInvalid && (<Field.ErrorText mt={1}>数字のみを入力してください</Field.ErrorText>)}
               </Field.Root>
-
-              <Box h='1px' bg={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'} mx={{ base: 2, md: 3 }} my={1} />
+              
 
               <Field.Root>
-                <HStack
-                  justify='space-between'
-                  gap={{ base: 3, md: 6 }}
-                  px={{ base: 2, md: 3 }}
-                  py={{ base: 2, md: 3 }}
-                >
-                  <Text fontWeight='semibold'>あいこ処理</Text>
-                  <NativeSelect.Root
-                    w={{ base: '100%', md: '320px' }}
-                    size='lg'
+                <HStack justify='center' px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+                  <Box
+                    w={{ base: '100%', md: '380px' }}
+                    bg='surface'
+                    borderWidth='2px'
+                    borderColor='accent'
+                    borderRadius='lg'
+                    boxShadow='sm'
+                    p={1}
                   >
-                    <NativeSelect.Field
-                      value={draft.tieRule}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) => update('tieRule', e.target.value as GameRule['tieRule'])}
-                    >
-                      <option value='no_count'>増分なし</option>
-                      <option value='satiety_plus_both'>双方に満腹加算</option>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
+                    <NativeSelect.Root w='100%' size='lg'>
+                      <NativeSelect.Field
+                        value={draft.tieRule}
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) => update('tieRule', e.target.value as GameRule['tieRule'])}
+                        bg='surface'
+                        color='fg'
+                        fontWeight='semibold'
+                        border='none'
+                        _focusVisible={{ boxShadow: '0 0 0 3px rgba(45,212,191,0.35)' }}
+                      >
+                        <option value='no_count'>増分なし</option>
+                        <option value='satiety_plus_both'>双方に満腹加算</option>
+                      </NativeSelect.Field>
+                      <NativeSelect.Indicator color='accent' />
+                    </NativeSelect.Root>
+                  </Box>
                 </HStack>
               </Field.Root>
             </Stack>
@@ -171,11 +143,35 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
         </Card.Root>
       </Stack>
 
-      <HStack mt={6} gap={3} justify='center' w='100%'>
-        <Button variant='ghost' onClick={defaults}>既定値</Button>
-        <Button variant='outline' onClick={cancel}>キャンセル</Button>
-        <Button colorScheme='teal' onClick={apply}>適用</Button>
-      </HStack>
+      <Box
+        as='footer'
+        position='fixed'
+        left={0}
+        right={0}
+        bottom={0}
+        zIndex={900}
+        bg={isDark ? 'rgba(17,19,25,0.55)' : 'rgba(255,255,255,0.7)'}
+        backdropFilter='saturate(180%) blur(10px)'
+        borderTopWidth='1px'
+        borderColor={isDark ? 'whiteAlpha.300' : 'blackAlpha.200'}
+        boxShadow={isDark ? '0 -4px 16px rgba(0,0,0,0.35)' : '0 -4px 16px rgba(0,0,0,0.08)'}
+        style={{ WebkitBackdropFilter: 'saturate(180%) blur(10px)' }}
+      >
+        <HStack
+          maxW={{ base: '100%', md: '960px' }}
+          mx='auto'
+          px={{ base: 4, md: 8 }}
+          py={{ base: 3, md: 4 }}
+          gap={3}
+          justify='center'
+          w='100%'
+        >
+          <Button variant='ghost' onClick={defaults}>既定値</Button>
+          <Button variant='outline' onClick={cancel}>キャンセル</Button>
+          <Button colorScheme='teal' onClick={apply}>適用</Button>
+        </HStack>
+        <Box h='env(safe-area-inset-bottom)' />
+      </Box>
     </Box>
   );
 }

@@ -125,7 +125,6 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
           <Text fontSize='3xl' fontWeight='bold'>{myPoints}</Text>
           {rule.mode === 'original' && (
             <Box mt={2}>
-              <Text fontSize='xs' opacity={0.8}>満腹度</Text>
               <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
                 <Box h='100%' w={`${percentMy}%`} bg='teal.400' />
               </Box>
@@ -137,7 +136,6 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
           <Text fontSize='3xl' fontWeight='bold'>{cpuPoints}</Text>
           {rule.mode === 'original' && (
             <Box mt={2}>
-              <Text fontSize='xs' opacity={0.8}>満腹度</Text>
               <Box mt={1} w='240px' maxW='70vw' h='8px' bg='gray.700' borderRadius='md' overflow='hidden'>
                 <Box h='100%' w={`${percentCpu}%`} bg='red.400' />
               </Box>

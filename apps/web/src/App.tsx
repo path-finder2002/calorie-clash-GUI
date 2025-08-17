@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Button, HStack, Link } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import TitleScreen from "@/pages/TitleScreen";
 import GameScreen from "@/pages/GameScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
@@ -8,11 +8,12 @@ import type { GameRule } from "@/models";
 import { defaultRule } from "@/models";
 import { loadRule, saveRule } from "@/lib";
 import { useAppTheme } from "@/theme/colorMode";
+import TopHeader from "@/ui/TopHeader";
 
 type Screen = "title" | "game" | "help" | "settings";
 
 export default function App() {
-  const { isDark, toggleTheme } = useAppTheme();
+  const { isDark } = useAppTheme();
   const [screen, setScreen] = useState<Screen>("title");
   const [rule, setRule] = useState<GameRule>(() => loadRule() ?? defaultRule);
   const [returnTo, setReturnTo] = useState<Exclude<Screen, "settings">>("title");
@@ -46,29 +47,7 @@ export default function App() {
     >
       {/* タイトル/ヘルプ/設定では従来通り右上固定バー、ゲーム画面はヘッダー内に配置 */}
       {screen !== 'game' && (
-        <HStack position="fixed" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={10} gap={2}>
-          {(() => {
-            const commonBtn = {
-              size: 'sm' as const,
-              variant: 'outline' as const,
-              color: isDark ? 'white' : 'gray.800',
-              borderColor: isDark ? 'whiteAlpha.700' : 'gray.400',
-            };
-            return (
-              <>
-                <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
-                  <Button {...commonBtn}>GitHub</Button>
-                </Link>
-                <Button {...commonBtn} onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))}>
-                  {lang === 'ja' ? 'EN' : '日本語'}
-                </Button>
-                <Button size="sm" variant="ghost" onClick={toggleTheme}>
-                  {isDark ? '☀️ Light' : '🌙 Dark'}
-                </Button>
-              </>
-            );
-          })()}
-        </HStack>
+        <TopHeader lang={lang} onToggleLang={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))} />
       )}
       {screen === "title" && (
         <TitleScreen
