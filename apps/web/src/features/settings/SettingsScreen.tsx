@@ -41,7 +41,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
       >
         オプション
       </Heading>
-      <Stack gap={6} maxW='720px' mx='auto'>
+      <Stack gap={6} maxW={{ base: '100%', md: '960px' }} mx='auto'>
         <Card.Root bg={isDark ? 'blackAlpha.300' : 'blackAlpha.50'} p={6} borderRadius='lg'>
           <Card.Header>
             <Card.Title>ゲームルール</Card.Title>
