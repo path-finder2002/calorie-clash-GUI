@@ -48,8 +48,6 @@ export default function JankenSwiper({ onSelect, cards }: Props) {
                   color={colorScheme.color}
                   justify='center'
                   userSelect='none'
-                  transition="all 0.2s"
-                  _hover={{ transform: 'scale(1.05)', shadow: 'xl' }}
                   cursor='pointer'
                 >
                   <Text fontSize='56px' lineHeight={1}>{HAND_EMOJI[h]}</Text>
