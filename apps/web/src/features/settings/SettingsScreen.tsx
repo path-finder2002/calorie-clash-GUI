@@ -1,9 +1,9 @@
-import { Box, Button, Heading, HStack, Stack, Text, Card, NativeSelect, Field, Switch } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Stack, Text, Card, Field, Switch } from '@chakra-ui/react';
+import LeftAligned from '@/ui/LeftAligned';
 import { useAppTheme } from '@/theme/colorMode';
-import type { ChangeEvent } from 'react';
 import { useSettings } from '@/features/settings/hooks';
 import { NumberAdjuster } from '@/components/NumberAdjuster';
-// NumberAdjuster は未使用（数値入力は非表示）
+import TieRuleSelect from '@/features/settings/components/TieRuleSelect';
 import type { SettingsScreenProps } from '@/features/settings/types';
 import type { GameRule } from '@/models';
 
@@ -42,8 +42,9 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           </Card.Header>
           <Card.Body>
             <Field.Root invalid={tpInvalid}>
-              <Box minW='150px' w='150px' mx='auto'>
-                <NumberAdjuster
+              <LeftAligned px={{ base: 2, md: 3 }}>
+                <Box minW='150px' w='150px'>
+                  <NumberAdjuster
                   value={tpText}
                   min={1}
                   step={1}
@@ -59,8 +60,9 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                       {input}
                     </Box>
                   )}
-                </NumberAdjuster>
-              </Box>
+                  </NumberAdjuster>
+                </Box>
+              </LeftAligned>
               {tpInvalid && (<Field.ErrorText mt={2}>数字のみを入力してください</Field.ErrorText>)}
             </Field.Root>
           </Card.Body>
@@ -73,36 +75,7 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
           <Card.Body>
             <Stack gap={5}>
               {/* 数値フィールド（満腹上限）セクションは削除 */}
-
-              <Field.Root>
-                <HStack justify='center' px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-                  <Box
-                    w={{ base: '100%', md: '380px' }}
-                    bg='surface'
-                    borderWidth='2px'
-                    borderColor='accent'
-                    borderRadius='lg'
-                    boxShadow='sm'
-                    p={1}
-                  >
-                    <NativeSelect.Root w='100%' size='lg'>
-                      <NativeSelect.Field
-                        value={draft.tieRule}
-                        onChange={(e: ChangeEvent<HTMLSelectElement>) => update('tieRule', e.target.value as GameRule['tieRule'])}
-                        bg='surface'
-                        color='fg'
-                        fontWeight='semibold'
-                        border='none'
-                        _focusVisible={{ boxShadow: '0 0 0 3px rgba(45,212,191,0.35)' }}
-                      >
-                        <option value='no_count'>増分なし</option>
-                        <option value='satiety_plus_both'>双方に満腹加算</option>
-                      </NativeSelect.Field>
-                      <NativeSelect.Indicator color='accent' />
-                    </NativeSelect.Root>
-                  </Box>
-                </HStack>
-              </Field.Root>
+              <TieRuleSelect value={draft.tieRule} onChange={(val) => update('tieRule', val)} />
             </Stack>
           </Card.Body>
         </Card.Root>
