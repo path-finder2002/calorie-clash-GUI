@@ -11,6 +11,24 @@ type Props = {
   debugStep?: 1 | 2 | 3; // デバッグ用: 特定ステップのみ
 };
 
+// SLOT 表示用の定数はコンポーネント外で安定化
+const slotBorder = '2px solid rgba(255,255,255,0.2)';
+const slotFoods = {
+  rock: ['唐揚げ', '餃子', 'グミ'],
+  scissors: ['サラダ', '寿司', 'そば'],
+  paper: ['パン', 'パスタ', 'プリン'],
+} as const;
+const pingpong = (arr: readonly string[]) => [...arr, ...arr.slice(1, -1).reverse()];
+const PP = {
+  rock: pingpong(slotFoods.rock),
+  scissors: pingpong(slotFoods.scissors),
+  paper: pingpong(slotFoods.paper),
+};
+const repeats = 3;
+const seqRock = Array.from({ length: repeats }).flatMap(() => PP.rock);
+const seqScis = Array.from({ length: repeats }).flatMap(() => PP.scissors);
+const seqPap  = Array.from({ length: repeats }).flatMap(() => PP.paper);
+
 function ensureGsap(): Promise<void> {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && (window as any).gsap) return resolve();
@@ -123,30 +141,46 @@ export default function RoundOverlay({ mode, round = 1, onComplete, playerName =
       }
     });
     return () => { killed = true; };
+  }, [step, onComplete]);
+
+  useEffect(() => {
+    let killed = false;
+    ensureGsap().then(() => {
+      if (killed) return;
+      const gsap: any = (window as any).gsap;
+
+      if (step === 1) {
+        // 初期化
+        gsap.set(playerRef.current, { opacity: 0, x: -40, scale: 0.96 });
+        gsap.set(cpuRef.current, { opacity: 0, x: 40, scale: 0.96 });
+        gsap.set(vsRef.current, { opacity: 0 });
+
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        tl.to(playerRef.current, { opacity: 1, x: 0, duration: 0.5 })
+          .to(playerRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
+          .to(playerRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
+        tl.to(vsRef.current, { opacity: 1, duration: 0.2 }, '-=0.3');
+        tl.to(cpuRef.current, { opacity: 1, x: 0, duration: 0.5 }, '-=0.15')
+          .to(cpuRef.current, { scale: 1.04, duration: 0.18, ease: 'bounce.out' }, '>-0.12')
+          .to(cpuRef.current, { scale: 1.0, duration: 0.14 }, '>-0.04');
+      }
+
+      if (step === 2) {
+        gsap.set(roundLabelRef.current, { opacity: 0, letterSpacing: '0.6em' });
+        gsap.set(roundNumRef.current, { opacity: 0, y: 10, scale: 0.86 });
+        gsap.set(roundSubRef.current, { opacity: 0, y: 6 });
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        tl.to(roundLabelRef.current, { opacity: 1, duration: 0.3 }, 0)
+          .to(roundLabelRef.current, { letterSpacing: '0.2em', duration: 0.3 }, 0)
+          .to(roundNumRef.current, { opacity: 1, y: 0, scale: 1.12, duration: 0.38 }, 0.22)
+          .to(roundNumRef.current, { scale: 1.0, duration: 0.22 }, '>-0.02')
+          .to(roundSubRef.current, { opacity: 1, y: 0, duration: 0.22 }, '>-0.16');
+      }
+    });
+    return () => { killed = true; };
   }, [step]);
 
   if (!visible) return null;
-
-  const slotBorder = '2px solid rgba(255,255,255,0.2)';
-  const slotFoods = {
-    rock: ['唐揚げ', '餃子', 'グミ'],
-    scissors: ['サラダ', '寿司', 'そば'],
-    paper: ['パン', 'パスタ', 'プリン'],
-  } as const;
-
-  // 正しいパターン: A B C B A の往復（ping-pong）
-  const pingpong = (arr: readonly string[]) => [...arr, ...arr.slice(1, -1).reverse()];
-  const PP = {
-    rock: pingpong(slotFoods.rock),
-    scissors: pingpong(slotFoods.scissors),
-    paper: pingpong(slotFoods.paper),
-  };
-  // 見栄えのスピンのために ping-pong を複数回連結
-  const repeats = 3;
-  const seqRock = Array.from({ length: repeats }).flatMap(() => PP.rock);
-  const seqScis = Array.from({ length: repeats }).flatMap(() => PP.scissors);
-  const seqPap  = Array.from({ length: repeats }).flatMap(() => PP.paper);
-  // const seqLen = seqRock.length; // 各列同じ長さ
 
   return (
     <Box position='fixed' inset={0} bg='rgba(0,0,0,1)' color='white' zIndex={10000} display='grid' placeItems='center'>
