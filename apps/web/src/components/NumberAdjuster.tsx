@@ -20,7 +20,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
       min={min}
       step={step}
       size='lg'
-      w='auto'
+      w='100%'
       onValueChange={onValueChange}
     >
       <NumberInput.Control>
@@ -32,7 +32,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
           w='100%'
-          maxW={{ base: '240px', md: '280px' }}
+          maxW={{ base: 'min(90vw, 390px)', md: 'min(70vw, 570px)' }}
           bg='surface'
           color='fg'
           borderWidth='2px'
@@ -41,6 +41,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           boxShadow='sm'
           px={4}
           py={3}
+          style={{ boxSizing: 'border-box' }}
           _focus={{ borderColor: 'accent', boxShadow: '0 0 0 3px rgba(45,212,191,0.35)' }}
         />
       </NumberInput.Control>
