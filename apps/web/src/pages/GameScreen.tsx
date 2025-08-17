@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, Button, HStack, Heading, Spacer, Text, Badge, VStack } from '@chakra-ui/react';
 import { useAppTheme } from '@/theme/colorMode';
 import TopHeader from '@/ui/TopHeader';
 import type { FoodCard, GameRule, Hand } from '@/models';
 import { HAND_LABEL, judge, randomCardFor, randomHand } from '@/models';
 import { loadScore, saveScore } from '@/lib';
-import MinimalJankenChoices from '@/components/MinimalJankenChoices';
 import JankenSwiper from '@/components/JankenSwiper';
 import RoundOverlay from '@/components/RoundOverlay';
 import GameStartAnimation from '@/components/GameStartAnimation';
+import { useGameSequence } from './hooks/useGameSequence';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
@@ -32,28 +32,16 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   const [result, setResult] = useState<RoundResult>({ outcome: null });
   const [finished, setFinished] = useState<string | null>(null);
   const [assigned, setAssigned] = useState<Partial<Record<Hand, FoodCard>>>({});
-  const [showDraw, setShowDraw] = useState(false);
-  const [showGameStart, setShowGameStart] = useState(true);
+  const { showGameStart, showDraw, handleGameStartComplete, handleDrawComplete, resetSequence, triggerDraw } = useGameSequence();
 
   const percentMy = Math.min(100, Math.round((mySat / rule.physique) * 100));
   const percentCpu = Math.min(100, Math.round((cpuSat / rule.physique) * 100));
 
-  useEffect(() => {
-    if (!showGameStart) {
-      setShowDraw(true);
-    }
-  }, [showGameStart]);
-
   function nextRound() {
     setRound(r => r + 1);
     setResult({ outcome: null });
-
-    // 2R以降はカードを内部的に割り当て直す（アニメーションなし）
-    const next: Partial<Record<Hand, FoodCard>> = {};
-    (['rock','scissors','paper'] as Hand[]).forEach((h) => {
-      next[h] = randomCardFor(h, rule.deck);
-    });
-    setAssigned(next);
+    setAssigned({});
+    triggerDraw(); // 抽選アニメーション（RoundOverlay）をトリガー
   }
 
   function handleSelect(hand: Hand) {
@@ -117,16 +105,8 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
 
   function resetAll() {
     setMyPoints(0); setCpuPoints(0); setMySat(0); setCpuSat(0); setRound(1); setResult({ outcome: null }); setFinished(null); setAssigned({});
-    setShowGameStart(true);
+    resetSequence();
   }
-
-  const handleGameStartComplete = useCallback(() => {
-    setShowGameStart(false);
-  }, []);
-
-  const handleDrawComplete = useCallback(() => {
-    setShowDraw(false);
-  }, []);
 
   const handleAssign = useCallback((names: Record<Hand, string>) => {
     const next: Partial<Record<Hand, FoodCard>> = {};
