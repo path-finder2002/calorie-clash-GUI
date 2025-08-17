@@ -69,15 +69,11 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         hintSimple: 'Simple: +1 point for a win. First to target points wins.',
         langToggle: '日本語',
       };
+  const isDark = theme === 'dark';
+  const gradient = isDark ? "radial(#121820 0%, #0b0f14 70%)" : "radial(#f2f4f7 0%, #e9edf2 70%)";
+
   return (
-    <Box
-      h="100dvh"
-      overflow="hidden"
-      bgGradient="radial(closest-side, var(--colors-surface) 0%, var(--colors-bg) 70%)"
-      position="relative"
-      px="24px"
-      color="fg"
-    >
+    <Box h="100dvh" overflow="hidden" bgGradient={gradient} position="relative" px="24px">
       {/* 右上 GitHub ボタン */}
       <HStack position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3} gap={2}>
         <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
@@ -124,7 +120,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             lineHeight={1.2}
             textAlign="center"
             opacity={0.9}
-            color="fg"
+            color={isDark ? 'whiteAlpha.900' : 'black'}
             textTransform="uppercase"
             transform={{ base: 'translateY(-6px)', md: 'translateY(-10px)' }}
             >
@@ -132,7 +128,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
           </Text>
           {/* 大見出しは視覚的に干渉するため一時的に非表示 */}
           <VStack gap="12px" maxW="900px" px={{ base: 2, md: 0 }}>
-            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color="fg">
+            <Text fontSize={{ base: 'sm', md: 'md' }} lineHeight={1.7} textAlign="center" opacity={0.95} color={isDark ? 'whiteAlpha.900' : 'black'}>
               {t.catch1}<br />
               {t.catch2}
             </Text>
@@ -189,10 +185,8 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             opacity={ruleHint ? 1 : 0}
             transition="opacity 0.15s ease, transform 0.15s ease"
             pointerEvents="none"
-            bg="surface"
-            color="fg"
-            borderWidth="1px"
-            borderColor="border"
+            bg={isDark ? 'blackAlpha.700' : 'whiteAlpha.900'}
+            color={isDark ? 'white' : 'gray.900'}
             borderRadius="10px"
             px="14px"
             py="8px"
@@ -208,7 +202,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
               transform="translateX(-50%) rotate(45deg)"
               w="10px"
               h="10px"
-              bg="surface"
+              bg={isDark ? 'blackAlpha.700' : 'whiteAlpha.900'}
             />
           </Box>
         </Box>
