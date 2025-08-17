@@ -70,14 +70,14 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         langToggle: '日本語',
       };
   const isDark = theme === 'dark';
-  const gradient = isDark ? "radial(#121820 0%, #0b0f14 70%)" : "radial(#f2f4f7 0%, #e9edf2 70%)";
+  const gradient = isDark ? "radial(#000000 0%, #0a0a0a 70%)" : "radial(#f2f4f7 0%, #e9edf2 70%)";
 
   return (
-    <Box h="100dvh" overflow="hidden" bgGradient={gradient} position="relative" px="24px">
+    <Box h="100dvh" overflow="hidden" bgGradient={gradient} position="relative" px="24px" color={isDark ? 'whiteAlpha.900' : 'gray.900'}>
       {/* 右上 GitHub ボタン */}
       <HStack position="absolute" top={{ base: '10px', md: '14px' }} right={{ base: '10px', md: '16px' }} zIndex={3} gap={2}>
         <Link href="https://github.com/path-finder2002/calorie-clash-GUI" target="_blank" rel="noreferrer noopener">
-          <Button size="sm" variant="outline" colorScheme="teal">GitHub</Button>
+          <Button size="sm" variant="outline" color={isDark ? 'white' : 'gray.800'} borderColor={isDark ? 'whiteAlpha.600' : 'gray.400'}>GitHub</Button>
         </Link>
         <Button size="sm" onClick={() => setLang(l => (l === 'ja' ? 'en' : 'ja'))} variant="outline">
           {t.langToggle}
@@ -109,6 +109,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             textAlign="center"
             opacity={0.95}
             textTransform="uppercase"
+            color={isDark ? 'white' : 'black'}
           >
             {t.title}
           </Text>
@@ -140,9 +141,31 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       {/* そのほかのUI（ボタン等）を下部に固定 */}
       <Box position="absolute" left={0} right={0} bottom={{ base: '2vh', md: '3vh', lg: '4vh' }}>
         <VStack gap="32px" w="360px" maxW="90vw" mx="auto">
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" colorScheme="teal" onClick={onStart}>{t.start}</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="outline" onClick={onOptions}>{t.options}</Button>
-          <Button size="lg" h="64px" w="100%" borderRadius="12px" variant="ghost" onClick={onHelp}>{t.help}</Button>
+          <Button
+            size="lg" h="64px" w="100%" borderRadius="12px"
+            onClick={onStart}
+            bg={isDark ? 'teal.300' : 'teal.500'}
+            color={isDark ? 'gray.900' : 'white'}
+            _hover={{ bg: isDark ? 'teal.200' : 'teal.400' }}
+            _active={{ bg: isDark ? 'teal.100' : 'teal.600' }}
+          >{t.start}</Button>
+          <Button
+            size="lg" h="64px" w="100%" borderRadius="12px"
+            variant="outline"
+            color={isDark ? 'white' : 'gray.900'}
+            borderColor={isDark ? 'whiteAlpha.700' : 'gray.400'}
+            _hover={{ bg: isDark ? 'whiteAlpha.200' : 'blackAlpha.50' }}
+            _active={{ bg: isDark ? 'whiteAlpha.300' : 'blackAlpha.100' }}
+            onClick={onOptions}
+          >{t.options}</Button>
+          <Button
+            size="lg" h="64px" w="100%" borderRadius="12px"
+            variant="ghost"
+            color={isDark ? 'whiteAlpha.900' : 'gray.700'}
+            _hover={{ bg: isDark ? 'whiteAlpha.100' : 'blackAlpha.50' }}
+            _active={{ bg: isDark ? 'whiteAlpha.200' : 'blackAlpha.100' }}
+            onClick={onHelp}
+          >{t.help}</Button>
         </VStack>
 
         {/* ルール切り替え（ボタン群の下） */}
