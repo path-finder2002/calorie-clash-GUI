@@ -45,12 +45,17 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
   const slotBox1 = useRef<HTMLDivElement>(null);
   const slotBox2 = useRef<HTMLDivElement>(null);
   const slotBox3 = useRef<HTMLDivElement>(null);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
+    hasAnimated.current = false;
     // 通常シーケンス: ROUND -> SLOT
     setStep(2);
     const t2 = setTimeout(() => setStep(3), 1000); // ROUND表示時間を短縮
-    return () => { clearTimeout(t2); };
+    return () => {
+      hasAnimated.current = false;
+      clearTimeout(t2);
+    };
   }, [round]);
 
   useEffect(() => {
@@ -65,6 +70,11 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
       }
 
       if (step === 3) {
+        if (hasAnimated.current) {
+          console.error('RoundOverlay: アニメーションが多重に呼び出されました');
+          return;
+        }
+        hasAnimated.current = true;
         const animateRail = (boxEl: HTMLDivElement | null, railEl: HTMLDivElement | null): Promise<string> => {
           return new Promise((resolve) => {
             if (!boxEl || !railEl) return resolve('');
@@ -74,7 +84,7 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
             const centerX = viewport.left + viewport.width / 2;
             const children = Array.from(railEl.children) as HTMLElement[];
             const centers = children.map((el) => el.getBoundingClientRect().left + el.clientWidth / 2);
-            
+
             const start = Math.floor(centers.length * 0.45);
             const end = Math.floor(centers.length * 0.85);
             const idx = Math.max(0, Math.min(centers.length - 1, Math.floor(start + Math.random() * (end - start))));
@@ -82,8 +92,8 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
             const targetTranslate = centerX - targetCenter;
 
             // 選択アニメーション（簡略版）
-            gsap.to(railEl, { 
-              x: targetTranslate, 
+            gsap.to(railEl, {
+              x: targetTranslate,
               duration: 1.2 + Math.random() * 0.4, // 回転時間を短縮
               ease: 'power2.out', // シンプルなイージング
               onComplete: () => {
@@ -96,16 +106,24 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
           });
         };
 
-        Promise.all([
-          animateRail(slotBox1.current, slotInner1.current),
-          animateRail(slotBox2.current, slotInner2.current),
-          animateRail(slotBox3.current, slotInner3.current),
-        ]).then((names) => {
-          setResultFoods(names);
-          const byHand: Record<Hand, string> = { rock: names[0] || '', scissors: names[1] || '', paper: names[2] || '' };
-          onResult?.(byHand);
-          setTimeout(() => { setVisible(false); onComplete(); }, 1200); // 結果表示時間を短縮
-        });
+        (async () => {
+          try {
+            const names = await Promise.all([
+              animateRail(slotBox1.current, slotInner1.current),
+              animateRail(slotBox2.current, slotInner2.current),
+              animateRail(slotBox3.current, slotInner3.current),
+            ]);
+            setResultFoods(names);
+            const byHand: Record<Hand, string> = { rock: names[0] || '', scissors: names[1] || '', paper: names[2] || '' };
+            onResult?.(byHand);
+            setTimeout(() => { setVisible(false); onComplete(); }, 1200); // 結果表示時間を短縮
+          } catch (e) {
+            console.error('RoundOverlay: スロットアニメーションでエラーが発生しました', e);
+            hasAnimated.current = false;
+            setVisible(false);
+            onComplete();
+          }
+        })();
       }
     });
     return () => { killed = true; };
