@@ -66,11 +66,11 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                     {({ adjust, input }) => (
                       <>
                         <Box>{input}</Box>
-                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }}>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
+                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }} flexWrap='wrap' rowGap={2}>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
                         </HStack>
                       </>
                     )}
@@ -97,13 +97,13 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                     {({ adjust, input }) => (
                       <>
                         <Box>{input}</Box>
-                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }}>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
+                        <HStack gap={2} justify='center' mt={{ base: '12px', md: '50px' }} flexWrap='wrap' rowGap={2}>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
                         </HStack>
-                        <HStack gap={2} justify='center' mt={{ base: '8px', md: '12px' }}>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
-                          <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
+                        <HStack gap={2} justify='center' mt={{ base: '8px', md: '12px' }} flexWrap='wrap' rowGap={2}>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
+                          <Button size='sm' minW={{ base: '48px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
                         </HStack>
                       </>
                     )}

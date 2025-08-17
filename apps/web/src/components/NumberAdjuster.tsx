@@ -31,7 +31,8 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
           fontSize={{ base: 'xl', md: '2xl' }}
           fontWeight='bold'
           fontVariantNumeric='tabular-nums'
-          minW={{ base: '180px', md: '220px' }}
+          w='100%'
+          maxW={{ base: '240px', md: '280px' }}
           bg='surface'
           color='fg'
           borderWidth='2px'
