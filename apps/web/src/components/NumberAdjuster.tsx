@@ -1,4 +1,4 @@
-import { HStack, NumberInput } from '@chakra-ui/react';
+import { NumberInput, Stack } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
 type NumberAdjusterProps = {
@@ -38,8 +38,14 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
   );
 
   return (
-    <HStack w='100%' justify='center' align='center' gap={{ base: 2, md: 4 }}>
+    <Stack
+      w='100%'
+      direction={{ base: 'column', md: 'row' }}
+      justify='center'
+      align='center'
+      gap={{ base: 2, md: 4 }}
+    >
       {children({ adjust: onAdjust, input })}
-    </HStack>
+    </Stack>
   );
 }
