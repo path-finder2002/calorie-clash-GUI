@@ -40,7 +40,7 @@ export function NumberAdjuster({ value, min, step, onValueChange, onAdjust, chil
   return (
     <Stack
       w='100%'
-      direction={{ base: 'column', md: 'row' }}
+      direction='column'
       justify='center'
       align='center'
       gap={{ base: 2, md: 4 }}

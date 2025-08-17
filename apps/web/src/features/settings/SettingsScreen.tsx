@@ -60,8 +60,8 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                   >
                     {({ adjust, input }) => (
                       <>
-                        <Box mb="50px">{input}</Box>
-                        <HStack gap={2}>
+                        <Box mb={{ base: '12px', md: '50px' }}>{input}</Box>
+                        <HStack gap={2} justify='center'>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
@@ -91,12 +91,12 @@ export default function SettingsScreen({ onClose, rule, onChangeRule }: Settings
                   >
                     {({ adjust, input }) => (
                       <>
-                        <HStack gap={2}>
+                        <Box mb={{ base: '12px', md: '50px' }}>{input}</Box>
+                        <HStack gap={2} justify='center'>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+10)}>+10</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(+5)}>+5</Button>
                         </HStack>
-                        <Box mb="50px">{input}</Box>
-                        <HStack gap={2}>
+                        <HStack gap={2} justify='center'>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-5)}>-5</Button>
                           <Button size='sm' minW={{ base: '56px', md: '64px' }} bg='black' color='white' borderRadius='md' onClick={() => adjust(-10)}>-10</Button>
                         </HStack>
