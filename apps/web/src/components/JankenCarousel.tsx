@@ -21,7 +21,7 @@ const handColors: Record<Hand, { bg: string; color: string }> = {
 
 export default function JankenCarousel({ onSelect, cards }: Props) {
   return (
-    <Box w="full" maxW={{ base: '300px', md: '700px' }} mx="auto" py={4}>
+    <Box w="full" maxW={{ base: '200px', md: '600px' }} mx="auto" py={4}>
       <Swiper
         modules={[Navigation]}
         spaceBetween={30}
@@ -51,7 +51,7 @@ export default function JankenCarousel({ onSelect, cards }: Props) {
                 as="button"
                 onClick={() => onSelect(hand)}
                 w="full"
-                h="240px"
+                h="360px"
                 bg={colorScheme.bg}
                 color={colorScheme.color}
                 textAlign="center"
