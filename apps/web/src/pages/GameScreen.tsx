@@ -47,8 +47,13 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   function nextRound() {
     setRound(r => r + 1);
     setResult({ outcome: null });
-    setAssigned({});
-    setShowDraw(true);
+
+    // 2R以降はカードを内部的に割り当て直す（アニメーションなし）
+    const next: Partial<Record<Hand, FoodCard>> = {};
+    (['rock','scissors','paper'] as Hand[]).forEach((h) => {
+      next[h] = randomCardFor(h, rule.deck);
+    });
+    setAssigned(next);
   }
 
   function handleSelect(hand: Hand) {
