@@ -1,10 +1,16 @@
-import { Box, Button, Card, HStack, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, Card, Dialog, HStack, Heading, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 
 type Props = { onBack: () => void; onConfirm: (mode: 'pvc'|'pvp') => void };
 
 export default function PlayerSelectScreen({ onBack, onConfirm }: Props) {
   const [mode, setMode] = useState<'pvc' | 'pvp'>('pvc');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleConfirm = () => {
+    onConfirm(mode);
+    setConfirmOpen(false);
+  };
 
   return (
     <Box px={{ base: 4, md: 8 }} py={{ base: 6, md: 8 }} minH='100dvh' display='flex' flexDir='column'>
@@ -37,8 +43,26 @@ export default function PlayerSelectScreen({ onBack, onConfirm }: Props) {
 
       <HStack mt='auto' justify='center' gap={3} py={{ base: 4, md: 6 }}>
         <Button variant='outline' onClick={onBack}>戻る</Button>
-        <Button colorPalette='teal' onClick={() => onConfirm(mode)}>次へ</Button>
+        <Button colorPalette='teal' onClick={() => setConfirmOpen(true)}>次へ</Button>
       </HStack>
+
+      <Dialog.Root open={confirmOpen} onOpenChange={(e) => setConfirmOpen(e.open)}>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>確認</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text>{mode === 'pvc' ? '1人で開始しますか？' : '2人で開始しますか？'}</Text>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button variant='outline' onClick={() => setConfirmOpen(false)}>キャンセル</Button>
+              <Button colorPalette='teal' onClick={handleConfirm}>開始</Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
 
       <Text textAlign='center' color='fg.muted' fontSize='xs'>v0.1.0</Text>
     </Box>
