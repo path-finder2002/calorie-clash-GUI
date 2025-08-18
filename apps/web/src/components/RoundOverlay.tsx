@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Text, VStack, HStack } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react';
 import type { Hand } from '@/models';
 import { useEffect, useRef, useState } from 'react';
 
@@ -38,6 +38,7 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
   const [step, setStep] = useState<0 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
   const [resultFoods, setResultFoods] = useState<string[] | null>(null);
+  const [showNext, setShowNext] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const slotInner1 = useRef<HTMLDivElement>(null);
   const slotInner2 = useRef<HTMLDivElement>(null);
@@ -55,7 +56,8 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
     hasAnimated.current = false;
     // 通常シーケンス: ROUND -> SLOT
     setStep(2);
-    const t2 = setTimeout(() => setStep(3), 1000); // ROUND表示時間を短縮
+    setShowNext(false);
+    const t2 = setTimeout(() => setShowNext(true), 1000); // ROUND表示時間を短縮
     return () => {
       hasAnimated.current = false;
       clearTimeout(t2);
@@ -122,7 +124,7 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
             setResultFoods(names);
             const byHand: Record<Hand, string> = { rock: names[0] || '', scissors: names[1] || '', paper: names[2] || '' };
             onResult?.(byHand);
-            setTimeout(() => { setVisible(false); onComplete(); }, 1200); // 結果表示時間を短縮
+            setShowNext(true); // 結果表示後にボタンを表示
           } catch (e) {
             console.error('RoundOverlay: スロットアニメーションでエラーが発生しました', e);
             hasAnimated.current = false;
@@ -134,6 +136,17 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
     });
     return () => { killed = true; };
   }, [step, onComplete, onResult]);
+
+  function handleNext() {
+    if (step === 2) {
+      setShowNext(false);
+      setStep(3);
+    } else if (step === 3) {
+      setShowNext(false);
+      setVisible(false);
+      onComplete();
+    }
+  }
 
   if (!visible) return null;
 
@@ -201,6 +214,11 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
             </Text>
           )}
         </VStack>
+      )}
+      {showNext && (
+        <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
+          <Button colorScheme='teal' size='lg' onClick={handleNext}>次へ</Button>
+        </Box>
       )}
     </Box>
   );
