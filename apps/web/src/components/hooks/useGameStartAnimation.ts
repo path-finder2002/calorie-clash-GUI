@@ -15,8 +15,11 @@ function ensureGsap(): Promise<void> {
 export function useGameStartAnimation(onComplete: () => void) {
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     let killed = false;
     ensureGsap().then(() => {
       if (killed) return;
