@@ -46,8 +46,12 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
   const slotBox2 = useRef<HTMLDivElement>(null);
   const slotBox3 = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
+  const lastRound = useRef<number | undefined>();
+  const lastStep = useRef<0 | 2 | 3 | null>(null);
 
   useEffect(() => {
+    if (lastRound.current === round) return;
+    lastRound.current = round;
     hasAnimated.current = false;
     // 通常シーケンス: ROUND -> SLOT
     setStep(2);
@@ -59,6 +63,8 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
   }, [round]);
 
   useEffect(() => {
+    if (lastStep.current === step) return;
+    lastStep.current = step;
     let killed = false;
     ensureGsap().then(() => {
       if (killed) return;
