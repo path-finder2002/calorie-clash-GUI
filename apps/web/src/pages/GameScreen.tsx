@@ -9,6 +9,7 @@ import JankenSwiper from '@/components/JankenSwiper';
 import RoundOverlay from '@/components/RoundOverlay';
 import GameStartAnimation from '@/components/GameStartAnimation';
 import { useGameSequence } from './hooks/useGameSequence';
+import JankenBattleAnimation from '@/components/JankenBattleAnimation';
 
 type Props = { rule: GameRule; onExit: () => void; onOptions: () => void; lang: 'ja' | 'en'; onToggleLang: () => void };
 
@@ -32,6 +33,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   const [result, setResult] = useState<RoundResult>({ outcome: null });
   const [finished, setFinished] = useState<string | null>(null);
   const [assigned, setAssigned] = useState<Partial<Record<Hand, FoodCard>>>({});
+  const [showBattle, setShowBattle] = useState(false);
   const { showGameStart, showDraw, handleGameStartComplete, handleDrawComplete, resetSequence, triggerDraw } = useGameSequence();
 
   const percentMy = Math.min(100, Math.round((mySat / rule.physique) * 100));
@@ -41,6 +43,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
     setRound(r => r + 1);
     setResult({ outcome: null });
     setAssigned({});
+    setShowBattle(false);
     triggerDraw(); // 抽選アニメーション（RoundOverlay）をトリガー
   }
 
@@ -51,7 +54,10 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
       if (outcome === 'win') setMyPoints(p => p + 1);
       if (outcome === 'lose') setCpuPoints(p => p + 1);
       const done = checkFinish({ nextMy: outcome === 'win' ? myPoints + 1 : myPoints, nextCpu: outcome === 'lose' ? cpuPoints + 1 : cpuPoints, nextMySat: mySat, nextCpuSat: cpuSat });
-      if (!done) setResult({ outcome, myHand: hand, cpuHand: cpu });
+      if (!done) {
+        setResult({ outcome, myHand: hand, cpuHand: cpu });
+        setShowBattle(true);
+      }
     } else {
       const myCard = assigned[hand] ?? randomCardFor(hand, rule.deck);
       const cpuCard = randomCardFor(cpu, rule.deck);
@@ -61,23 +67,33 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         setMyPoints(np);
         setCpuSat(nsCpu);
         const done = checkFinish({ nextMy: np, nextCpu: cpuPoints, nextMySat: mySat, nextCpuSat: nsCpu });
-        if (!done) setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard, deltaMyPoints: myCard.points, deltaCpuSatiety: cpuCard.satiety });
+        if (!done) {
+          setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard, deltaMyPoints: myCard.points, deltaCpuSatiety: cpuCard.satiety });
+          setShowBattle(true);
+        }
       } else if (outcome === 'lose') {
         const npCpu = cpuPoints + cpuCard.points;
         const nsMy = mySat + myCard.satiety;
         setCpuPoints(npCpu);
         setMySat(nsMy);
         const done = checkFinish({ nextMy: myPoints, nextCpu: npCpu, nextMySat: nsMy, nextCpuSat: cpuSat });
-        if (!done) setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
+        if (!done) {
+          setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
+          setShowBattle(true);
+        }
       } else {
         if (rule.tieRule === 'satiety_plus_both') {
           const nsMy = mySat + myCard.satiety;
           const nsCpu = cpuSat + cpuCard.satiety;
           setMySat(nsMy); setCpuSat(nsCpu);
           const done = checkFinish({ nextMy: myPoints, nextCpu: cpuPoints, nextMySat: nsMy, nextCpuSat: nsCpu });
-          if (!done) setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
+          if (!done) {
+            setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
+            setShowBattle(true);
+          }
         } else {
           setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
+          setShowBattle(true);
         }
       }
     }
@@ -147,7 +163,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         <VStack mt={8} gap={4} align='center'>
           <Heading size='sm'>スワイプして1枚選んでください</Heading>
           {!showDraw ? <JankenSwiper onSelect={(h) => handleSelect(h)} cards={assigned} /> : <Text>抽選中...</Text>}
-          {result.outcome && (
+          {result.outcome && !showBattle && (
             <VStack textAlign='center' mt={2} gap={1}>
               <Text fontSize='lg'>結果: {result.outcome === 'win' ? 'WIN' : result.outcome === 'lose' ? 'LOSE' : 'DRAW'}</Text>
               <Text opacity={0.8}>
@@ -178,6 +194,9 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
           onResult={handleAssign}
           onComplete={handleDrawComplete}
         />
+      )}
+      {showBattle && result.myHand && result.cpuHand && (
+        <JankenBattleAnimation player={result.myHand} cpu={result.cpuHand} onComplete={() => setShowBattle(false)} />
       )}
     </Box>
   );

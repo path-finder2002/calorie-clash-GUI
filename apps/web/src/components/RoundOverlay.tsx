@@ -2,6 +2,7 @@
 import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react';
 import type { Hand } from '@/models';
 import { useEffect, useRef, useState } from 'react';
+import { ensureGsap } from '@/lib';
 
 type Props = {
   round?: number;
@@ -22,17 +23,6 @@ const cycles = 4; // サイクル数を減らしてDOM要素を削減
 const seqRock = Array.from({ length: cycles }).flatMap(() => slotFoods.rock);
 const seqScis = Array.from({ length: cycles }).flatMap(() => slotFoods.scissors);
 const seqPap  = Array.from({ length: cycles }).flatMap(() => slotFoods.paper);
-
-function ensureGsap(): Promise<void> {
-  return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && (window as any).gsap) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
-    s.async = true;
-    s.onload = () => resolve();
-    document.head.appendChild(s);
-  });
-}
 
 export default function RoundOverlay({ round = 1, onComplete, onResult }: Props) {
   const [step, setStep] = useState<0 | 2 | 3>(0);
