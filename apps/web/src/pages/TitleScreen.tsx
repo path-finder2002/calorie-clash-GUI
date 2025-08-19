@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { GameRule } from "@/models";
 import { useAppTheme } from "@/theme/colorMode";
 import RoundOverlay from "@/components/RoundOverlay";
+import GameStartAnimation from "@/components/GameStartAnimation";
 
 type Props = {
   rule: GameRule;
@@ -19,7 +20,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
   const [ruleHint, setRuleHint] = useState<string | null>(null);
   const { isDark } = useAppTheme();
   const [debugOpen, setDebugOpen] = useState(false);
-  const [showOverlay, setShowOverlay] = useState<false | (1|2|3)>(false);
+  const [showOverlay, setShowOverlay] = useState<'vs' | 'round' | 'slot' | false>(false);
   const [debugRound, setDebugRound] = useState(0);
 
   // 言語の永続化は App 側で実施
@@ -115,9 +116,9 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             <Button size='sm' variant='outline' onClick={() => setDebugOpen(v => !v)}>デバッグ</Button>
             {debugOpen && (
               <HStack gap={2}>
-                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(1); }}>VS</Button>
-                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(2); }}>ROUND</Button>
-                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(3); }}>SLOT</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay('vs'); }}>VS</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay('round'); }}>ROUND</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay('slot'); }}>SLOT</Button>
               </HStack>
             )}
           </HStack>
@@ -232,11 +233,14 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
         </VStack>
       </Box>
     </Box>
-    {showOverlay && (
+    {showOverlay === 'vs' && (
+      <GameStartAnimation onComplete={() => setShowOverlay('round')} />
+    )}
+    {(showOverlay === 'round' || showOverlay === 'slot') && (
       <RoundOverlay
         mode='pvc'
         round={debugRound}
-        debugStep={showOverlay === 2 || showOverlay === 3 ? showOverlay : undefined}
+        debugStep={showOverlay === 'round' ? 2 : 3}
         onComplete={() => setShowOverlay(false)}
         playerName='プレイヤー'
         cpuName='CPU'
