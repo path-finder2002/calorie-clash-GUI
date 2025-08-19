@@ -47,10 +47,8 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
     // 通常シーケンス: ROUND -> SLOT
     setStep(2);
     setShowNext(false);
-    const t2 = setTimeout(() => setShowNext(true), 1000); // ROUND表示時間を短縮
     return () => {
       hasAnimated.current = false;
-      clearTimeout(t2);
     };
   }, [round]);
 
@@ -64,7 +62,12 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
 
       if (step === 2) {
         gsap.set(containerRef.current, { opacity: 0 });
-        gsap.to(containerRef.current, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+        gsap.to(containerRef.current, {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out',
+          onComplete: () => setShowNext(true)
+        });
       }
 
       if (step === 3) {
@@ -207,7 +210,7 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
       )}
       {showNext && (
         <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
-          <Button colorScheme='teal' size='lg' onClick={handleNext}>次へ</Button>
+          <Button bg='white' color='black' size='lg' onClick={handleNext} _hover={{ bg: 'gray.100' }}>次へ</Button>
         </Box>
       )}
     </Box>
