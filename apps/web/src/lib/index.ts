@@ -28,3 +28,5 @@ export function loadScore(): GameScore {
 export function saveScore(score: GameScore) {
   try { localStorage.setItem(SCORE_KEY, JSON.stringify(score)); } catch { /* ignore */ }
 }
+
+export { ensureGsap } from './ensureGsap';

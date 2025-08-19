@@ -1,16 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
-
-function ensureGsap(): Promise<void> {
-  return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && (window as any).gsap) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
-    s.async = true;
-    s.onload = () => resolve();
-    document.head.appendChild(s);
-  });
-}
+import { ensureGsap } from '@/lib';
 
 export function useGameStartAnimation(onComplete: () => void) {
   const [visible, setVisible] = useState(true);
