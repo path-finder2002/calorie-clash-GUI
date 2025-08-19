@@ -20,6 +20,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
   const { isDark } = useAppTheme();
   const [debugOpen, setDebugOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState<false | (1|2|3)>(false);
+  const [debugRound, setDebugRound] = useState(0);
 
   // 言語の永続化は App 側で実施
 
@@ -114,9 +115,9 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
             <Button size='sm' variant='outline' onClick={() => setDebugOpen(v => !v)}>デバッグ</Button>
             {debugOpen && (
               <HStack gap={2}>
-                <Button size='sm' onClick={() => setShowOverlay(1)}>VS</Button>
-                <Button size='sm' onClick={() => setShowOverlay(2)}>ROUND</Button>
-                <Button size='sm' onClick={() => setShowOverlay(3)}>SLOT</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(1); }}>VS</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(2); }}>ROUND</Button>
+                <Button size='sm' onClick={() => { setDebugRound(r => r + 1); setShowOverlay(3); }}>SLOT</Button>
               </HStack>
             )}
           </HStack>
@@ -234,8 +235,8 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
     {showOverlay && (
       <RoundOverlay
         mode='pvc'
-        round={1}
-        debugStep={showOverlay}
+        round={debugRound}
+        debugStep={showOverlay === 2 || showOverlay === 3 ? showOverlay : undefined}
         onComplete={() => setShowOverlay(false)}
         playerName='プレイヤー'
         cpuName='CPU'
