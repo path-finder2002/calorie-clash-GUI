@@ -49,7 +49,7 @@ export default function PlayerSelectScreen({ onBack, onConfirm }: Props) {
       <Dialog.Root open={confirmOpen} onOpenChange={(e) => setConfirmOpen(e.open)}>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content>
+          <Dialog.Content bg='white' _dark={{ bg: 'gray.800' }}>
             <Dialog.Header>
               <Dialog.Title>確認</Dialog.Title>
             </Dialog.Header>
