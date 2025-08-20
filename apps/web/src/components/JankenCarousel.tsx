@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import { Box, Card, CardBody, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack } from '@chakra-ui/react';
 import type { FoodCard, Hand } from '@/models';
 import { HAND_LABEL, HAND_EMOJI } from '@/models';
 
@@ -47,7 +47,7 @@ export default function JankenCarousel({ onSelect, cards }: Props) {
 
           return (
             <SwiperSlide key={hand}>
-              <Card
+              <VStack
                 as="button"
                 onClick={() => onSelect(hand)}
                 w="full"
@@ -58,22 +58,22 @@ export default function JankenCarousel({ onSelect, cards }: Props) {
                 transition="all 0.2s"
                 _hover={{ transform: 'scale(1.05)', shadow: 'xl' }}
                 overflow="hidden"
+                justify="center"
+                gap={2}
               >
-                <CardBody as={VStack} justify="center" spacing={2}>
-                  <Text fontSize="6xl">{HAND_EMOJI[hand]}</Text>
-                  <Heading size="md">{HAND_LABEL[hand]}</Heading>
-                  {card ? (
-                    <VStack spacing={0} mt={2}>
-                      <Text fontWeight="bold" fontSize="lg">{card.name}</Text>
-                      <Text fontSize="sm" opacity={0.9}>
-                        {card.points}pt / 満腹{card.satiety}
-                      </Text>
-                    </VStack>
-                  ) : (
-                    <Text mt={2} fontSize="lg" fontWeight="bold">???</Text>
-                  )}
-                </CardBody>
-              </Card>
+                <Text fontSize="6xl">{HAND_EMOJI[hand]}</Text>
+                <Heading size="md">{HAND_LABEL[hand]}</Heading>
+                {card ? (
+                  <VStack gap={0} mt={2}>
+                    <Text fontWeight="bold" fontSize="lg">{card.name}</Text>
+                    <Text fontSize="sm" opacity={0.9}>
+                      {card.points}pt / 満腹{card.satiety}
+                    </Text>
+                  </VStack>
+                ) : (
+                  <Text mt={2} fontSize="lg" fontWeight="bold">???</Text>
+                )}
+              </VStack>
             </SwiperSlide>
           );
         })}
