@@ -6,6 +6,9 @@ import { ensureGsap } from '@/lib';
 
 type Props = {
   round?: number;
+  mode?: 'pvc' | 'pvp';
+  playerName?: string;
+  cpuName?: string;
   onComplete: () => void;
   debugStep?: 2 | 3; // デバッグ用: 特定ステップのみ
   onResult?: (names: Record<Hand, string>) => void; // 選ばれた食品名（手ごと）
@@ -24,7 +27,7 @@ const seqRock = Array.from({ length: cycles }).flatMap(() => slotFoods.rock);
 const seqScis = Array.from({ length: cycles }).flatMap(() => slotFoods.scissors);
 const seqPap  = Array.from({ length: cycles }).flatMap(() => slotFoods.paper);
 
-export default function RoundOverlay({ round = 1, onComplete, onResult }: Props) {
+export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuName, onComplete, onResult }: Props) {
   const [step, setStep] = useState<0 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
   const [resultFoods, setResultFoods] = useState<string[] | null>(null);
@@ -37,8 +40,10 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
   const slotBox2 = useRef<HTMLDivElement>(null);
   const slotBox3 = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
-  const lastRound = useRef<number | undefined>();
+  const lastRound = useRef<number | undefined>(undefined);
   const lastStep = useRef<0 | 2 | 3 | null>(null);
+  const p1Name = playerName ?? (mode === 'pvp' ? 'プレイヤー1' : 'あなた');
+  const p2Name = cpuName ?? (mode === 'pvp' ? 'プレイヤー2' : 'CPU');
 
   useEffect(() => {
     if (lastRound.current === round) return;
@@ -153,10 +158,12 @@ export default function RoundOverlay({ round = 1, onComplete, onResult }: Props)
             fontSize={{ base: '72px', md: '120px', lg: '200px' }}>
             {round}
           </Text>
+          <Text mt={4} fontWeight='bold' fontSize={{ base: '20px', md: '24px' }}>{p1Name} vs {p2Name}</Text>
         </VStack>
       ) : (
         // SLOT (簡略版)
         <VStack gap={{ base: 4, md: 6 }} w='full' maxW='960px'>
+          <Text fontWeight='bold' textAlign='center' fontSize={{ base: '18px', md: '20px' }}>{p1Name} vs {p2Name}</Text>
           <Text fontWeight='extrabold' letterSpacing='.1em' opacity={0.9} textAlign='center' fontSize={{ base: '16px', md: '18px' }}>SLOT</Text>
 
           <HStack w='full' gap={3} align='center' justify='center'>
