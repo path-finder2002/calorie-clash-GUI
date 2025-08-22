@@ -2,7 +2,7 @@
 
 このディレクトリには設計メモや仕様、実装ノートが含まれます。主要なドキュメントは以下の通りです。
 
-- `merged.md`: 要件定義（MVP）と画面/機能要件まとめ
+- `要件定義.md`: 要件定義（MVP）と画面/機能要件まとめ
 - `common_functions.md`: よく使う関数・パターン集（TS/JS）
 - `canvas_チートシート（ts）.md`: Canvas API チートシート（TypeScript）
 - `html/`: 参考HTMLやスニペット
