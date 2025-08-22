@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import SmokeScene from 'react-smoke-effect';
+import SmokeScene from './SmokeScene';
 
 interface Props {
   width?: number | string;
