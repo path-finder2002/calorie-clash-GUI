@@ -6,10 +6,11 @@ type Props = {
   onComplete: () => void;
   playerName?: string;
   cpuName?: string;
+  debug?: boolean;
 };
 
-export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU' }: Props) {
-  const { visible, containerRef } = useGameStartAnimation(onComplete);
+export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debug = false }: Props) {
+  const { visible, containerRef } = useGameStartAnimation(onComplete, debug);
 
   if (!visible) return null;
 

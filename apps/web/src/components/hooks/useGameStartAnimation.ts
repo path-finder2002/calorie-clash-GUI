@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ensureGsap } from '@/lib';
 
-export function useGameStartAnimation(onComplete: () => void) {
+export function useGameStartAnimation(onComplete: () => void, debug = false) {
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
@@ -19,10 +19,12 @@ export function useGameStartAnimation(onComplete: () => void) {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          setTimeout(() => {
+          const finish = () => {
             setVisible(false);
             onComplete();
-          }, 400);
+          };
+          if (debug) finish();
+          else setTimeout(finish, 400);
         }
       });
 
@@ -30,7 +32,7 @@ export function useGameStartAnimation(onComplete: () => void) {
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4');
     });
     return () => { killed = true; };
-  }, [onComplete]);
+  }, [onComplete, debug]);
 
   return { visible, containerRef };
 }
