@@ -23,10 +23,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
-<<<<<<< HEAD
-      gsap.set(playerRef.current, { x: '-55vw', filter: 'blur(16px)', opacity: 0.2, skewX: -8 });
-      gsap.set(cpuRef.current, { x: '55vw', filter: 'blur(16px)', opacity: 0.2, skewX: 8 });
-=======
       gsap.set(playerRef.current, {
         y: '-60vh',
         filter: 'blur(16px)',
@@ -39,7 +35,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         opacity: 0.2,
         skewY: 8
       });
->>>>>>> 40edeb511adfc415eb1b2145b296531f7dcb2d08
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
@@ -55,30 +50,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         // スモーク先行発生（ごく短時間で焚く）
         .add(() => setShowSmoke(true), 0.05)
         // 両者スライドイン（ブラー解除しながら）
-<<<<<<< HEAD
-        .to(playerRef.current, { x: 0, opacity: 1, filter: 'blur(0px)', skewX: 0, duration: 0.7 }, 0.02)
-        .to(cpuRef.current, { x: 0, opacity: 1, filter: 'blur(0px)', skewX: 0, duration: 0.7 }, 0.02)
-        // 着地バウンド（スケール+シェイク）
-        .addLabel('impact', '+=0.02')
-        .to([playerRef.current, cpuRef.current], { scale: 1.06, duration: 0.09, ease: 'power2.out' }, 'impact')
-        .to([playerRef.current, cpuRef.current], { scale: 1, duration: 0.12, ease: 'back.out(4)' }, 'impact+=0.09')
-        .to(containerRef.current, { x: '+=6', yoyo: true, repeat: 3, duration: 0.05, ease: 'power1.inOut' }, 'impact')
-        // 余韻（少し見せてからフェードアウト）
-        .to(containerRef.current, { opacity: 0, duration: 0.45, ease: 'power2.in' }, 'impact+=0.45')
-        .add(() => setShowSmoke(false), 'impact+=0.35');
-      gsap.set(playerRef.current, { y: '-60vh', rotate: 15 });
-      gsap.set(cpuRef.current, { y: '60vh', rotate: -15 });
-
-      gsap
-        .timeline({
-          onComplete: () => {
-            setVisible(false);
-            onComplete();
-          }
-        })
-        .to(containerRef.current, { opacity: 1, duration: 0.2, ease: 'power2.out' })
-=======
->>>>>>> 40edeb511adfc415eb1b2145b296531f7dcb2d08
         .to(
           playerRef.current,
           { y: 0, opacity: 1, filter: 'blur(0px)', skewY: 0, duration: 0.7 },
@@ -106,11 +77,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           { y: '+=6', yoyo: true, repeat: 3, duration: 0.05, ease: 'power1.inOut' },
           'impact'
         )
-<<<<<<< HEAD
-        .add(() => setShowSmoke(true))
-        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4')
-        .add(() => setShowSmoke(false));
-=======
         // 余韻（少し見せてからフェードアウト）
         .to(
           containerRef.current,
@@ -118,7 +84,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           'impact+=0.45'
         )
         .add(() => setShowSmoke(false), 'impact+=0.35');
->>>>>>> 40edeb511adfc415eb1b2145b296531f7dcb2d08
     });
     return () => {
       killed = true;
