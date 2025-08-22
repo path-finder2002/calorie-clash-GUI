@@ -27,7 +27,7 @@ const seqRock = Array.from({ length: cycles }).flatMap(() => slotFoods.rock);
 const seqScis = Array.from({ length: cycles }).flatMap(() => slotFoods.scissors);
 const seqPap  = Array.from({ length: cycles }).flatMap(() => slotFoods.paper);
 
-export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuName, onComplete, onResult }: Props) {
+export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuName, onComplete, debugStep, onResult }: Props) {
   const [step, setStep] = useState<0 | 2 | 3>(0);
   const [visible, setVisible] = useState(true);
   const [resultFoods, setResultFoods] = useState<string[] | null>(null);
@@ -46,16 +46,17 @@ export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuN
   const p2Name = cpuName ?? (mode === 'pvp' ? 'プレイヤー2' : 'CPU');
 
   useEffect(() => {
-    if (lastRound.current === round) return;
+    if (lastRound.current === round && lastStep.current === debugStep) return;
     lastRound.current = round;
+    lastStep.current = null;
     hasAnimated.current = false;
-    // 通常シーケンス: ROUND -> SLOT
-    setStep(2);
+    // デバッグ指定があればそのステップから開始
     setShowNext(false);
+    setStep(debugStep ?? 2);
     return () => {
       hasAnimated.current = false;
     };
-  }, [round]);
+  }, [round, debugStep]);
 
   useEffect(() => {
     if (lastStep.current === step) return;
@@ -135,7 +136,22 @@ export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuN
     return () => { killed = true; };
   }, [step, onComplete, onResult]);
 
+  useEffect(() => {
+    if (!debugStep || !showNext) return;
+    const id = setTimeout(() => {
+      setVisible(false);
+      onComplete();
+    }, 600);
+    return () => clearTimeout(id);
+  }, [debugStep, showNext, onComplete]);
+
   function handleNext() {
+    if (debugStep) {
+      setShowNext(false);
+      setVisible(false);
+      onComplete();
+      return;
+    }
     if (step === 2) {
       setShowNext(false);
       setStep(3);
@@ -217,7 +233,7 @@ export default function RoundOverlay({ round = 1, mode = 'pvc', playerName, cpuN
       )}
       {showNext && (
         <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
-          <Button bg='white' color='black' size='lg' onClick={handleNext} _hover={{ bg: 'gray.100' }}>次へ</Button>
+          <Button bg='white' color='black' size='lg' onClick={handleNext} _hover={{ bg: 'gray.100' }}>{debugStep ? '終了' : '次へ'}</Button>
         </Box>
       )}
     </Box>

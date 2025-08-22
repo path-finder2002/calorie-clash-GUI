@@ -9,9 +9,10 @@ type Props = {
   onComplete: () => void;
   playerName?: string;
   cpuName?: string;
+  debug?: boolean;
 };
 
-export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU' }: Props) {
+export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debug = false }: Props) {
   const playerRef = useRef<HTMLParagraphElement>(null);
   const cpuRef = useRef<HTMLParagraphElement>(null);
   const [showSmoke, setShowSmoke] = useState(false);
@@ -31,7 +32,7 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
         <Text fontWeight='extrabold' fontSize={{ base: 'clamp(16px, 5vw, 24px)', md: '24px' }} opacity={0.9}>vs</Text>
         <Text ref={cpuRef} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{cpuName}</Text>
       </VStack>
-      {showSmoke && <SmokeEffect />}
+      {!debug && showSmoke && <SmokeEffect />}
     </Box>
   );
 }
