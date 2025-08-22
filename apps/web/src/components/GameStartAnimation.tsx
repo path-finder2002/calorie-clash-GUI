@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Text, VStack } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { useGameStartAnimation } from './hooks/useGameStartAnimation';
 import SmokeEffect from './effects/SmokeEffect';
 
@@ -14,7 +15,12 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
   const playerRef = useRef<HTMLParagraphElement>(null);
   const cpuRef = useRef<HTMLParagraphElement>(null);
   const [showSmoke, setShowSmoke] = useState(false);
-  const { visible, containerRef } = useGameStartAnimation(onComplete, playerRef, cpuRef, setShowSmoke);
+  const { visible, containerRef } = useGameStartAnimation(
+    onComplete,
+    playerRef as unknown as RefObject<HTMLElement>,
+    cpuRef as unknown as RefObject<HTMLElement>,
+    setShowSmoke
+  );
 
   if (!visible) return null;
 

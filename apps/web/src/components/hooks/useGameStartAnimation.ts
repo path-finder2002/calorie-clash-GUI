@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { ensureGsap } from '@/lib';
 
-export function useGameStartAnimation(
+export function useGameStartAnimation<T extends HTMLElement, U extends HTMLElement>(
   onComplete: () => void,
-  playerRef: RefObject<HTMLElement>,
-  cpuRef: RefObject<HTMLElement>,
+  playerRef: RefObject<T>,
+  cpuRef: RefObject<U>,
   setShowSmoke: (v: boolean) => void
 ) {
   const [visible, setVisible] = useState(true);
