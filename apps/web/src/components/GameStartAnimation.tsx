@@ -28,6 +28,7 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
   return (
     <Box position='fixed' inset={0} bg='rgba(0,0,0,1)' color='white' zIndex={10000} display='grid' placeItems='center' ref={containerRef as any}>
       <VStack gap={{ base: 2, md: 3 }} textAlign='center'>
+        {/* 上: プレイヤー名, 下: CPU 名の順序を維持 */}
         <Text ref={playerRef} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{playerName}</Text>
         <Text fontWeight='extrabold' fontSize={{ base: 'clamp(16px, 5vw, 24px)', md: '24px' }} opacity={0.9}>vs</Text>
         <Text ref={cpuRef} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{cpuName}</Text>
