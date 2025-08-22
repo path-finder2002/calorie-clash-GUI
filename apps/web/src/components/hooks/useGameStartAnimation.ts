@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { ensureGsap } from '@/lib';
 
-export function useGameStartAnimation(onComplete: () => void) {
+export function useGameStartAnimation(
+  onComplete: () => void,
+  playerRef: RefObject<HTMLElement>,
+  cpuRef: RefObject<HTMLElement>,
+  setShowSmoke: (v: boolean) => void
+) {
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
@@ -16,21 +21,27 @@ export function useGameStartAnimation(onComplete: () => void) {
       const gsap: any = (window as any).gsap;
 
       gsap.set(containerRef.current, { opacity: 0 });
+      gsap.set(playerRef.current, { x: '-50vw' });
+      gsap.set(cpuRef.current, { x: '50vw' });
 
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setTimeout(() => {
+      gsap
+        .timeline({
+          onComplete: () => {
             setVisible(false);
             onComplete();
-          }, 400);
-        }
-      });
-
-      tl.to(containerRef.current, { opacity: 1, duration: 0.4, ease: 'power2.out' })
-        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4');
+          }
+        })
+        .to(containerRef.current, { opacity: 1, duration: 0.2, ease: 'power2.out' })
+        .to(playerRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
+        .to(cpuRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
+        .add(() => setShowSmoke(true))
+        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4')
+        .add(() => setShowSmoke(false));
     });
-    return () => { killed = true; };
-  }, [onComplete]);
+    return () => {
+      killed = true;
+    };
+  }, [onComplete, playerRef, cpuRef, setShowSmoke]);
 
   return { visible, containerRef };
 }
