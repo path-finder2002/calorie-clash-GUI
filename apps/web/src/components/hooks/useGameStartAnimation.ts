@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { ensureGsap } from '@/lib';
 
@@ -12,19 +12,24 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
   const tlRef = useRef<any>(null);
-  const [token, setToken] = useState(0);
+  const killedRef = useRef(false);
   const [canProceed, setCanProceed] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - 型を緩く扱う（実行時に gsap を参照）
-  type G = typeof import('gsap').gsap;
+
+  const skipAnimation = useCallback(() => {
+    try { tlRef.current?.kill?.(); } catch { /* ignore */ }
+    killedRef.current = true;
+    setShowSmoke(false);
+    setVisible(false);
+    onComplete();
+  }, [onComplete, setShowSmoke]);
 
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
-    let killed = false;
+    setCanProceed(false);
     ensureGsap().then(() => {
-      if (killed) return;
-      const gsap = (window as unknown as { gsap: G }).gsap;
+      if (killedRef.current) return;
+      const gsap = (window as unknown as { gsap: typeof import('gsap').gsap }).gsap;
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
@@ -47,11 +52,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
-        onComplete: () => {
-          setShowSmoke(false);
-          setVisible(false);
-          onComplete();
-        }
+        onComplete: skipAnimation,
       });
       tlRef.current = tl;
 
@@ -96,28 +97,11 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
     return () => {
-      killed = true;
-      try { tlRef.current?.kill(); } catch { /* ignore */ }
+      killedRef.current = true;
+      try { tlRef.current?.kill?.(); } catch { /* ignore */ }
       tlRef.current = null;
     };
-  }, [onComplete, playerRef, cpuRef, setShowSmoke, token]);
+  }, [playerRef, cpuRef, setShowSmoke, skipAnimation]);
 
-  const replay = () => {
-    // 既存TLを止め、初期化してから再度 effect を走らせる
-    try { tlRef.current?.kill(); } catch { /* ignore */ }
-    tlRef.current = null;
-    hasRun.current = false;
-    setShowSmoke(false);
-    setVisible(true);
-    // トークンを更新して useEffect を再実行
-    setToken((t) => t + 1);
-  };
-
-  const playImpact = () => {
-    const tl = tlRef.current as any;
-    if (!tl) return;
-    try { tl.play('impact'); } catch { /* ignore */ }
-  };
-
-  return { visible, containerRef, replay, playImpact, canProceed };
+  return { visible, containerRef, skipAnimation, canProceed };
 }
