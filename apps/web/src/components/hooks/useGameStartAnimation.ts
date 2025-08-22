@@ -13,6 +13,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   const hasRun = useRef(false);
   const tlRef = useRef<any>(null);
   const [token, setToken] = useState(0);
+  const [canProceed, setCanProceed] = useState(false);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - 型を緩く扱う（実行時に gsap を参照）
   type G = typeof import('gsap').gsap;
@@ -89,8 +90,8 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           'impact'
         )
         .add(() => setShowSmoke(false), 'impact+=0.35')
-        // フェードアウト前にクリック貫通させる（次の操作をブロックしない）
-        .set(containerRef.current, { pointerEvents: 'none' }, 'impact+=0.40')
+        // ユーザー操作可（次へボタン表示）
+        .add(() => setCanProceed(true), 'impact+=0.20')
         // 余韻（少し見せてからフェードアウト）
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
@@ -118,5 +119,5 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
     try { tl.play('impact'); } catch { /* ignore */ }
   };
 
-  return { visible, containerRef, replay, playImpact };
+  return { visible, containerRef, replay, playImpact, canProceed };
 }
