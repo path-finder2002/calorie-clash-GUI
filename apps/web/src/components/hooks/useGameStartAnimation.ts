@@ -89,6 +89,8 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           'impact'
         )
         .add(() => setShowSmoke(false), 'impact+=0.35')
+        // フェードアウト前にクリック貫通させる（次の操作をブロックしない）
+        .set(containerRef.current, { pointerEvents: 'none' }, 'impact+=0.40')
         // 余韻（少し見せてからフェードアウト）
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
