@@ -13,7 +13,7 @@ This project is a GUI for the Calorie Clash game.
 - その他の資料は[docs ディレクトリ](docs/)を参照してください。
   - [共通関数ガイド](docs/common_functions.md)
   - [Canvas チートシート（ts）](<docs/canvas_チートシート（ts）.md>)
-  - [要件定義 (MVP)](docs/merged.md)
+  - [要件定義 (MVP)](docs/要件定義.md)
 
 ## 開発ガイド
 
