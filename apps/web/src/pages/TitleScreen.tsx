@@ -234,7 +234,7 @@ export default function TitleScreen({ rule, onChangeRule, onStart, onOptions, on
       </Box>
     </Box>
     {showOverlay === 'vs' && (
-      <GameStartAnimation debug onComplete={() => setShowOverlay(false)} />
+      <GameStartAnimation onComplete={() => setShowOverlay(false)} />
     )}
     {(showOverlay === 'round' || showOverlay === 'slot') && (
       <RoundOverlay
