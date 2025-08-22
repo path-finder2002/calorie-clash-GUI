@@ -1,69 +1,42 @@
-# React + TypeScript + Vite
+# Calorie Clash GUI — Web アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Vite + React + TypeScript + Chakra UI 構成のフロントエンドです。開発はこの `apps/web` ディレクトリ内で行います。
 
-Currently, two official plugins are available:
+## セットアップ / 起動
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+推奨環境: Node.js 18+
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## スクリプト
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `npm run dev`: 開発サーバ起動（HMR）
+- `npm run dev:types`: 型チェックのウォッチ（`tsc -b -w`）
+- `npm run dev:lint`: ESLint のウォッチ
+- `npm run build`: 型チェック + 本番ビルド
+- `npm run preview`: 本番ビルドをローカルでプレビュー
+- `npm run lint`: ESLint 実行
+
+## ディレクトリ構成（抜粋）
+
+- `index.html`: Vite エントリ
+- `src/main.tsx`: React エントリポイント
+- `src/App.tsx`: ルートコンポーネント
+- `src/theme.ts`: Chakra UI テーマのカスタマイズ
+- `src/components/*`: 機能ごとの小さなコンポーネント群
+
+## コーディング規約（要点）
+
+- TypeScript + 関数コンポーネント、2スペースインデント。
+- コンポーネントは `PascalCase`、変数/関数は `camelCase`、アセットは `kebab-case`。
+- 可能な限り小さく責務を分割し、`src/` の相対パスでインポート。
+- Chakra のテーマ定義は `src/theme.ts` に集約。
+- ESLint 設定は `eslint.config.js`。警告は極力解消してください。
+
+## 開発メモ
+
+- 環境変数は Vite の `.env.local` を使用（リポジトリ未追跡）。
+- CI では `npm ci` を推奨し、依存の再現性を担保します。

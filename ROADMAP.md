@@ -1,60 +1,56 @@
-# Roadmap
+# ロードマップ
 
-This document outlines the future plans for the Calorie Clash GUI project.
+Calorie Clash GUI の中長期的な計画を示します。
 
-## Phase 1: Core Feature Completion & Stabilization
+## フェーズ1: コア機能の完成と安定化
 
-This phase focuses on completing the essential features for a robust and stable version 1.0.
+堅牢で安定した v1.0 を目指して必須機能を仕上げます。
 
-### 1. Testing
-- **Setup Testing Environment**:
-  - [ ] Install and configure a testing framework (e.g., Vitest) for the React application.
-- **Unit Tests**:
-  - [ ] Write unit tests for core game logic in `models.ts`.
-  - [ ] Write unit tests for `storage.ts` functions.
-- **Component Tests**:
-  - [ ] Write tests for individual React components (`TitleScreen.tsx`, `GameScreen.tsx`, etc.).
-- **Integration Tests**:
-  - [ ] Write end-to-end tests for critical user flows, such as playing a complete game round.
+### 1. テスト整備
+- **環境整備**:
+  - [ ] React 向けに Vitest 等のテスト基盤を導入
+- **ユニットテスト**:
+  - [ ] `models.ts` のゲームロジック
+  - [ ] `storage.ts` の永続化ユーティリティ
+- **コンポーネントテスト**:
+  - [ ] 主要コンポーネント（`TitleScreen.tsx`, `GameScreen.tsx` など）
+- **インテグレーションテスト**:
+  - [ ] 1ゲーム完走などの重要ユーザーフロー
 
-### 2. User Authentication
-- **UI Implementation**:
-  - [ ] Design and create Login and Sign Up screens.
-  - [ ] Add UI elements for authenticated user (e.g., display name, logout button).
-- **Backend/Service Integration**:
-  - [ ] Choose an authentication service (e.g., Firebase Authentication, Supabase Auth).
-  - [ ] Implement user registration and login logic.
-  - [ ] Secure user data and scores in the database.
+### 2. ユーザー認証
+- **UI 実装**:
+  -  [ ] ログイン/サインアップ画面、ログイン状態のUI（表示名/ログアウト）
+- **バックエンド連携**:
+  -  [ ] 認証基盤の選定（Firebase Auth / Supabase など）
+  -  [ ] 登録/ログイン処理の実装
+  -  [ ] ユーザーデータ/スコアの安全な保存
 
-### 3. CI/CD Pipeline
-- **Setup Continuous Integration**:
-  - [ ] Create a CI workflow using GitHub Actions.
-  - [ ] The workflow should automatically run on every push and pull request.
-- **Automated Checks**:
-  - [ ] Add a step to install dependencies.
-  - [ ] Add a step to run the linter (`eslint`).
-  - [ ] Add a step to run all tests.
-  - [ ] Add a step to perform a production build (`vite build`).
+### 3. CI/CD パイプライン
+- **CI 構築**:
+  - [ ] GitHub Actions でワークフロー作成（push/PRで実行）
+- **自動チェック**:
+  - [ ] 依存のインストール
+  - [ ] Lint（`eslint`）
+  - [ ] テスト実行
+  - [ ] 本番ビルド（`vite build`）
 
-## Phase 2: Feature Expansion
+## フェーズ2: 体験拡張
 
-With a stable base, this phase focuses on enriching the gameplay experience.
+安定化後、ゲーム性・体験をリッチにします。
 
-### 1. Gameplay Enhancements
-- [ ] **Leaderboards**: Implement a global leaderboard to show top scores.
-- [ ] **New Game Modes**: Introduce alternative game rules or challenges.
-- [ ] **Achievements**: Add an achievement system to reward players.
-- [ ] **Sound & Music**: Integrate sound effects and background music.
+### 1. ゲームプレイ拡張
+- [ ] ランキング（グローバルリーダーボード）
+- [ ] 新モード（別ルール/チャレンジ）
+- [ ] 実績システム
+- [ ] サウンド/音楽の強化
 
-### 2. UI/UX Polish
-- [ ] **Dark Mode**: Add support for a dark color scheme.
-- [ ] **Animations**: Enhance user experience with more animations and transitions.
-- [ ] **Responsiveness**: Further improve layout and usability on various screen sizes.
+### 2. UI/UX ポリッシュ
+- [ ] ダークモード
+- [ ] アニメーションの強化
+- [ ] 各画面サイズでの使いやすさ向上
 
-## Phase 3: Long-Term Vision
+## フェーズ3: ロングターム
 
-This phase looks at the broader future of the project.
-
-- [ ] **Mobile Application**: Develop a native or cross-platform mobile version of the game.
-- [ ] **Internationalization (i18n)**: Add support for multiple languages.
-- [ ] **Community Features**: Implement features like friend lists, challenges, or sharing results.
+- [ ] モバイルアプリ（ネイティブ/クロスプラットフォーム）
+- [ ] 多言語対応（i18n）
+- [ ] コミュニティ機能（フレンド、チャレンジ、共有 など）

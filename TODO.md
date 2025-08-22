@@ -1,7 +1,7 @@
-# TODO
+# TODO（短期タスク）
 
-- [ ] Implement user authentication
-- [x] Create a database to store user data
-- [x] Add more game features
-- [ ] Write unit and integration tests
-- [ ] Set up CI/CD pipeline
+- [ ] ユーザー認証の実装
+- [x] ユーザーデータ格納用のDB（選定/作成）
+- [x] ゲーム機能の拡充
+- [ ] ユニット/結合テストの追加
+- [ ] CI/CD パイプライン整備
