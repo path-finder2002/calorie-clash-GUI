@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { ensureGsap } from '@/lib';
@@ -19,7 +18,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
     let killed = false;
     ensureGsap().then(() => {
       if (killed) return;
-      const gsap: any = (window as any).gsap;
+      const gsap = (window as unknown as { gsap: typeof import('gsap').gsap }).gsap;
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
@@ -39,6 +38,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
         onComplete: () => {
+          setShowSmoke(false);
           setVisible(false);
           onComplete();
         }
@@ -47,21 +47,35 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
       tl
         // 背景フェードイン（薄い黒幕）
         .to(containerRef.current, { opacity: 1, duration: 0.22 }, 0)
-        // スモーク先行発生（ごく短時間で焚く）
-        .add(() => setShowSmoke(true), 0.05)
-        // 両者スライドイン（ブラー解除しながら）
+        // 両者アンビルイン（ブラー解除しながら）
         .to(
           playerRef.current,
-          { y: 0, opacity: 1, filter: 'blur(0px)', skewY: 0, duration: 0.7 },
-          0.02
+          {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            skewY: 0,
+            duration: 1,
+            ease: 'power2.in'
+          },
+          0
         )
         .to(
           cpuRef.current,
-          { y: 0, opacity: 1, filter: 'blur(0px)', skewY: 0, duration: 0.7 },
-          0.02
+          {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            skewY: 0,
+            duration: 1,
+            ease: 'power2.in'
+          },
+          0
         )
+        // 着地タイミングでスモーク
+        .add(() => setShowSmoke(true), 1)
         // 着地バウンド（スケール+シェイク）
-        .addLabel('impact', '+=0.02')
+        .addLabel('impact', 1)
         .to(
           [playerRef.current, cpuRef.current],
           { y: '+=16', scaleY: 0.9, duration: 0.09, ease: 'power2.out' },
@@ -82,8 +96,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           containerRef.current,
           { opacity: 0, duration: 0.45, ease: 'power2.in' },
           'impact+=0.45'
-        )
-        .add(() => setShowSmoke(false), 'impact+=0.35');
+        );
     });
     return () => {
       killed = true;
