@@ -9,14 +9,13 @@ type Props = {
   onComplete: () => void;
   playerName?: string;
   cpuName?: string;
-  debug?: boolean;
 };
 
-export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU', debug = false }: Props) {
+export default function GameStartAnimation({ onComplete, playerName = 'プレイヤー', cpuName = 'CPU' }: Props) {
   const playerRef = useRef<HTMLParagraphElement>(null);
   const cpuRef = useRef<HTMLParagraphElement>(null);
   const [showSmoke, setShowSmoke] = useState(false);
-  const { visible, containerRef } = useGameStartAnimation(
+  const { visible, containerRef, skipAnimation } = useGameStartAnimation(
     onComplete,
     playerRef as unknown as RefObject<HTMLElement>,
     cpuRef as unknown as RefObject<HTMLElement>,
@@ -33,12 +32,12 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
         <Text fontWeight='extrabold' fontSize={{ base: 'clamp(16px, 5vw, 24px)', md: '24px' }} opacity={0.9}>vs</Text>
         <Text ref={cpuRef} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{cpuName}</Text>
       </VStack>
-      {debug && (
-        <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
-          <Button bg='white' color='black' size='lg' onClick={onComplete} _hover={{ bg: 'gray.100' }}>終了</Button>
-        </Box>
-      )}
-      {!debug && showSmoke && <SmokeEffect />}
+      {showSmoke && <SmokeEffect />}
+      <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
+        <Button bg='white' color='black' size='lg' onClick={skipAnimation} _hover={{ bg: 'gray.100' }}>
+          次へ
+        </Button>
+      </Box>
     </Box>
   );
 }

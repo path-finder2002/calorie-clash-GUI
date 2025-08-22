@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { ensureGsap } from '@/lib';
 
@@ -11,13 +11,22 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
+  const tlRef = useRef<import('gsap').gsap.core.Timeline | null>(null);
+  const killedRef = useRef(false);
+
+  const skipAnimation = useCallback(() => {
+    tlRef.current?.kill();
+    killedRef.current = true;
+    setShowSmoke(false);
+    setVisible(false);
+    onComplete();
+  }, [onComplete, setShowSmoke]);
 
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
-    let killed = false;
     ensureGsap().then(() => {
-      if (killed) return;
+      if (killedRef.current) return;
       const gsap = (window as unknown as { gsap: typeof import('gsap').gsap }).gsap;
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
@@ -37,12 +46,9 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
-        onComplete: () => {
-          setShowSmoke(false);
-          setVisible(false);
-          onComplete();
-        }
+        onComplete: skipAnimation
       });
+      tlRef.current = tl;
 
       tl
         // 背景フェードイン（薄い黒幕）
@@ -99,9 +105,10 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         );
     });
     return () => {
-      killed = true;
+      killedRef.current = true;
+      tlRef.current?.kill();
     };
-  }, [onComplete, playerRef, cpuRef, setShowSmoke]);
+  }, [playerRef, cpuRef, setShowSmoke, skipAnimation]);
 
-  return { visible, containerRef };
+  return { visible, containerRef, skipAnimation };
 }
