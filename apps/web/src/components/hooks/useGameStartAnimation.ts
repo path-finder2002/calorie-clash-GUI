@@ -11,6 +11,11 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
+  const tlRef = useRef<any>(null);
+  const [token, setToken] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - 型を緩く扱う（実行時に gsap を参照）
+  type G = typeof import('gsap').gsap;
 
   useEffect(() => {
     if (hasRun.current) return;
@@ -18,22 +23,26 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
     let killed = false;
     ensureGsap().then(() => {
       if (killed) return;
-      const gsap = (window as unknown as { gsap: typeof import('gsap').gsap }).gsap;
+      const gsap = (window as unknown as { gsap: G }).gsap;
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
       gsap.set(playerRef.current, {
         y: '-60vh',
-        filter: 'blur(16px)',
-        opacity: 0.2,
-        skewY: -8
+        filter: 'blur(18px)',
+        opacity: 0,
+        rotate: 6,
+        transformOrigin: '50% 50%'
       });
       gsap.set(cpuRef.current, {
         y: '60vh',
-        filter: 'blur(16px)',
-        opacity: 0.2,
-        skewY: 8
+        filter: 'blur(18px)',
+        opacity: 0,
+        rotate: -6,
+        transformOrigin: '50% 50%'
       });
+      const flashEl = (containerRef.current?.querySelector('[data-flash]') ?? null) as HTMLElement | null;
+      if (flashEl) gsap.set(flashEl, { opacity: 0 });
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
@@ -43,65 +52,69 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           onComplete();
         }
       });
+      tlRef.current = tl;
 
       tl
         // 背景フェードイン（薄い黒幕）
-        .to(containerRef.current, { opacity: 1, duration: 0.22 }, 0)
-        // 両者アンビルイン（ブラー解除しながら）
+        .to(containerRef.current, { opacity: 1, duration: 0.2 }, 0)
+        // 両者アンビルイン（ブラー解除・回転戻し）
         .to(
           playerRef.current,
-          {
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            skewY: 0,
-            duration: 1,
-            ease: 'power2.in'
-          },
-          0
+          { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+          0.02
         )
         .to(
           cpuRef.current,
-          {
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            skewY: 0,
-            duration: 1,
-            ease: 'power2.in'
-          },
-          0
+          { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+          0.02
         )
-        // 着地タイミングでスモーク
-        .add(() => setShowSmoke(true), 1)
-        // 着地バウンド（スケール+シェイク）
-        .addLabel('impact', 1)
+        // インパクト
+        .addLabel('impact', '+=0.02')
+        .add(() => setShowSmoke(true), 'impact')
+        .to(flashEl, { opacity: 0.9, duration: 0.06, ease: 'power1.out' }, 'impact')
+        .to(flashEl, { opacity: 0, duration: 0.18, ease: 'power1.in' }, 'impact+=0.06')
         .to(
           [playerRef.current, cpuRef.current],
-          { y: '+=16', scaleY: 0.9, duration: 0.09, ease: 'power2.out' },
+          { y: '+=14', scaleY: 0.88, duration: 0.09, ease: 'power3.out' },
           'impact'
         )
         .to(
           [playerRef.current, cpuRef.current],
-          { y: '-=16', scaleY: 1, duration: 0.12, ease: 'back.out(4)' },
+          { y: '-=14', scaleY: 1, duration: 0.12, ease: 'back.out(3)' },
           'impact+=0.09'
         )
         .to(
           containerRef.current,
-          { y: '+=6', yoyo: true, repeat: 3, duration: 0.05, ease: 'power1.inOut' },
+          { x: '+=10', yoyo: true, repeat: 5, duration: 0.035, ease: 'power1.inOut' },
           'impact'
         )
+        .add(() => setShowSmoke(false), 'impact+=0.35')
         // 余韻（少し見せてからフェードアウト）
-        .to(
-          containerRef.current,
-          { opacity: 0, duration: 0.45, ease: 'power2.in' },
-          'impact+=0.45'
-        );
+        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
     return () => {
       killed = true;
+      try { tlRef.current?.kill(); } catch { /* ignore */ }
+      tlRef.current = null;
     };
-  }, [onComplete, playerRef, cpuRef, setShowSmoke]);
+  }, [onComplete, playerRef, cpuRef, setShowSmoke, token]);
 
-  return { visible, containerRef };
+  const replay = () => {
+    // 既存TLを止め、初期化してから再度 effect を走らせる
+    try { tlRef.current?.kill(); } catch { /* ignore */ }
+    tlRef.current = null;
+    hasRun.current = false;
+    setShowSmoke(false);
+    setVisible(true);
+    // トークンを更新して useEffect を再実行
+    setToken((t) => t + 1);
+  };
+
+  const playImpact = () => {
+    const tl = tlRef.current as any;
+    if (!tl) return;
+    try { tl.play('impact'); } catch { /* ignore */ }
+  };
+
+  return { visible, containerRef, replay, playImpact };
 }
