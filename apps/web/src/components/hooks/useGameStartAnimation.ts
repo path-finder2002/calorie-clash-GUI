@@ -26,9 +26,14 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+    ensureGsap().then((loaded) => {
     setCanProceed(false);
     ensureGsap().then(() => {
       if (killedRef.current) return;
+      if (!loaded) {
+        skipAnimation();
+        return;
+      }
       const gsap = (window as unknown as { gsap: typeof import('gsap').gsap }).gsap;
 
       // 初期状態（アンビル: 上下からブラー付きで滑り込み）
@@ -94,6 +99,13 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         // ユーザー操作可（次へボタン表示）
         .add(() => setCanProceed(true), 'impact+=0.20')
         // 余韻（少し見せてからフェードアウト）
+        .to(
+          containerRef.current,
+          { opacity: 0, duration: 0.45, ease: 'power2.in' },
+          'impact+=0.45'
+        );
+    }).catch(() => {
+      skipAnimation();
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
     return () => {
