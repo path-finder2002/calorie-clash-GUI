@@ -21,8 +21,8 @@ export function useGameStartAnimation(
       const gsap: any = (window as any).gsap;
 
       gsap.set(containerRef.current, { opacity: 0 });
-      gsap.set(playerRef.current, { x: '-50vw' });
-      gsap.set(cpuRef.current, { x: '50vw' });
+      gsap.set(playerRef.current, { y: '-60vh', rotate: 15 });
+      gsap.set(cpuRef.current, { y: '60vh', rotate: -15 });
 
       gsap
         .timeline({
@@ -32,8 +32,24 @@ export function useGameStartAnimation(
           }
         })
         .to(containerRef.current, { opacity: 1, duration: 0.2, ease: 'power2.out' })
-        .to(playerRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
-        .to(cpuRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
+        .to(
+          playerRef.current,
+          { y: 0, rotate: 0, ease: 'bounce.out', duration: 0.9 },
+          0
+        )
+        .to(
+          cpuRef.current,
+          { y: 0, rotate: 0, ease: 'bounce.out', duration: 0.9 },
+          0
+        )
+        .to(
+          [playerRef.current, cpuRef.current],
+          { y: '+=16', scaleY: 0.9, duration: 0.1, ease: 'power1.in' }
+        )
+        .to(
+          [playerRef.current, cpuRef.current],
+          { y: '-=16', scaleY: 1, duration: 0.2, ease: 'bounce.out' }
+        )
         .add(() => setShowSmoke(true))
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4')
         .add(() => setShowSmoke(false));
