@@ -23,7 +23,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
 
       // 初期状態（アンビル: サイドからブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
-<<<<<<< HEAD
       gsap.set(playerRef.current, { x: '-55vw', filter: 'blur(16px)', opacity: 0.2, skewX: -8 });
       gsap.set(cpuRef.current, { x: '55vw', filter: 'blur(16px)', opacity: 0.2, skewX: 8 });
 
@@ -51,7 +50,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         // 余韻（少し見せてからフェードアウト）
         .to(containerRef.current, { opacity: 0, duration: 0.45, ease: 'power2.in' }, 'impact+=0.45')
         .add(() => setShowSmoke(false), 'impact+=0.35');
-=======
       gsap.set(playerRef.current, { y: '-60vh', rotate: 15 });
       gsap.set(cpuRef.current, { y: '60vh', rotate: -15 });
 
@@ -84,7 +82,6 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         .add(() => setShowSmoke(true))
         .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4')
         .add(() => setShowSmoke(false));
->>>>>>> ab3f1d577941a0050e7f6e0a6b6c69c5d4e822ab
     });
     return () => {
       killed = true;

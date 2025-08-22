@@ -6,11 +6,13 @@ import App from "@/App";
 import { AppThemeProvider } from "@/theme/colorMode";
 import 'swiper/css';
 import 'swiper/css/navigation';
+import AutoReload from "@/components/AutoReload";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ChakraProvider value={system}>
       <AppThemeProvider>
+        <AutoReload />
         <App />
       </AppThemeProvider>
     </ChakraProvider>
