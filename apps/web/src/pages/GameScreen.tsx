@@ -34,7 +34,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
   const [finished, setFinished] = useState<string | null>(null);
   const [assigned, setAssigned] = useState<Partial<Record<Hand, FoodCard>>>({});
   const [showBattle, setShowBattle] = useState(false);
-  const { showGameStart, showDraw, handleGameStartComplete, handleDrawComplete, resetSequence, triggerDraw } = useGameSequence();
+  const { showGameStart, showDraw, handleGameStartComplete, handleDrawComplete, resetSequence, triggerDraw } = useGameSequence(rule.animation);
 
   const percentMy = Math.min(100, Math.round((mySat / rule.physique) * 100));
   const percentCpu = Math.min(100, Math.round((cpuSat / rule.physique) * 100));
@@ -44,7 +44,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
     setResult({ outcome: null });
     setAssigned({});
     setShowBattle(false);
-    triggerDraw(); // 抽選アニメーション（RoundOverlay）をトリガー
+    if (rule.animation) triggerDraw(); // 抽選アニメーション（RoundOverlay）をトリガー
   }
 
   function handleSelect(hand: Hand) {
@@ -56,7 +56,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
       const done = checkFinish({ nextMy: outcome === 'win' ? myPoints + 1 : myPoints, nextCpu: outcome === 'lose' ? cpuPoints + 1 : cpuPoints, nextMySat: mySat, nextCpuSat: cpuSat });
       if (!done) {
         setResult({ outcome, myHand: hand, cpuHand: cpu });
-        setShowBattle(true);
+        if (rule.animation) setShowBattle(true);
       }
     } else {
       const myCard = assigned[hand] ?? randomCardFor(hand, rule.deck);
@@ -69,7 +69,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         const done = checkFinish({ nextMy: np, nextCpu: cpuPoints, nextMySat: mySat, nextCpuSat: nsCpu });
         if (!done) {
           setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard, deltaMyPoints: myCard.points, deltaCpuSatiety: cpuCard.satiety });
-          setShowBattle(true);
+          if (rule.animation) setShowBattle(true);
         }
       } else if (outcome === 'lose') {
         const npCpu = cpuPoints + cpuCard.points;
@@ -79,7 +79,7 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         const done = checkFinish({ nextMy: myPoints, nextCpu: npCpu, nextMySat: nsMy, nextCpuSat: cpuSat });
         if (!done) {
           setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
-          setShowBattle(true);
+          if (rule.animation) setShowBattle(true);
         }
       } else {
         if (rule.tieRule === 'satiety_plus_both') {
@@ -89,11 +89,11 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
           const done = checkFinish({ nextMy: myPoints, nextCpu: cpuPoints, nextMySat: nsMy, nextCpuSat: nsCpu });
           if (!done) {
             setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
-            setShowBattle(true);
+            if (rule.animation) setShowBattle(true);
           }
         } else {
           setResult({ outcome, myHand: hand, cpuHand: cpu, myCard, cpuCard });
-          setShowBattle(true);
+          if (rule.animation) setShowBattle(true);
         }
       }
     }
@@ -187,15 +187,15 @@ export default function GameScreen({ rule, onExit, onOptions, lang, onToggleLang
         </Box>
       )}
       </Box>
-      {showGameStart && <GameStartAnimation playerName='あなた' cpuName='CPU' onComplete={handleGameStartComplete} />}
-      {showDraw && (
+      {rule.animation && showGameStart && <GameStartAnimation playerName='あなた' cpuName='CPU' onComplete={handleGameStartComplete} />}
+      {rule.animation && showDraw && (
         <RoundOverlay
           round={round}
           onResult={handleAssign}
           onComplete={handleDrawComplete}
         />
       )}
-      {showBattle && result.myHand && result.cpuHand && (
+      {rule.animation && showBattle && result.myHand && result.cpuHand && (
         <JankenBattleAnimation player={result.myHand} cpu={result.cpuHand} onComplete={() => setShowBattle(false)} />
       )}
     </Box>
