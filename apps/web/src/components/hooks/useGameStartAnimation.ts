@@ -21,23 +21,35 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
       if (killed) return;
       const gsap: any = (window as any).gsap;
 
+      // 初期状態（アンビル: サイドからブラー付きで滑り込み）
       gsap.set(containerRef.current, { opacity: 0 });
-      gsap.set(playerRef.current, { x: '-50vw' });
-      gsap.set(cpuRef.current, { x: '50vw' });
+      gsap.set(playerRef.current, { x: '-55vw', filter: 'blur(16px)', opacity: 0.2, skewX: -8 });
+      gsap.set(cpuRef.current, { x: '55vw', filter: 'blur(16px)', opacity: 0.2, skewX: 8 });
 
-      gsap
-        .timeline({
-          onComplete: () => {
-            setVisible(false);
-            onComplete();
-          }
-        })
-        .to(containerRef.current, { opacity: 1, duration: 0.2, ease: 'power2.out' })
-        .to(playerRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
-        .to(cpuRef.current, { x: 0, duration: 0.8, ease: 'back.out(1.7)' }, 0)
-        .add(() => setShowSmoke(true))
-        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, '>+=0.4')
-        .add(() => setShowSmoke(false));
+      const tl = gsap.timeline({
+        defaults: { ease: 'expo.out' },
+        onComplete: () => {
+          setVisible(false);
+          onComplete();
+        }
+      });
+
+      tl
+        // 背景フェードイン（薄い黒幕）
+        .to(containerRef.current, { opacity: 1, duration: 0.22 }, 0)
+        // スモーク先行発生（ごく短時間で焚く）
+        .add(() => setShowSmoke(true), 0.05)
+        // 両者スライドイン（ブラー解除しながら）
+        .to(playerRef.current, { x: 0, opacity: 1, filter: 'blur(0px)', skewX: 0, duration: 0.7 }, 0.02)
+        .to(cpuRef.current, { x: 0, opacity: 1, filter: 'blur(0px)', skewX: 0, duration: 0.7 }, 0.02)
+        // 着地バウンド（スケール+シェイク）
+        .addLabel('impact', '+=0.02')
+        .to([playerRef.current, cpuRef.current], { scale: 1.06, duration: 0.09, ease: 'power2.out' }, 'impact')
+        .to([playerRef.current, cpuRef.current], { scale: 1, duration: 0.12, ease: 'back.out(4)' }, 'impact+=0.09')
+        .to(containerRef.current, { x: '+=6', yoyo: true, repeat: 3, duration: 0.05, ease: 'power1.inOut' }, 'impact')
+        // 余韻（少し見せてからフェードアウト）
+        .to(containerRef.current, { opacity: 0, duration: 0.45, ease: 'power2.in' }, 'impact+=0.45')
+        .add(() => setShowSmoke(false), 'impact+=0.35');
     });
     return () => {
       killed = true;
