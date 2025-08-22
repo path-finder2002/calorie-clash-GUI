@@ -11,11 +11,12 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
-  const tlRef = useRef<import('gsap').gsap.core.Timeline | null>(null);
+  const tlRef = useRef<any>(null);
   const killedRef = useRef(false);
+  const [canProceed, setCanProceed] = useState(false);
 
   const skipAnimation = useCallback(() => {
-    tlRef.current?.kill();
+    try { tlRef.current?.kill?.(); } catch { /* ignore */ }
     killedRef.current = true;
     setShowSmoke(false);
     setVisible(false);
@@ -26,6 +27,8 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
     if (hasRun.current) return;
     hasRun.current = true;
     ensureGsap().then((loaded) => {
+    setCanProceed(false);
+    ensureGsap().then(() => {
       if (killedRef.current) return;
       if (!loaded) {
         skipAnimation();
@@ -37,70 +40,64 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
       gsap.set(containerRef.current, { opacity: 0 });
       gsap.set(playerRef.current, {
         y: '-60vh',
-        filter: 'blur(16px)',
-        opacity: 0.2,
-        skewY: -8
+        filter: 'blur(18px)',
+        opacity: 0,
+        rotate: 6,
+        transformOrigin: '50% 50%'
       });
       gsap.set(cpuRef.current, {
         y: '60vh',
-        filter: 'blur(16px)',
-        opacity: 0.2,
-        skewY: 8
+        filter: 'blur(18px)',
+        opacity: 0,
+        rotate: -6,
+        transformOrigin: '50% 50%'
       });
+      const flashEl = (containerRef.current?.querySelector('[data-flash]') ?? null) as HTMLElement | null;
+      if (flashEl) gsap.set(flashEl, { opacity: 0 });
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
-        onComplete: skipAnimation
+        onComplete: skipAnimation,
       });
       tlRef.current = tl;
 
       tl
         // 背景フェードイン（薄い黒幕）
-        .to(containerRef.current, { opacity: 1, duration: 0.22 }, 0)
-        // 両者アンビルイン（ブラー解除しながら）
+        .to(containerRef.current, { opacity: 1, duration: 0.2 }, 0)
+        // 両者アンビルイン（ブラー解除・回転戻し）
         .to(
           playerRef.current,
-          {
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            skewY: 0,
-            duration: 1,
-            ease: 'power2.in'
-          },
-          0
+          { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+          0.02
         )
         .to(
           cpuRef.current,
-          {
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            skewY: 0,
-            duration: 1,
-            ease: 'power2.in'
-          },
-          0
+          { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+          0.02
         )
-        // 着地タイミングでスモーク
-        .add(() => setShowSmoke(true), 1)
-        // 着地バウンド（スケール+シェイク）
-        .addLabel('impact', 1)
+        // インパクト
+        .addLabel('impact', '+=0.02')
+        .add(() => setShowSmoke(true), 'impact')
+        .to(flashEl, { opacity: 0.9, duration: 0.06, ease: 'power1.out' }, 'impact')
+        .to(flashEl, { opacity: 0, duration: 0.18, ease: 'power1.in' }, 'impact+=0.06')
         .to(
           [playerRef.current, cpuRef.current],
-          { y: '+=16', scaleY: 0.9, duration: 0.09, ease: 'power2.out' },
+          { y: '+=14', scaleY: 0.88, duration: 0.09, ease: 'power3.out' },
           'impact'
         )
         .to(
           [playerRef.current, cpuRef.current],
-          { y: '-=16', scaleY: 1, duration: 0.12, ease: 'back.out(4)' },
+          { y: '-=14', scaleY: 1, duration: 0.12, ease: 'back.out(3)' },
           'impact+=0.09'
         )
         .to(
           containerRef.current,
-          { y: '+=6', yoyo: true, repeat: 3, duration: 0.05, ease: 'power1.inOut' },
+          { x: '+=10', yoyo: true, repeat: 5, duration: 0.035, ease: 'power1.inOut' },
           'impact'
         )
+        .add(() => setShowSmoke(false), 'impact+=0.35')
+        // ユーザー操作可（次へボタン表示）
+        .add(() => setCanProceed(true), 'impact+=0.20')
         // 余韻（少し見せてからフェードアウト）
         .to(
           containerRef.current,
@@ -109,12 +106,14 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
         );
     }).catch(() => {
       skipAnimation();
+        .to(containerRef.current, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 'impact+=0.48');
     });
     return () => {
       killedRef.current = true;
-      tlRef.current?.kill();
+      try { tlRef.current?.kill?.(); } catch { /* ignore */ }
+      tlRef.current = null;
     };
   }, [playerRef, cpuRef, setShowSmoke, skipAnimation]);
 
-  return { visible, containerRef, skipAnimation };
+  return { visible, containerRef, skipAnimation, canProceed };
 }

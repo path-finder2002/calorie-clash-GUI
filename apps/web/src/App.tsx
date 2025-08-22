@@ -10,7 +10,6 @@ import { defaultRule } from "@/models";
 import { loadRule, saveRule } from "@/lib";
 import { useAppTheme } from "@/theme/colorMode";
 import TopHeader from "@/ui/TopHeader";
-import RoundOverlay from "@/components/RoundOverlay";
 
 type Screen = "title" | "playerSelect" | "game" | "help" | "settings";
 
@@ -19,8 +18,6 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("title");
   const [rule, setRule] = useState<GameRule>(() => loadRule() ?? defaultRule);
   const [returnTo, setReturnTo] = useState<Exclude<Screen, "settings">>("title");
-  const [mode, setMode] = useState<'pvc'|'pvp'>('pvc');
-  const [showRound, setShowRound] = useState(false);
   type Lang = 'ja' | 'en';
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('calorieClash.lang') as Lang) || 'ja');
   useEffect(() => { try { localStorage.setItem('calorieClash.lang', lang); } catch { /* ignore */ } }, [lang]);
@@ -29,9 +26,9 @@ export default function App() {
   useEffect(() => { saveRule(rule); }, [rule]);
 
   const startGame = () => setScreen("playerSelect");
-  const confirmPlayers = (m: 'pvc'|'pvp') => {
-    setMode(m);
-    setShowRound(true);
+  const confirmPlayers = (_m: 'pvc'|'pvp') => {
+    // 初回のラウンド演出は GameScreen 側のシーケンスに任せる（VS→Round→Slot）
+    setScreen('game');
   };
   const openOptions = () => { setReturnTo(screen === "settings" ? returnTo : (screen as Exclude<Screen, "settings">)); setScreen("settings"); };
   const openHelp = () => setScreen("help");
@@ -82,15 +79,6 @@ export default function App() {
       {screen === "help" && <HelpScreen onBack={goTitle} />}
       {screen === "settings" && (
         <SettingsScreen onClose={closeSettings} rule={rule} onChangeRule={setRule} />
-      )}
-      {showRound && (
-        <RoundOverlay
-          mode={mode}
-          round={1}
-          playerName='プレイヤー'
-          cpuName='CPU'
-          onComplete={() => { setShowRound(false); setScreen('game'); }}
-        />
       )}
     </Box>
   );
