@@ -65,16 +65,16 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
           // 両者アンビルイン（ブラー解除・回転戻し）
           .to(
             playerRef.current,
-            { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+            { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 1, ease: 'expo.out' },
             0.02
           )
           .to(
             cpuRef.current,
-            { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 0.65, ease: 'expo.out' },
+            { y: 0, opacity: 1, filter: 'blur(0px)', rotate: 0, duration: 1, ease: 'expo.out' },
             0.02
           )
           // インパクト
-          .addLabel('impact', '+=0.02')
+          .addLabel('impact', 1)
           .add(() => setShowSmoke(true), 'impact')
           .to(flashEl, { opacity: 0.9, duration: 0.06, ease: 'power1.out' }, 'impact')
           .to(flashEl, { opacity: 0, duration: 0.18, ease: 'power1.in' }, 'impact+=0.06')
@@ -93,7 +93,7 @@ export function useGameStartAnimation<T extends HTMLElement, U extends HTMLEleme
             { x: '+=10', yoyo: true, repeat: 5, duration: 0.035, ease: 'power1.inOut' },
             'impact'
           )
-          .add(() => setShowSmoke(false), 'impact+=0.35')
+          .add(() => setShowSmoke(false), 'impact+=0.21')
           // ユーザー操作可（次へボタン表示）
           .add(() => setCanProceed(true), 'impact+=0.20')
           // 余韻（少し見せてからフェードアウト）
