@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
+import type { CSSProperties } from 'react';
 
 // 放射状に一瞬だけ拡散する「衝突煙」
 const puff = keyframes`
@@ -30,10 +31,10 @@ export default function ImpactSmoke() {
           bg="whiteAlpha.700"
           boxShadow="0 0 18px rgba(255,255,255,0.25)"
           style={{
-            ['--dx' as any]: `${v.dx}px`,
-            ['--dy' as any]: `${v.dy}px`,
+            '--dx': `${v.dx}px`,
+            '--dy': `${v.dy}px`,
             animation: `${puff} 0.55s ease-out 0s 1 both`,
-          }}
+          } as CSSProperties}
         />
       ))}
     </Box>

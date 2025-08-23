@@ -26,7 +26,8 @@ export default function App() {
   useEffect(() => { saveRule(rule); }, [rule]);
 
   const startGame = () => setScreen("playerSelect");
-  const confirmPlayers = (_m: 'pvc'|'pvp') => {
+  const confirmPlayers = (mode: 'pvc'|'pvp') => {
+    void mode;
     // 初回のラウンド演出は GameScreen 側のシーケンスに任せる（VS→Round→Slot）
     setScreen('game');
   };
