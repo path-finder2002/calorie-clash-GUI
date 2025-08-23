@@ -1,6 +1,11 @@
 export function ensureGsap(timeout = 3000): Promise<boolean> {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && (window as unknown as { gsap?: unknown }).gsap) {
+    if (typeof window === 'undefined') {
+      resolve(false);
+      return;
+    }
+
+    if ((window as unknown as { gsap?: unknown }).gsap) {
       resolve(true);
       return;
     }
