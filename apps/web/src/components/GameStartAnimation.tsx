@@ -15,7 +15,7 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
   const playerRef = useRef<HTMLParagraphElement>(null);
   const cpuRef = useRef<HTMLParagraphElement>(null);
   const [showSmoke, setShowSmoke] = useState(false);
-  const { visible, containerRef, skipAnimation, canProceed } = useGameStartAnimation(
+  const { visible, containerRef, skipAnimation } = useGameStartAnimation(
     onComplete,
     playerRef as unknown as RefObject<HTMLElement>,
     cpuRef as unknown as RefObject<HTMLElement>,
@@ -35,13 +35,11 @@ export default function GameStartAnimation({ onComplete, playerName = 'プレイ
         <Text ref={cpuRef} fontWeight='black' fontSize={{ base: 'clamp(24px, 7vw, 36px)', md: '40px' }}>{cpuName}</Text>
       </VStack>
       {showSmoke && <ImpactSmoke />}
-      {canProceed && (
-        <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
-          <Button bg='white' color='black' size='lg' onClick={skipAnimation} _hover={{ bg: 'gray.100' }}>
-            次へ
-          </Button>
-        </Box>
-      )}
+      <Box position='absolute' bottom={{ base: 6, md: 8 }} left='50%' transform='translateX(-50%)'>
+        <Button bg='white' color='black' size='lg' onClick={skipAnimation} _hover={{ bg: 'gray.100' }}>
+          次へ
+        </Button>
+      </Box>
     </Box>
   );
 }
