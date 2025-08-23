@@ -1,0 +1,735 @@
+├── .github
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── workflows
+    │   └── ci.yml
+├── .gitignore
+├── AGENTS.md
+├── APPLY_ANTI_REGRESSION.md
+├── LICENSE.md
+├── MERGE_CONFLICT_REPORT.md
+├── MERGE_RULES.md
+├── README.md
+├── REGRESSION_REPORT.md
+├── artifacts
+    └── repo_snapshot_latest.zip
+├── is_even.py
+├── logs
+    ├── pytest_regression_bad_merge.exit
+    └── pytest_regression_bad_merge.txt
+├── reports
+    └── SESSION_20250823_123014.md
+├── scripts
+    ├── snapshot_repo.sh
+    └── write_session_report.sh
+└── test_is_even.py
+
+
+/.github/PULL_REQUEST_TEMPLATE.md:
+--------------------------------------------------------------------------------
+ 1 | # PR テンプレート（修正を失わせないためのチェック）
+ 2 | 
+ 3 | 次を確認してから提出してください。
+ 4 | 
+ 5 | - [ ] 仕様厳守: 0 は偶数、非整数は `TypeError`（is_even の例）。
+ 6 | - [ ] テスト追加/更新済み（新規機能/修正の回帰防止）。
+ 7 | - [ ] ローカルで `pytest -q` が緑（出力の要約を下に貼付）。
+ 8 | - [ ] `main` を取り込み済み（`git fetch && git rebase origin/main` もしくは `git merge`）。
+ 9 | - [ ] コンフリクト時は「意図の統合」を実施（修正 + リファクタの両立）。
+10 | - [ ] 変更範囲は最小限（整形だけの差分は別 PR）。
+11 | 
+12 | ## 目的 / 背景
+13 | 
+14 | ## 変更内容（概要）
+15 | 
+16 | ## テスト結果（抜粋可）
+17 | ```text
+18 | # ローカル実行例
+19 | pytest -q
+20 | ```
+21 | 
+22 | ## 影響範囲 / 既知のリスク
+23 | 
+24 | ## 補足（レビュー観点・デプロイ手順など）
+25 | 
+26 | ---
+27 | 
+28 | ### AI への依頼時に使うプロンプト例（貼り付け可）
+29 | 次の制約を絶対に守って変更を提案・実装してください。
+30 | - 仕様は変更しない（例: 0 は偶数、非整数は `TypeError`）。
+31 | - 修正・最適化の両意図を統合し、片方の意図を失わない。
+32 | - 必ずテストを追加/更新し、`pytest -q` が緑であることを確認。
+33 | - コンフリクトが出たら両意図を統合して解消し、テストを再実行。
+34 | - 出力は要点を簡潔に、変更ファイルと実行コマンドを明記。
+35 | 
+
+
+--------------------------------------------------------------------------------
+/.github/workflows/ci.yml:
+--------------------------------------------------------------------------------
+ 1 | name: CI
+ 2 | 
+ 3 | on:
+ 4 |   push:
+ 5 |     branches: [ main ]
+ 6 |   pull_request:
+ 7 |     branches: [ main ]
+ 8 | 
+ 9 | jobs:
+10 |   tests:
+11 |     runs-on: ubuntu-latest
+12 |     steps:
+13 |       - name: Checkout
+14 |         uses: actions/checkout@v4
+15 | 
+16 |       - name: Set up Python
+17 |         uses: actions/setup-python@v5
+18 |         with:
+19 |           python-version: '3.11'
+20 | 
+21 |       - name: Install dependencies
+22 |         run: |
+23 |           python -m pip install -U pip setuptools wheel pytest
+24 | 
+25 |       - name: Run tests
+26 |         run: pytest -q
+27 | 
+
+
+--------------------------------------------------------------------------------
+/.gitignore:
+--------------------------------------------------------------------------------
+ 1 | # Virtual environments
+ 2 | .venv/
+ 3 | venv/
+ 4 | env/
+ 5 | ENV/
+ 6 | 
+ 7 | # Python cache and compiled files
+ 8 | __pycache__/
+ 9 | *.py[cod]
+10 | *$py.class
+11 | 
+12 | # Test and coverage
+13 | .pytest_cache/
+14 | .tox/
+15 | .nox/
+16 | .coverage*
+17 | coverage.xml
+18 | htmlcov/
+19 | junit.xml
+20 | nosetests.xml
+21 | 
+22 | # Packaging/build
+23 | build/
+24 | dist/
+25 | *.egg-info/
+26 | .eggs/
+27 | wheels/
+28 | pip-wheel-metadata/
+29 | 
+30 | # Type/lint caches
+31 | .mypy_cache/
+32 | .ruff_cache/
+33 | .pytype/
+34 | 
+35 | # Env/config
+36 | .env
+37 | .env.*
+38 | .python-version
+39 | 
+40 | # Editors/OS
+41 | .vscode/
+42 | .idea/
+43 | .DS_Store
+44 | Thumbs.db
+45 | .ipynb_checkpoints/
+46 | .history
+47 | 
+
+
+--------------------------------------------------------------------------------
+/AGENTS.md:
+--------------------------------------------------------------------------------
+ 1 | # Repository Guidelines
+ 2 | 
+ 3 | ## 言語ポリシー
+ 4 | - 本ガイド（AGENTS.md）は日本語で提供・更新します（コマンド例は英語表記で可）。
+ 5 | - コミットメッセージやプルリク説明は日本語推奨（英語も可）。
+ 6 | 
+ 7 | ## プロジェクト構成と配置
+ 8 | - 現状: ルート直下にコード（例: `is_even.py`）とテスト（例: `test_is_even.py`）。
+ 9 | - 将来拡張: パッケージ化時は `src/<package>/`、テストは `tests/` に配置。
+10 | - メタ: ルートに `README.md`, `LICENSE.md`, `AGENTS.md`, `.gitignore`, `.venv/`（未追跡）。
+11 | 
+12 | 例:
+13 | ```
+14 | src/
+15 |   mypkg/
+16 |     __init__.py
+17 |     module.py
+18 | tests/
+19 |   test_module.py
+20 | ```
+21 | 
+22 | ## ビルド・テスト・開発コマンド
+23 | - 仮想環境作成: `python3 -m venv .venv`
+24 | - 有効化: `source .venv/bin/activate`
+25 | - テスト実行: `pytest -q`（未有効化なら `.venv/bin/pytest -q`）
+26 | - 開発ツール導入: `pip install -U pytest`
+27 | 
+28 | ## コーディング規約・命名
+29 | - PEP 8 準拠、4 スペースインデント。
+30 | - 命名: 関数/変数は `snake_case`、クラスは `PascalCase`、定数は `UPPER_SNAKE_CASE`。
+31 | - 型ヒント推奨。Docstring は簡潔に（公開 API とモジュール先頭）。
+32 | - import は 標準/サードパーティ/ローカル の順で整理。
+33 | 
+34 | ## テスト指針
+35 | - フレームワーク: `pytest`。
+36 | - 命名: ファイルは `test_*.py`、テスト関数は `test_<振る舞い>()`。
+37 | - 実行例: `pytest -q`、個別: `pytest test_is_even.py::test_zero_is_even`。
+38 | - カバレッジ目標は未設定。新規機能/修正には必ずテストを追加。
+39 | 
+40 | ## コミット/PR ガイドライン
+41 | - コミット: 簡潔な命令形（例: `fix: handle zero in is_even`）。範囲指定も可（`feat(api): ...`）。
+42 | - Issue 連携: 本文に `Closes #<番号>` を記載。
+43 | - PR: 目的、変更内容、テスト結果（`pytest` 出力）を添付。CLI/UI 変更はスクリーンショット/ログを追加。
+44 | - 小さく意味のある単位で提出。フォーマットのみの変更は分離。
+45 | 
+46 | ## マージルール要約
+47 | - 仕様厳守: 0 は偶数、非整数は `TypeError`。
+48 | - コンフリクト時: 修正とリファクタの意図を統合（例: 型チェック + ビット演算）。
+49 | - マージ前: `git fetch && git rebase origin/main`（または `git merge`）→ `pytest -q` で緑化必須。
+50 | - 詳細: `MERGE_RULES.md` を参照。
+51 | 
+52 | ## 作業終了時のMD記録
+53 | - 終了時に作業概要・差分・テスト結果を Markdown で保存します。
+54 | - 推奨フロー:
+55 |   - `./scripts/snapshot_repo.sh` でスナップショットを生成（任意）。
+56 |   - `./scripts/write_session_report.sh "タイトル" "要約"` を実行。
+57 |   - 生成先: `reports/SESSION_YYYYmmdd_HHMMSS.md`。
+58 |   - 最低限の記載: 目的/変更点/テスト実行結果（抜粋）/次のTODO。
+59 | 
+60 | ## セキュリティ/設定
+61 | - 秘密情報はコミットしない。`.venv/`, キャッシュ, ビルド成果物は `.gitignore` 済み。
+62 | - 再現性が必要な場合は `requirements-dev.txt` に開発依存を固定。
+63 | 
+
+
+--------------------------------------------------------------------------------
+/APPLY_ANTI_REGRESSION.md:
+--------------------------------------------------------------------------------
+ 1 | # 修正を失わせない運用の適用レポート（文化祭の挙手に例えて）
+ 2 | 
+ 3 | ## 要旨
+ 4 | CI とプロンプト（PR テンプレ）に「修正を失わせない」仕組みを組み込み、日常開発で常時作動するようにしました。テストは is_even 仕様（0 は偶数、非整数は TypeError）を守る最小セットを軸に強化し、PR ではチェックリストで遵守を促します。
+ 5 | 
+ 6 | ## CI 組み込み
+ 7 | - `.github/workflows/ci.yml` で `pytest -q` を必須化（Push/PR）。
+ 8 | - 失敗時はマージ不可。回帰（例: 0 を偶数扱いしない）を即時検知。
+ 9 | 
+10 | ## プロンプト（PR）組み込み
+11 | - `.github/PULL_REQUEST_TEMPLATE.md` にチェックリストと AI 依頼用テンプレを追加。
+12 | - 仕様厳守・テスト緑化・意図統合・最小差分を明示。
+13 | 
+14 | ## 日常フロー（短縮版）
+15 | 1) `git fetch && git rebase origin/main` で最新化
+16 | 2) 実装 → テスト追加/更新 → `pytest -q`
+17 | 3) PR 作成時にチェックリストを全て満たす
+18 | 4) CI 緑を確認してレビューへ
+19 | 
+20 | ## 文化祭の企画「挙手」に例えると
+21 | - ルール本（消防法）= 仕様書（0 は偶数）: 破る案は採択不可。
+22 | - 司会 = CI: ルール違反の案（落ちるテスト）には「手を下げてやり直し」と指示。
+23 | - 挙手 = テスト: 参加者全員が挙手で賛成を示すまで（テスト緑）次に進まない。
+24 | - 意見の衝突 = コンフリクト: 司会が両者の良い点を統合して再提案（修正 + リファクタ）。
+25 | - 企画書テンプレ = PR テンプレ: 目的/安全/手順が埋まってない案は議題に載らない。
+26 | 
+27 | ## すぐ使えるコマンド
+28 | - ローカル検証: `pytest -q`
+29 | - PR 前更新: `git fetch && git rebase origin/main`
+30 | - セッション記録: `./scripts/write_session_report.sh "作業終了" "要約"`
+31 | 
+32 | 次の改善: 余力があればリンタ/カバレッジを CI に追加し、品質シグナルを強化します。
+33 | 
+
+
+--------------------------------------------------------------------------------
+/LICENSE.md:
+--------------------------------------------------------------------------------
+ 1 | # MIT License
+ 2 | 
+ 3 | **Copyright (c) 2025 Path-Finder-2002**
+ 4 | 
+ 5 | Permission is hereby granted, free of charge, to any person obtaining a copy
+ 6 | of this software and associated documentation files (the "Software"), to deal
+ 7 | in the Software without restriction, including without limitation the rights
+ 8 | to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ 9 | copies of the Software, and to permit persons to whom the Software is
+10 | furnished to do so, subject to the following conditions:
+11 | 
+12 | The above copyright notice and this permission notice shall be included in all
+13 | copies or substantial portions of the Software.
+14 | 
+15 | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+16 | IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+17 | FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+18 | AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+19 | LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+20 | OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+21 | SOFTWARE.
+22 | 
+
+
+--------------------------------------------------------------------------------
+/MERGE_CONFLICT_REPORT.md:
+--------------------------------------------------------------------------------
+ 1 | # is_even マージコンフリクト検証レポート
+ 2 | 
+ 3 | ## 概要
+ 4 | `is_even(n)` を 2 ブランチで異なる方針で修正し、`main` へ順にマージして意図的にコンフリクトを発生させました。本レポートは手順、差分、発生したコンフリクト、再現方法、解決の指針をまとめたものです。
+ 5 | 
+ 6 | ## 対象ファイル
+ 7 | - `is_even.py`
+ 8 | 
+ 9 | ## ブランチと変更内容
+10 | - `hotfix/is-even`（型チェック + 剰余演算での修正）
+11 |   - 目的: 非 int の入力を弾く、かつ偶数判定を `n % 2 == 0` に統一
+12 |   - 例（要点）：
+13 |     ```py
+14 |     def is_even(n: int) -> bool:
+15 |         if not isinstance(n, int):
+16 |             raise TypeError("n must be int")
+17 |         return n % 2 == 0
+18 |     ```
+19 | - `refactor/is-even`（ビット演算で簡潔化、型チェック削除）
+20 |   - 目的: 実行時コスト削減、コード簡素化
+21 |   - 例（要点）：
+22 |     ```py
+23 |     def is_even(x: int) -> bool:
+24 |         return (x & 1) == 0
+25 |     ```
+26 | 
+27 | ## 実施手順（主要コマンド）
+28 | ```bash
+29 | # ベースラインをコミット
+30 | git add -A && git commit -m "chore: baseline with is_even and tests; add AGENTS.md and .gitignore"
+31 | 
+32 | # ブランチA: hotfix を作成して修正
+33 | git checkout -b hotfix/is-even
+34 | # is_even.py を修正してコミット
+35 | git commit -am "fix(is_even): add type check and modulo logic"
+36 | 
+37 | # ブランチB: refactor を main から作成して別修正
+38 | git checkout -b refactor/is-even main
+39 | # is_even.py を修正してコミット
+40 | git commit -am "refactor(is_even): simplify to bitwise check; drop type check"
+41 | 
+42 | # マージで衝突を作る
+43 | git checkout main
+44 | git merge --no-ff hotfix/is-even
+45 | git merge --no-ff refactor/is-even   # ここでコンフリクト発生
+46 | ```
+47 | 
+48 | ## コンフリクトの証跡
+49 | `is_even.py` に以下のマーカーが出現：
+50 | ```diff
+51 | <<<<<<< HEAD
+52 |     if not isinstance(n, int):
+53 |         raise TypeError("n must be int")
+54 |     return n % 2 == 0
+55 | =======
+56 |     return (x & 1) == 0
+57 | >>>>>>> refactor/is-even
+58 | ```
+59 | - 競合点: 引数名（`n` vs `x`）、型チェックの有無、判定ロジック（剰余 vs ビット演算）。
+60 | 
+61 | ## 望ましい解決例（両意図の統合）
+62 | - 型チェックを維持しつつ、高速な判定を採用：
+63 | ```py
+64 | def is_even(n: int) -> bool:
+65 |     if not isinstance(n, int):
+66 |         raise TypeError("n must be int")
+67 |     return (n & 1) == 0
+68 | ```
+69 | 
+70 | ## 再現方法
+71 | - 本レポートの「実施手順（主要コマンド）」をローカルで順に実行。
+72 | - コンフリクト発生後、`git status` で `UU is_even.py` を確認。
+73 | - 解消後は `git add is_even.py && git commit` でマージを完了。
+74 | 
+75 | ## 補足（回帰防止）
+76 | - `pytest` の最小テスト（`test_is_even.py`）は既に存在。マージ後も必ず実行：
+77 | ```bash
+78 | pytest -q
+79 | ```
+80 | - 重要な修正（例: 型チェック）を失わないよう、CI でテスト必須化を推奨。
+81 | 
+
+
+--------------------------------------------------------------------------------
+/MERGE_RULES.md:
+--------------------------------------------------------------------------------
+ 1 | # マージルール（is_even を例にした原則）
+ 2 | 
+ 3 | ## 目的
+ 4 | - 仕様の維持（0 は偶数）。
+ 5 | - 回帰の防止（テストで守る）。
+ 6 | - 意図の統合（修正とリファクタの両立）。
+ 7 | 
+ 8 | ## マージ前の原則
+ 9 | - main を取り込む: `git fetch && git rebase origin/main`（もしくは `git merge`）。
+10 | - 全テスト緑化: ローカルで `pytest -q` を実行し、失敗ゼロであること。
+11 | - 仕様確認: 公開契約（0 は偶数、非 int は `TypeError`）を守っているか。
+12 | 
+13 | ## コンフリクト解消の指針
+14 | - テスト基準で判断: テストが意図を表現している方を優先。
+15 | - 両意図の統合:
+16 |   - 例）`is_even`: 型チェック（安全性）とビット演算（性能）を両立。
+17 |   - 悪例）どちらか一方を丸ごと採用して仕様を失う。
+18 | - 署名・引数名の整合: 引数名の変更は安易に行わない。行う場合は全呼び出しとドキュメントを更新。
+19 | - 解消後は必ず `pytest -q` を再実行。
+20 | 
+21 | ## 禁止事項
+22 | - テスト失敗状態でのマージ。
+23 | - 仕様の黙示的な変更（例: 0 を偶数と扱わない）。
+24 | - 修正と大規模リファクタの同時混在（レビューを分割）。
+25 | 
+26 | ## PR 要件
+27 | - 説明: 目的、変更点、なぜ必要か。
+28 | - 証跡: ローカルでのテスト結果（抜粋可）。
+29 | - 小さく: 1 PR = 1 目的。無関係な整形は別 PR。
+30 | 
+31 | ## CI 推奨
+32 | - ブランチ保護: テストが失敗した PR をブロック。
+33 | - 必須チェック: `pytest`、リンタ（任意）。
+34 | 
+35 | ## 参考（正解例）
+36 | ```py
+37 | # 両意図の統合: 安全（型チェック） + 性能（ビット演算）
+38 | def is_even(n: int) -> bool:
+39 |     if not isinstance(n, int):
+40 |         raise TypeError("n must be int")
+41 |     return (n & 1) == 0
+42 | ```
+43 | 
+
+
+--------------------------------------------------------------------------------
+/README.md:
+--------------------------------------------------------------------------------
+1 | # branchTest
+2 | AIコーディングでコンフリクトや先祖返りが起きる原因を解明するプロジェクト。
+3 | 
+
+
+--------------------------------------------------------------------------------
+/REGRESSION_REPORT.md:
+--------------------------------------------------------------------------------
+ 1 | # is_even 回帰の再現と記録（誤マージ）
+ 2 | 
+ 3 | ## 概要
+ 4 | `is_even(n)` のマージ解決を誤って行い、0 が偶数として扱われなくなる回帰を再現し、テスト失敗ログとして記録しました。
+ 5 | 
+ 6 | ## 回帰が起きた瞬間（誤った解決）
+ 7 | - コンフリクト解消時に、誤って次のように確定:
+ 8 |   ```py
+ 9 |   def is_even(n: int) -> bool:
+10 |       # BAD MERGE: 偶数で False、奇数で True
+11 |       return (n & 1) == 1
+12 |   ```
+13 | - 影響: `is_even(0)` が `False` となり、0 を偶数とみなす仕様が失われる。
+14 | 
+15 | ## 証跡（テスト失敗ログ）
+16 | - 実行コマンド: `.venv/bin/pytest -q`
+17 | - 保存先: `logs/pytest_regression_bad_merge.txt`
+18 | - 退出コード: `1`（`logs/pytest_regression_bad_merge.exit`）
+19 | - 主な失敗:
+20 |   - 偶数 True（2, 4, 100）失敗
+21 |   - 奇数 False（3, 7）失敗
+22 |   - 0 は True 失敗
+23 | 
+24 | ## 再現手順（抜粋）
+25 | ```bash
+26 | # コンフリクト状態から、誤った解決を適用
+27 | $ git add is_even.py
+28 | $ git commit -m "merge: resolve conflict (incorrectly) and reintroduce zero-even regression"
+29 | 
+30 | # 回帰の記録
+31 | $ mkdir -p logs
+32 | $ .venv/bin/pytest -q > logs/pytest_regression_bad_merge.txt 2>&1; echo $? > logs/pytest_regression_bad_merge.exit
+33 | ```
+34 | 
+35 | ## 正しい修正の指針（参考）
+36 | - 両意図の統合（型チェック + 高速判定）：
+37 |   ```py
+38 |   def is_even(n: int) -> bool:
+39 |       if not isinstance(n, int):
+40 |           raise TypeError("n must be int")
+41 |       return (n & 1) == 0
+42 |   ```
+43 | - マージ前/後に `pytest` を必須化し、回帰を即検知する。
+44 | 
+
+
+--------------------------------------------------------------------------------
+/artifacts/repo_snapshot_latest.zip:
+--------------------------------------------------------------------------------
+https://raw.githubusercontent.com/path-finder2002/branchTest/5b731f237c606ad7a7f9e60521fbd27783b2b466/artifacts/repo_snapshot_latest.zip
+
+
+--------------------------------------------------------------------------------
+/is_even.py:
+--------------------------------------------------------------------------------
+ 1 | """
+ 2 | 偶数判定関数 is_even(n)
+ 3 | 
+ 4 | 要求:
+ 5 | - 0 を偶数として扱う。
+ 6 | - 整数以外は TypeError を送出する。
+ 7 | """
+ 8 | 
+ 9 | from __future__ import annotations
+10 | 
+11 | 
+12 | def is_even(n: int) -> bool:
+13 |     """n が偶数なら True を返す。0 も偶数とする。"""
+14 |     if not isinstance(n, int):
+15 |         raise TypeError("n must be int")
+16 |     # 高速かつ明確: 下位ビットで偶奇を判定
+17 |     return (n & 1) == 0
+18 | 
+19 | 
+20 | __all__ = ["is_even"]
+21 | 
+
+
+--------------------------------------------------------------------------------
+/logs/pytest_regression_bad_merge.exit:
+--------------------------------------------------------------------------------
+1 | 1
+2 | 
+
+
+--------------------------------------------------------------------------------
+/logs/pytest_regression_bad_merge.txt:
+--------------------------------------------------------------------------------
+ 1 | FFFFFF                                                                   [100%]
+ 2 | =================================== FAILURES ===================================
+ 3 | __________________________ test_even_returns_true[2] ___________________________
+ 4 | 
+ 5 | n = 2
+ 6 | 
+ 7 |     @pytest.mark.parametrize("n", [2, 4, 100])
+ 8 |     def test_even_returns_true(n):
+ 9 | >       assert is_even(n) is True
+10 | E       assert False is True
+11 | E        +  where False = is_even(2)
+12 | 
+13 | test_is_even.py:8: AssertionError
+14 | __________________________ test_even_returns_true[4] ___________________________
+15 | 
+16 | n = 4
+17 | 
+18 |     @pytest.mark.parametrize("n", [2, 4, 100])
+19 |     def test_even_returns_true(n):
+20 | >       assert is_even(n) is True
+21 | E       assert False is True
+22 | E        +  where False = is_even(4)
+23 | 
+24 | test_is_even.py:8: AssertionError
+25 | _________________________ test_even_returns_true[100] __________________________
+26 | 
+27 | n = 100
+28 | 
+29 |     @pytest.mark.parametrize("n", [2, 4, 100])
+30 |     def test_even_returns_true(n):
+31 | >       assert is_even(n) is True
+32 | E       assert False is True
+33 | E        +  where False = is_even(100)
+34 | 
+35 | test_is_even.py:8: AssertionError
+36 | __________________________ test_odd_returns_false[3] ___________________________
+37 | 
+38 | n = 3
+39 | 
+40 |     @pytest.mark.parametrize("n", [3, 7])
+41 |     def test_odd_returns_false(n):
+42 | >       assert is_even(n) is False
+43 | E       assert True is False
+44 | E        +  where True = is_even(3)
+45 | 
+46 | test_is_even.py:13: AssertionError
+47 | __________________________ test_odd_returns_false[7] ___________________________
+48 | 
+49 | n = 7
+50 | 
+51 |     @pytest.mark.parametrize("n", [3, 7])
+52 |     def test_odd_returns_false(n):
+53 | >       assert is_even(n) is False
+54 | E       assert True is False
+55 | E        +  where True = is_even(7)
+56 | 
+57 | test_is_even.py:13: AssertionError
+58 | ______________________________ test_zero_is_even _______________________________
+59 | 
+60 |     def test_zero_is_even():
+61 | >       assert is_even(0) is True
+62 | E       assert False is True
+63 | E        +  where False = is_even(0)
+64 | 
+65 | test_is_even.py:17: AssertionError
+66 | =========================== short test summary info ============================
+67 | FAILED test_is_even.py::test_even_returns_true[2] - assert False is True
+68 | FAILED test_is_even.py::test_even_returns_true[4] - assert False is True
+69 | FAILED test_is_even.py::test_even_returns_true[100] - assert False is True
+70 | FAILED test_is_even.py::test_odd_returns_false[3] - assert True is False
+71 | FAILED test_is_even.py::test_odd_returns_false[7] - assert True is False
+72 | FAILED test_is_even.py::test_zero_is_even - assert False is True
+73 | 6 failed in 0.03s
+74 | 
+
+
+--------------------------------------------------------------------------------
+/reports/SESSION_20250823_123014.md:
+--------------------------------------------------------------------------------
+ 1 | # 作業終了記録: マージルールとCI整備
+ 2 | 
+ 3 | 日時: 
+ 4 | ブランチ: main
+ 5 | 最新コミット: 6862136 merge: resolve conflict (incorrectly) and reintroduce zero-even regression (asohp1hehejj@gmail.com, 2025-08-23 12:19:32 +0900)
+ 6 | 
+ 7 | ## 概要
+ 8 | AGENTS.md更新、CI追加、セッション記録スクリプト導入。テストは緑。
+ 9 | 
+10 | ## テスト結果
+11 | 退出コード: 0
+12 | 
+13 | <details>
+14 | <summary>pytest 出力</summary>
+15 | 
+16 | 
+17 | 
+18 | </details>
+19 | 
+20 | ## 次のTODO
+21 | - [ ] 追跡タスクを記入
+22 | 
+23 | 
+
+
+--------------------------------------------------------------------------------
+/scripts/snapshot_repo.sh:
+--------------------------------------------------------------------------------
+ 1 | #!/usr/bin/env bash
+ 2 | set -euo pipefail
+ 3 | out=${1:-artifacts/repo_snapshot_$(date +%Y%m%d_%H%M%S).zip}
+ 4 | # Exclude VCS and virtualenvs and build caches
+ 5 | zip -qr "$out" . \
+ 6 |   -x ".git/*" \
+ 7 |   -x ".venv/*" \
+ 8 |   -x "artifacts/*" \
+ 9 |   -x "*.pyc" \
+10 |   -x "__pycache__/*" \
+11 |   -x ".pytest_cache/*"
+12 | echo "Wrote $out"
+13 | 
+
+
+--------------------------------------------------------------------------------
+/scripts/write_session_report.sh:
+--------------------------------------------------------------------------------
+ 1 | #!/usr/bin/env bash
+ 2 | set -euo pipefail
+ 3 | 
+ 4 | title=${1:-"作業記録"}
+ 5 | summary=${2:-""}
+ 6 | ts=$(date +%Y%m%d_%H%M%S)
+ 7 | out_dir="reports"
+ 8 | out_file="$out_dir/SESSION_${ts}.md"
+ 9 | mkdir -p "$out_dir"
+10 | 
+11 | branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+12 | last_commit=$(git log -1 --pretty=format:'%h %s (%an, %ad)' --date=iso 2>/dev/null || true)
+13 | 
+14 | pytest_exit=0
+15 | pytest_out=$(mktemp)
+16 | if command -v pytest >/dev/null 2>&1; then
+17 |   set +e
+18 |   pytest -q > "$pytest_out" 2>&1
+19 |   pytest_exit=$?
+20 |   set -e
+21 | fi
+22 | 
+23 | cat > "$out_file" <<MD
+24 | # $title
+25 | 
+26 | 日時: $(date -Is)
+27 | ブランチ: $branch
+28 | 最新コミット: $last_commit
+29 | 
+30 | ## 概要
+31 | $summary
+32 | 
+33 | ## テスト結果
+34 | 退出コード: $pytest_exit
+35 | 
+36 | <details>
+37 | <summary>pytest 出力</summary>
+38 | 
+39 | ```
+40 | $(sed -n '1,400p' "$pytest_out")
+41 | ```
+42 | 
+43 | </details>
+44 | 
+45 | ## 次のTODO
+46 | - [ ] 追跡タスクを記入
+47 | 
+48 | MD
+49 | 
+50 | rm -f "$pytest_out"
+51 | echo "Wrote $out_file"
+52 | 
+53 | 
+
+
+--------------------------------------------------------------------------------
+/test_is_even.py:
+--------------------------------------------------------------------------------
+ 1 | import pytest
+ 2 | 
+ 3 | from is_even import is_even
+ 4 | 
+ 5 | 
+ 6 | @pytest.mark.parametrize("n", [2, 4, 100])
+ 7 | def test_even_returns_true(n):
+ 8 |     assert is_even(n) is True
+ 9 | 
+10 | 
+11 | @pytest.mark.parametrize("n", [3, 7])
+12 | def test_odd_returns_false(n):
+13 |     assert is_even(n) is False
+14 | 
+15 | 
+16 | def test_zero_is_even():
+17 |     assert is_even(0) is True
+18 | 
+19 | 
+20 | @pytest.mark.parametrize("n", [-2, -4])
+21 | def test_negative_evens_are_true(n):
+22 |     assert is_even(n) is True
+23 | 
+24 | 
+25 | @pytest.mark.parametrize("n", [-1, -3])
+26 | def test_negative_odds_are_false(n):
+27 |     assert is_even(n) is False
+28 | 
+29 | 
+30 | def test_non_int_raises_type_error():
+31 |     import pytest as _pytest
+32 |     with _pytest.raises(TypeError):
+33 |         is_even("2")
+34 | 
+
+
+--------------------------------------------------------------------------------
