@@ -5,7 +5,6 @@
 - `要件定義.md`: 要件定義（MVP）と画面/機能要件まとめ
 - `common_functions.md`: よく使う関数・パターン集（TS/JS）
 - `canvas_チートシート（ts）.md`: Canvas API チートシート（TypeScript）
-- `html/`: 参考HTMLやスニペット
 
 プロジェクト全体の概要や開発手順はリポジトリ直下の `README.md` を参照してください。
 
